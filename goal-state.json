@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.1.1",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-27",
-  "status": "wave2c_3_operational_application_graph",
+  "status": "v0_2_merged_operational_application_graph",
   "north_star": {
     "name": "accepted_high_value_opportunities_per_human_application_hour",
     "target_direction": "maximize"
@@ -52,10 +52,23 @@
     "private_evidence_items_seeded": 7,
     "active_priority_dossiers": 4,
     "eligibility_dossiers": 2,
+    "application_nodes": 7,
+    "organisation_nodes": 9,
     "organiser_email_drafts": 3,
     "git_local": "/git.local/UE-Xchanges-OS",
-    "merged_pull_request": 1,
-    "current_feature_branch": "feat/ue-mobility-os-foundation"
+    "merged_pull_requests": [1, 3],
+    "closed_unmerged_pull_requests": [2],
+    "main_release_commit": "ccbbf3c438f1e5d4ee60eeb97e20757154a3509f"
+  },
+  "release": {
+    "version": "v0.2",
+    "pull_request": 3,
+    "head_sha": "b6461881ea5b0c05f7e0ee46c898aca0aee04cf9",
+    "merge_sha": "ccbbf3c438f1e5d4ee60eeb97e20757154a3509f",
+    "remote_ci": "success",
+    "workflow_run": 33094113597,
+    "noisy_superseded_pr": 2,
+    "noisy_pr_reason": "pre-merge branch reuse produced an old merge-base; closed without merge"
   },
   "high_priority_nodes": [
     {
@@ -127,9 +140,9 @@
     "do_not_archive_unrelated_projects_without_user_instruction": true
   },
   "quality": {
-    "merged_pr1_full_suite": {"tests_passed": 27, "tests_failed": 0, "remote_ci": "success", "workflow_run": 33091677275},
-    "post_pr1_changes": {"focused_checks_passed": 14, "focused_checks_failed": 0, "full_remote_ci": "pending_new_pr"},
-    "rule": "Never represent the baseline CI result as validation of commits added after PR1 merge."
+    "baseline_pr1": {"tests_passed": 27, "tests_failed": 0, "remote_ci": "success", "workflow_run": 33091677275},
+    "v0_2": {"focused_checks_passed": 14, "focused_checks_failed": 0, "remote_ci": "success", "workflow_run": 33094113597, "merged": true},
+    "rule": "Only claim CI against the exact release head/PR that produced it."
   },
-  "next_checkpoint": "Open PR2 for graph protocol/scoring/workflow/credential changes; observe CI; resolve organiser eligibility queries and private hard-gate debt for P0 calls; parse live application forms when accessible; promote only PASS nodes to final-answer drafting/human review."
+  "next_checkpoint": "Resolve organiser eligibility/current-call queries and private hard-gate debt for P0 calls; parse live application forms only for viable nodes; promote only PASS + policy-resolved nodes to final-answer drafting/human review; record submission receipts and outcomes."
 }
