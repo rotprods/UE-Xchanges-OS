@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-27",
-  "status": "wave2_discovery_core_in_progress",
+  "status": "wave2_live_seed_complete_collectors_next",
   "north_star": {"name": "accepted_high_value_opportunities_per_human_application_hour", "target_direction": "maximize"},
   "slos": {"eligibility_false_pass_known_rules": 0, "duplicate_submissions": 0, "fabricated_external_claims": 0, "known_ai_policy_violations": 0, "missed_verified_priority_deadlines": 0},
   "dimensions": {
@@ -15,21 +15,30 @@
     "infopack_extraction": {"current": 5, "target": 9},
     "application_personalisation": {"current": 5, "target": 9},
     "ai_policy_safety": {"current": 9, "target": 10},
-    "organisation_intelligence": {"current": 3, "target": 9},
+    "organisation_intelligence": {"current": 4, "target": 9},
     "trainer_progression": {"current": 8, "target": 9},
     "outcome_analytics": {"current": 2, "target": 9},
-    "drive_handoff": {"current": 8, "target": 10},
-    "git_local_handoff": {"current": 7, "target": 10}
+    "drive_handoff": {"current": 9, "target": 10},
+    "git_local_handoff": {"current": 9, "target": 10}
   },
   "waves": [
     {"id": 0, "name": "definition_architecture", "status": "complete"},
     {"id": 1, "name": "deterministic_core", "status": "complete"},
     {"id": 2, "name": "discovery_connectors", "status": "in_progress"},
-    {"id": 3, "name": "persistence_drive_sync", "status": "planned"},
+    {"id": 3, "name": "persistence_drive_sync", "status": "partial_live_crm"},
     {"id": 4, "name": "application_intelligence", "status": "planned"},
-    {"id": 5, "name": "trainer_compounding", "status": "planned"},
+    {"id": 5, "name": "trainer_compounding", "status": "partial_ledger_and_watch"},
     {"id": 6, "name": "analytics_automation", "status": "planned"}
   ],
-  "next_checkpoint": "Implement source-specific paginated collectors for EYP/SALTO/Eurodesk, persist fetch/hash state, then ingest first real opportunity batch.",
-  "quality": {"tests_passed": 19, "tests_failed": 0, "test_command": "PYTHONPATH=src python -m unittest discover -s tests -v"}
+  "runtime": {
+    "drive_workspace": "07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS",
+    "crm": "UE-Xchanges-OS — Opportunity & Application CRM",
+    "crm_timezone": "Europe/Madrid",
+    "live_opportunities_seeded": 7,
+    "live_seed_date": "2026-08-27",
+    "git_local": "/git.local/UE-Xchanges-OS",
+    "pull_request": 1
+  },
+  "next_checkpoint": "Implement source-specific paginated collectors for EYP/SALTO/Eurodesk with persistent fetch/hash state, then replace manual live seed with repeatable ingestion and verify private applicant hard gates for top-ranked calls.",
+  "quality": {"tests_passed": 19, "tests_failed": 0, "test_command": "PYTHONPATH=src python -m unittest discover -s tests -v", "remote_ci": "configured_not_yet_observed"}
 }
