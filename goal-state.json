@@ -1,51 +1,108 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-27",
-  "status": "wave2b_incremental_discovery_core_complete",
-  "north_star": {"name": "accepted_high_value_opportunities_per_human_application_hour", "target_direction": "maximize"},
-  "slos": {"eligibility_false_pass_known_rules": 0, "duplicate_submissions": 0, "fabricated_external_claims": 0, "known_ai_policy_violations": 0, "missed_verified_priority_deadlines": 0},
+  "status": "wave2c_3_operational_application_graph",
+  "north_star": {
+    "name": "accepted_high_value_opportunities_per_human_application_hour",
+    "target_direction": "maximize"
+  },
+  "slos": {
+    "eligibility_false_pass_known_rules": 0,
+    "duplicate_submissions": 0,
+    "fabricated_external_claims": 0,
+    "known_ai_policy_violations": 0,
+    "missed_verified_priority_deadlines": 0
+  },
   "dimensions": {
     "goal_definition": {"current": 10, "target": 10},
     "truth_provenance": {"current": 9, "target": 10},
-    "graph_model": {"current": 8, "target": 9},
-    "discovery_coverage": {"current": 6, "target": 9},
-    "deduplication": {"current": 8, "target": 10},
-    "eligibility_precision": {"current": 8, "target": 10},
-    "infopack_extraction": {"current": 5, "target": 9},
-    "application_personalisation": {"current": 7, "target": 9},
+    "graph_model": {"current": 9, "target": 9},
+    "discovery_coverage": {"current": 7, "target": 9},
+    "deduplication": {"current": 9, "target": 10},
+    "eligibility_precision": {"current": 9, "target": 10},
+    "infopack_extraction": {"current": 7, "target": 9},
+    "application_personalisation": {"current": 8, "target": 9},
     "ai_policy_safety": {"current": 9, "target": 10},
-    "organisation_intelligence": {"current": 4, "target": 9},
-    "trainer_progression": {"current": 8, "target": 9},
+    "organisation_intelligence": {"current": 6, "target": 9},
+    "trainer_progression": {"current": 9, "target": 9},
     "outcome_analytics": {"current": 2, "target": 9},
-    "drive_handoff": {"current": 9, "target": 10},
-    "git_local_handoff": {"current": 9, "target": 10}
+    "drive_handoff": {"current": 10, "target": 10},
+    "git_local_handoff": {"current": 9, "target": 10},
+    "todoist_execution_projection": {"current": 8, "target": 10}
   },
   "waves": [
     {"id": 0, "name": "definition_architecture", "status": "complete"},
     {"id": 1, "name": "deterministic_core", "status": "complete"},
-    {"id": 2, "name": "discovery_connectors", "status": "partial_complete_wave2b"},
-    {"id": 3, "name": "persistence_drive_sync", "status": "partial_live_crm_and_sqlite_source_state"},
-    {"id": 4, "name": "application_intelligence", "status": "partial_private_evidence_and_first_dossier"},
-    {"id": 5, "name": "trainer_compounding", "status": "partial_ledger_toy_gates_and_watch"},
+    {"id": 2, "name": "discovery_connectors", "status": "operational_partial"},
+    {"id": 3, "name": "persistence_drive_sync", "status": "operational_partial"},
+    {"id": 4, "name": "application_intelligence", "status": "operational_gated_dossiers"},
+    {"id": 5, "name": "trainer_compounding", "status": "credential_graph_live"},
     {"id": 6, "name": "analytics_automation", "status": "planned"}
   ],
   "runtime": {
     "drive_workspace": "07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS",
     "crm": "UE-Xchanges-OS — Opportunity & Application CRM",
     "crm_timezone": "Europe/Madrid",
-    "live_opportunities_seeded": 7,
+    "canonical_opportunity_rows": 23,
+    "provided_doc1_opportunities": 21,
+    "telegram_raw_refs": 61,
+    "telegram_unique_provider_keys": 60,
+    "telegram_exact_duplicates_detected": 1,
     "private_evidence_items_seeded": 7,
-    "personalised_application_dossiers": 1,
-    "live_seed_date": "2026-08-27",
+    "active_priority_dossiers": 4,
+    "eligibility_dossiers": 2,
+    "organiser_email_drafts": 3,
     "git_local": "/git.local/UE-Xchanges-OS",
-    "pull_request": 1
+    "merged_pull_request": 1,
+    "current_feature_branch": "feat/ue-mobility-os-foundation"
   },
-  "provider_access": {
-    "salto_calendar": "static_paginated_html",
-    "salto_trainers": "auth_index_public_details",
-    "eyp_esc": "dynamic_index",
-    "eurodesk": "dynamic_index"
+  "high_priority_nodes": [
+    {
+      "id": "salto-15226",
+      "title": "Unleashing Creativity: From Lens to Life",
+      "fit_score": 100,
+      "media_value": 100,
+      "trainer_leverage": 98,
+      "state": "NEEDS_EVIDENCE",
+      "deadline": "2026-09-02",
+      "next_action": "ORGANISER_ELIGIBILITY_QUERY"
+    },
+    {
+      "id": "salto-ctrl-real",
+      "title": "CTRL+REAL — Manipulated Realities DECODED",
+      "fit_score": 100,
+      "media_value": 94,
+      "trainer_leverage": 100,
+      "state": "NEEDS_EVIDENCE",
+      "deadline": "2026-09-05",
+      "next_action": "ORGANISER_ELIGIBILITY_QUERY"
+    },
+    {
+      "id": "doc1-yupi-building",
+      "title": "Building With Our Hands",
+      "fit_score": 82,
+      "media_value": 95,
+      "state": "NEEDS_VERIFICATION",
+      "deadline": "2026-08-31",
+      "next_action": "ORGANISER_CALL_VERIFICATION"
+    },
+    {
+      "id": "2026-1-BG01-KA152-YOU-000396917",
+      "title": "Game of Nature",
+      "fit_score": 88,
+      "media_value": 96,
+      "state": "NEEDS_EVIDENCE",
+      "deadline": "2026-09-15",
+      "next_action": "ORGANISER_ELIGIBILITY_QUERY"
+    }
+  ],
+  "blocked_or_archived_examples": {
+    "on_air": "BLOCK_COUNTRY",
+    "move_to_improve": "BLOCK_COUNTRY",
+    "pancha_tantra": "BLOCK_COUNTRY",
+    "storytelling_advocacy_peace": "BLOCK_DEADLINE",
+    "rise": "ARCHIVE_CLOSED_AND_AI_FINAL_TEXT_PROHIBITED"
   },
   "private_profile_debt": [
     "verify_current_legal_residence",
@@ -53,9 +110,26 @@
     "add_availability_calendar",
     "map_completed_youth_work_volunteering_nfe_history",
     "map_actually_delivered_training_and_references",
-    "map_stronger_portfolio_repo_case_study_proof"
+    "map_degree_if_blue_book_is_pursued",
+    "map_formal_language_evidence_where_calls_require_cefr"
   ],
-  "trainer_state": {"verified_toy_qualifying_references": 0, "strategy": "build_not_claim"},
-  "next_checkpoint": "Implement SALTO detail-to-canonical normalizer and automatic CRM upsert; add supported browser/search-backed candidate adapters for dynamic EYP/Eurodesk sources; resolve private applicant hard-gate debt for top-ranked calls.",
-  "quality": {"tests_passed": 27, "tests_failed": 0, "test_command": "PYTHONPATH=src python -m unittest discover -s tests -v", "remote_ci": "success", "remote_ci_run": 33091516989}
+  "trainer_state": {
+    "verified_toy_qualifying_references": 0,
+    "strategy": "build_not_claim",
+    "credential_levels": ["L0_SELF_DESCRIPTION", "L1_ARTIFACT", "L2_DELIVERY_PROOF", "L3_OUTCOME_REFERENCE", "L4_TOY_QUALIFYING_REFERENCE"]
+  },
+  "todoist": {
+    "requested_project_creation": "blocked_by_account_project_limit",
+    "workspace_fallback_available": false,
+    "fallback_projection": "Inbox master graph + labels + wave subtasks",
+    "filter_creation": "blocked_by_account_filter_limit",
+    "daily_discovery_task": "created_recurring",
+    "do_not_archive_unrelated_projects_without_user_instruction": true
+  },
+  "quality": {
+    "merged_pr1_full_suite": {"tests_passed": 27, "tests_failed": 0, "remote_ci": "success", "workflow_run": 33091677275},
+    "post_pr1_changes": {"focused_checks_passed": 14, "focused_checks_failed": 0, "full_remote_ci": "pending_new_pr"},
+    "rule": "Never represent the baseline CI result as validation of commits added after PR1 merge."
+  },
+  "next_checkpoint": "Open PR2 for graph protocol/scoring/workflow/credential changes; observe CI; resolve organiser eligibility queries and private hard-gate debt for P0 calls; parse live application forms when accessible; promote only PASS nodes to final-answer drafting/human review."
 }
