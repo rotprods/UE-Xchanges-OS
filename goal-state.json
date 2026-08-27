@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0.0",
+  "project": "UE-Xchanges-OS",
+  "updated_at": "2026-08-27",
+  "status": "foundation_implemented",
+  "north_star": {"name": "accepted_high_value_opportunities_per_human_application_hour", "target_direction": "maximize"},
+  "slos": {"eligibility_false_pass_known_rules": 0, "duplicate_submissions": 0, "fabricated_external_claims": 0, "known_ai_policy_violations": 0, "missed_verified_priority_deadlines": 0},
+  "dimensions": {
+    "goal_definition": {"current": 10, "target": 10},
+    "truth_provenance": {"current": 8, "target": 10},
+    "graph_model": {"current": 8, "target": 9},
+    "discovery_coverage": {"current": 1, "target": 9},
+    "deduplication": {"current": 2, "target": 10},
+    "eligibility_precision": {"current": 7, "target": 10},
+    "infopack_extraction": {"current": 5, "target": 9},
+    "application_personalisation": {"current": 3, "target": 9},
+    "ai_policy_safety": {"current": 8, "target": 10},
+    "organisation_intelligence": {"current": 3, "target": 9},
+    "trainer_progression": {"current": 6, "target": 9},
+    "outcome_analytics": {"current": 2, "target": 9},
+    "drive_handoff": {"current": 8, "target": 10},
+    "git_local_handoff": {"current": 7, "target": 10}
+  },
+  "waves": [
+    {"id": 0, "name": "definition_architecture", "status": "complete"},
+    {"id": 1, "name": "deterministic_core", "status": "complete"},
+    {"id": 2, "name": "discovery_connectors", "status": "next"},
+    {"id": 3, "name": "persistence_drive_sync", "status": "planned"},
+    {"id": 4, "name": "application_intelligence", "status": "planned"},
+    {"id": 5, "name": "trainer_compounding", "status": "planned"},
+    {"id": 6, "name": "analytics_automation", "status": "planned"}
+  ],
+  "next_checkpoint": "Implement and verify official-source collectors plus canonical deduplication."
+}
