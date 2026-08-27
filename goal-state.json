@@ -57,5 +57,5 @@
   ],
   "trainer_state": {"verified_toy_qualifying_references": 0, "strategy": "build_not_claim"},
   "next_checkpoint": "Implement SALTO detail-to-canonical normalizer and automatic CRM upsert; add supported browser/search-backed candidate adapters for dynamic EYP/Eurodesk sources; resolve private applicant hard-gate debt for top-ranked calls.",
-  "quality": {"tests_passed": 27, "tests_failed": 0, "test_command": "PYTHONPATH=src python -m unittest discover -s tests -v", "remote_ci": "configured_not_yet_observed"}
+  "quality": {"tests_passed": 27, "tests_failed": 0, "test_command": "PYTHONPATH=src python -m unittest discover -s tests -v", "remote_ci": "success", "remote_ci_run": 33091516989}
 }
