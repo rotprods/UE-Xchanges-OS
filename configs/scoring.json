@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.1",
+  "fit_score": {
+    "thematic_interest": 25,
+    "contribution_fit": 20,
+    "learning_value": 15,
+    "career_leverage": 15,
+    "funding_value": 10,
+    "organisation_quality": 10,
+    "calendar_fit": 5
+  },
+  "media_value": {
+    "dissemination_need": 25,
+    "visual_storytelling_richness": 20,
+    "organiser_reuse_value": 20,
+    "portfolio_relevance": 15,
+    "permission_safeguarding_feasibility": 10,
+    "participation_feasibility": 10
+  },
+  "trainer_leverage": {
+    "trainer_role_match": 30,
+    "qualifying_reference_potential": 25,
+    "nfe_skill_development": 15,
+    "organiser_network_value": 15,
+    "paid_call_proximity": 15
+  },
+  "execution_priority": {
+    "fit_score": 45,
+    "media_value": 20,
+    "trainer_leverage": 20,
+    "deadline_urgency": 15
+  },
+  "application_competitiveness": {
+    "criterion_coverage": 20,
+    "evidence_specificity": 20,
+    "project_relevance": 20,
+    "credible_contribution": 15,
+    "learning_goals": 10,
+    "multiplier_plan": 10,
+    "reliability_completeness": 5
+  },
+  "bands": {"A_PLUS": 90, "A": 80, "B": 70, "C": 55},
+  "routing": {
+    "eligibility_fail": "BLOCK",
+    "eligibility_unknown": "VERIFY",
+    "ai_policy_unknown": "VERIFY_POLICY",
+    "ai_final_text_prohibited": "HUMAN_WRITE",
+    "ready_priority_gte_80": "APPLY_NOW",
+    "ready_priority_gte_60": "QUEUE",
+    "ready_priority_lt_60": "TRACK"
+  },
+  "note": "Fit, media value, trainer leverage and urgency are separate dimensions. Execution priority chooses the next operation; it never overrides a hard gate. Private interest/evidence ratings belong in Drive, not this public repository."
+}

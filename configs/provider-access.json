@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "verified_at": "2026-08-27",
+  "providers": {
+    "salto_calendar": {"access_mode": "static_paginated_html", "page_size": 10, "max_pages": 20, "notes": "Public HTML browse index exposes detail links and offset pagination."},
+    "salto_trainers": {"access_mode": "auth_index_public_details", "notes": "Index redirects to MySALTO login; public detail pages can be ingested when legitimately discovered. Never bypass login."},
+    "eyp_esc": {"access_mode": "dynamic_index", "notes": "Public index shell does not expose opportunity links server-side; use supported browser/API/search discovery and ingest public detail URLs."},
+    "eurodesk": {"access_mode": "dynamic_index", "notes": "Finder results are dynamic/query-dependent; use supported browser/query/search discovery and ingest public detail URLs."}
+  }
+}
