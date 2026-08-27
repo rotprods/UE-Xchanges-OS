@@ -1,62 +1,73 @@
 # UE-Xchanges-OS — AGENTS.md
 
-> Canonical cross-session operating contract. Read `goal.md`, `goal-state.json`, this file, then `ARCHITECTURE.md` before modifying the system.
+> Canonical cross-session operating contract. Read in this order: `goal.md` → `goal-state.json` → this file → `ARCHITECTURE.md` → relevant source/knowledge docs.
 
 ## 0. Mission lock
 
-Build an evidence-first system that finds legitimate EU youth mobility and trainer opportunities, verifies eligibility, reads infopacks, ranks expected value, prepares truthful personalised dossiers, and compounds acceptance/trainer outcomes over time.
+Build an evidence-first operating system that finds legitimate EU youth-mobility and trainer opportunities, verifies eligibility, reads infopacks, ranks expected value, prepares truthful personalised dossiers, and compounds acceptance/trainer outcomes over time.
 
-Do not optimize raw application volume. Optimize **accepted high-value opportunities per human hour**.
+**Do not optimize raw application volume. Optimize accepted high-value opportunities per human application hour.**
 
 ## 1. Truth hierarchy
 
 1. Original official page / original infopack / application form.
 2. Provider metadata and timestamps.
 3. Normalised canonical record.
-4. Deterministic rules and calculations.
+4. Deterministic rules/calculations.
 5. LLM extraction/classification with explicit provenance.
 6. Heuristic ranking.
 
-Lower layers may never overwrite contradictory higher-layer facts without recording a new evidence event.
+Lower layers may not overwrite contradictory higher-layer facts without a new evidence event. `UNKNOWN` is a first-class state; never silently coerce it to `PASS`.
 
 ## 2. Public/private boundary
 
 ### GitHub may contain
 - code, tests, schemas, scoring logic;
-- public programme facts and source URLs;
+- public programme facts/source URLs;
 - anonymised fixtures;
-- aggregate metrics without personal application text.
+- aggregate metrics without private application text.
 
-### GitHub must NOT contain
+### GitHub must not contain
 - passport/ID/contact details;
-- private applicant narrative or medical/accessibility information;
-- application answers, private emails, unpublished infopacks under access restrictions;
+- private applicant narrative or accessibility/medical data;
+- final application answers/private emails;
+- restricted/unpublished infopacks;
 - OAuth/API secrets.
 
-Private operational data belongs in Drive paths documented in `docs/DRIVE_MAP.md`.
+Private operational data belongs in Google Drive under `07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS/`.
 
-## 3. Opportunity lifecycle
+## 3. Source-of-truth topology
 
-`DISCOVERED -> FETCHED -> VERIFIED -> NORMALISED -> DEDUPED -> ELIGIBILITY_CHECKED -> SCORED -> DOSSIER_READY -> HUMAN_REVIEW -> SUBMITTED -> FOLLOW_UP -> ACCEPTED|REJECTED|WITHDRAWN|EXPIRED`
+- **Official source / original infopack** = authority for opportunity facts.
+- **GitHub** = executable/versioned truth for schemas, rules, source adapters and public knowledge.
+- **Google Drive** = private profile/evidence, infopacks, dossiers, CRM and trainer references.
+- **Library `/git.local/UE-Xchanges-OS`** = portable cold-start snapshot/handoff.
+- **Derived graph projections** = disposable/rebuildable from evidence + events.
 
-No transition may skip `VERIFIED` or `ELIGIBILITY_CHECKED`.
+## 4. Opportunity lifecycle
 
-## 4. Hard gates
+`DISCOVERED → FETCHED → VERIFIED → NORMALISED → DEDUPED → ELIGIBILITY_CHECKED → SCORED → DOSSIER_READY → HUMAN_REVIEW → SUBMITTED → FOLLOW_UP → ACCEPTED|REJECTED|WAITLISTED|WITHDRAWN|EXPIRED`
 
-An opportunity is blocked if any confirmed hard requirement fails:
+No application may skip `VERIFIED` or `ELIGIBILITY_CHECKED`.
+
+## 5. Hard gates
+
+Block an opportunity when a confirmed mandatory rule fails:
 - deadline elapsed;
-- residence/nationality condition fails;
-- age condition fails;
-- dates are impossible;
-- role/profile requirement is objectively unmet;
-- previous-participation rule fails;
-- required sending/support organisation cannot be satisfied;
-- applicant refuses mandatory conditions;
-- application policy blocks the proposed automation mode.
+- residence/nationality;
+- age;
+- dates/availability;
+- mandatory role/profile;
+- previous-participation rule;
+- required sending/support organisation;
+- mandatory language/conditions;
+- application policy / duplicate submission.
 
-Hard-gate output is explainable: `PASS`, `FAIL`, or `UNKNOWN`. `UNKNOWN` requires human/source verification; it is never silently treated as `PASS`.
+Gate output: `PASS`, `FAIL`, `UNKNOWN`.
 
-## 5. AI policy gate
+If any confirmed hard gate = `FAIL`, opportunity desirability score is forced to `0` / `BLOCKED`.
+
+## 6. AI-policy gate
 
 Classify every call:
 - `AI_ALLOWED`
@@ -64,196 +75,204 @@ Classify every call:
 - `AI_FINAL_TEXT_PROHIBITED`
 - `AI_UNKNOWN`
 
-When final AI text is prohibited, agents may organise facts and show source evidence but must not draft/rewrite final applicant answers.
+When final AI text is prohibited, agents may research, organise requirements and surface evidence, but must not generate/rewrite the applicant's final answers. `AI_UNKNOWN` blocks final-text automation until verified.
 
-## 6. Personalisation contract
+## 7. Personalisation contract
 
-Application proposals must be built from verified evidence objects, not persona improvisation. Every evidence item should include:
+Proposals are assembled from verified evidence objects, not persona improvisation. Evidence should carry:
 - `evidence_id`
-- claim/fact
+- fact/claim
 - source/location
 - date/recency
-- relevant competencies/topics
+- competencies/topics
 - confidence
-- externally usable? yes/no
+- `externally_usable`
 
-Use specificity over adjectives. Prefer a concrete example + result + relevance over generic motivation language.
+**No adjective without proof.** Prefer concrete evidence + result + project relevance over generic motivation language. Missing proof remains an explicit gap.
 
-## 7. Acceptance-advantage policy
+## 8. Legitimate acceptance advantage
 
-Legitimate competitiveness comes from better fit and lower organiser risk, never deception. Prioritise:
+Selection advantage is created by lowering organiser uncertainty and increasing project-specific value:
+
+`selection criterion → verified proof → concrete contribution → credible learning goal → multiplier/dissemination outcome`
+
+Prioritise:
 - exact thematic relevance;
-- proof of contribution;
-- credible learning goals;
-- reliability and full-date availability;
+- contribution assets useful to the activity;
+- reliability/full-date availability;
 - language fit;
-- useful dissemination/content skills;
-- non-formal education/facilitation evidence;
-- prior collaboration/references;
-- prompt, complete application;
-- a concrete post-project multiplier plan.
+- dissemination/documentation capability;
+- NFE/facilitation evidence;
+- organisation relationships/references;
+- concrete post-project transfer;
+- complete, prompt application.
 
-Penalise generic claims, copied templates, contradictions and unsupported self-promotion.
+Never fabricate credentials, youth-work history, fewer-opportunities status, language levels or circumstances.
 
-## 8. Trainer progression graph
+## 9. Role lanes
+
+`PARTICIPANT` · `YOUTH_WORKER` · `FACILITATOR` · `TRAINER` · `EXPERT`
+
+Role-aware positioning matters. A participant application must not read as an attempt to hijack the project as trainer; trainer calls require methods, educational responsibility, outcomes and references.
+
+## 10. Trainer progression graph
 
 Target path:
 
-`Participant/Youth Worker -> Contributing Participant -> Workshop/Session Contributor -> Assistant Facilitator -> Full-time International Trainer Reference #1 -> #2 -> #3 -> TOY Eligible -> TOY Active -> Paid Trainer Calls -> Repeat Organiser Network`
+`Participant/Youth Worker → Contributing Participant → Session Contributor → Assistant Facilitator → Qualifying Full-time International Trainer Ref #1 → #2 → #3 → TOY-ready → TOY-active → Paid Trainer Calls → Repeat Organiser Network`
 
-Important: TOY references must satisfy SALTO criteria. Youth-exchange group leadership, being a participant, or isolated sessions do not automatically count as full-time trainer references.
+A potential TOY reference must be independently checked for:
+- international/intercultural activity;
+- youth-work field;
+- >= 3 training days;
+- non-formal learning;
+- full-time trainer role;
+- responsibility for overall educational goals;
+- validatable reference.
 
-## 9. Graph contract
+Participant/group-leader status or a short isolated workshop does not automatically qualify.
 
-Use append-only events as history. Graph projections are disposable/rebuildable.
+## 11. Graph contract
 
-Core node types:
-- `Person`
-- `Opportunity`
-- `Programme`
-- `Organisation`
-- `Call`
-- `Infopack`
-- `Application`
-- `Evidence`
-- `Requirement`
-- `Competency`
-- `Topic`
-- `Country`
-- `Activity`
-- `TrainerReference`
-- `Outcome`
-- `Source`
+History is append-only. Projections are rebuildable.
 
-Core edges:
-- `PUBLISHED_BY`
-- `HOSTED_BY`
-- `SUPPORTED_BY`
-- `ELIGIBLE_FOR`
-- `REQUIRES`
-- `MATCHES`
-- `SUPPORTED_BY_EVIDENCE`
-- `APPLIED_TO`
-- `RESULTED_IN`
-- `PARTNERED_WITH`
-- `TRAINED_AT`
-- `FACILITATED`
-- `VALIDATED_BY`
-- `DERIVED_FROM`
+### Core nodes
+`Person`, `Opportunity`, `Programme`, `Organisation`, `Call`, `Infopack`, `Application`, `Evidence`, `Requirement`, `Competency`, `Topic`, `Country`, `Activity`, `TrainerReference`, `Outcome`, `Source`.
 
-Every edge that encodes a factual relationship should carry provenance where possible.
+### Core edges
+`PUBLISHED_BY`, `HOSTED_BY`, `SUPPORTED_BY`, `ELIGIBLE_FOR`, `REQUIRES`, `MATCHES`, `SUPPORTED_BY_EVIDENCE`, `APPLIED_TO`, `RESULTED_IN`, `PARTNERED_WITH`, `TRAINED_AT`, `FACILITATED`, `VALIDATED_BY`, `DERIVED_FROM`.
 
-## 10. Scoring policy
+Factual edges should carry provenance. Do not introduce a specialised graph database until real query/scale evidence requires it; Postgres/Supabase projections are the v1 target.
+
+## 12. Scoring contract
 
 Never mix eligibility with desirability.
 
 1. Run hard gates.
-2. If `FAIL`, score = 0.
-3. If `UNKNOWN`, mark verification debt.
+2. `FAIL` → score 0.
+3. `UNKNOWN` → verification debt / cap priority.
 4. Score opportunity value/fit.
 5. Score application competitiveness separately.
-6. Store component scores, not only totals.
+6. Store components + scoring version, not just the total.
 
-Weights are versioned in `configs/scoring.json`.
+Weights live in `configs/scoring.json`.
 
-## 11. Agent roles
+## 13. Agent roles
 
-- **Scout**: discovers candidates; may not declare eligibility.
-- **Verifier**: resolves source facts and freshness.
-- **Infopack Analyst**: extracts requirements, finance, selection criteria, policy, logistics.
-- **Eligibility Engine**: deterministic hard gates.
-- **Ranker**: expected-value scoring.
-- **Evidence Retriever**: retrieves private proof from Drive.
-- **Application Strategist**: maps criteria -> evidence -> value proposition.
-- **Policy Guard**: blocks prohibited AI/submission modes.
-- **Trainer Career Agent**: tracks competencies, references and paid calls.
-- **Outcome Analyst**: updates empirical priors from results.
+- **Scout** — discovers candidates; never declares eligibility.
+- **Verifier** — resolves source facts/freshness.
+- **Infopack Analyst** — requirements, finance, selection, logistics, AI policy.
+- **Eligibility Engine** — deterministic hard gates.
+- **Ranker** — expected-value ranking after gates.
+- **Evidence Retriever** — private evidence retrieval from Drive.
+- **Application Strategist** — criteria → proof → contribution → learning/multiplier.
+- **Policy Guard** — AI/submission/duplicate controls.
+- **Trainer Career Agent** — qualifying references, paid calls, organiser graph.
+- **Outcome Analyst** — acceptance/rejection feedback and empirical priors.
 
-One agent may perform multiple roles, but outputs must retain role boundaries.
+One agent may perform several roles, but outputs must preserve these boundaries.
 
-## 12. Commit/checkpoint protocol
+## 14. Application dossier definition of done
 
-Use one coherent commit per completed execution wave. Before ending a working session:
+A dossier is not `READY` unless:
+- source/infopack verified;
+- deadline/date/country/age and other mandatory rules resolved;
+- AI policy resolved;
+- mandatory questions/documents captured;
+- each proposed claim maps to verified evidence;
+- gaps are explicit;
+- canonical submission URL/mode known;
+- duplicate check passed;
+- human review explicit.
+
+## 15. Commit/checkpoint protocol
+
+Before ending a coherent execution wave:
 1. update `goal-state.json`;
-2. update this file's checkpoint table;
-3. ensure tests for changed deterministic rules;
-4. record known gaps explicitly;
-5. push a portable `git.local` snapshot when the persistent handoff materially changed.
+2. update this checkpoint section;
+3. run relevant deterministic tests;
+4. record known gaps;
+5. refresh `git.local` when handoff materially changes.
 
-## 13. Current checkpoints
+Prefer one coherent commit per completed wave/subwave.
 
-### Wave 0 — Definition & architecture
-- [x] `/define-goal` written
-- [x] goal-state machine contract
-- [x] source-of-truth model
-- [x] graph model
+## 16. Checkpoints
+
+### Wave 0 — Definition & architecture ✅
+- [x] `/define-goal`
+- [x] North Star/SLOs
+- [x] truth/provenance model
+- [x] graph contract
 - [x] public/private boundary
 
-### Wave 1 — Deterministic core
-- [x] canonical domain models
-- [x] eligibility hard-gate engine
-- [x] opportunity scoring engine
+### Wave 1 — Deterministic core ✅
+- [x] domain models/schemas
+- [x] deadline/residence/age/availability/language gates
+- [x] opportunity scoring
 - [x] AI-policy detector
 - [x] graph event/projection primitives
-- [x] infopack text extraction primitives
+- [x] infopack HTML/PDF extraction primitives
+- [x] criterion-to-evidence mapping
 - [x] regression tests
 
-### Wave 2 — Discovery connectors
-- [ ] European Youth Portal collector
-- [ ] SALTO European Training Calendar collector
-- [ ] SALTO Call for Trainers collector
-- [ ] Eurodesk / Eurodesk Spain collector
-- [ ] organisation-watch collector
-- [ ] canonical deduplication
+### Wave 2a — Discovery core ✅
+- [x] source registry loader
+- [x] bounded HTTP fetch + content hash
+- [x] URL canonicalisation
+- [x] source-pattern discovery primitives
+- [x] stable fingerprint hierarchy
+- [x] URL-level dedupe
+- [x] application readiness/duplicate/evidence-gap gates
+- [x] deterministic TOY-reference qualification
+- [x] regression suite: **19 passed / 0 failed**
+- [x] first live CRM seed: **7 current/watch opportunities**, 2026-08-27
 
-### Wave 3 — Persistent data + Drive sync
-- [ ] Postgres/Supabase adapter
+### Drive / handoff ✅ foundation
+- [x] canonical Drive workspace/folder taxonomy
+- [x] native Opportunity & Application CRM
+- [x] private Master Applicant Profile template
+- [x] private Evidence Bank
+- [x] Infopack Analysis template
+- [x] Application Dossier template
+- [x] Trainer Reference Ledger
+- [x] programme/source/trainer/selection knowledge docs
+- [x] Library `/git.local/UE-Xchanges-OS` snapshot
+
+### Wave 2b — Next
+- [ ] provider-specific EYP collector/pagination
+- [ ] SALTO Training Calendar collector/pagination
+- [ ] SALTO Calls for Trainers collector
+- [ ] Eurodesk/Eurodesk Spain collector
+- [ ] organisation-watch collector
+- [ ] persistent ETag/Last-Modified/content-hash state
+- [ ] automatic CRM upsert replacing manual seed
+
+### Wave 3 — Persistence
+- [ ] Postgres/Supabase canonical adapter
 - [ ] Drive evidence adapter
 - [ ] infopack archive/sync
-- [ ] opportunity CRM projection
+- [ ] graph event persistence/projections
 
 ### Wave 4 — Application intelligence
-- [ ] private applicant evidence ingestion
-- [ ] criterion-to-evidence retrieval
+- [ ] verify private applicant hard gates/evidence
+- [ ] criteria-to-evidence semantic retrieval
 - [ ] dossier generator
 - [ ] application form parser
 - [ ] human-review queue
 
-### Wave 5 — Compounding trainer path
-- [ ] TOY readiness dashboard
+### Wave 5 — Trainer compounding
 - [ ] trainer calls collector
-- [ ] trainer reference ledger
+- [ ] TOY-readiness dashboard
 - [ ] fee/working-condition parser
 - [ ] organiser relationship graph
+- [ ] qualifying reference progression metrics
 
-### Wave 6 — Analytics + automation
+### Wave 6 — Analytics/automation
 - [ ] outcome feedback model
 - [ ] source precision/recall analytics
-- [ ] deadline/expiry watch
+- [ ] deadline/expiry watcher
 - [ ] recurring opportunity brief
 
-## 14. Definition of done for an application dossier
+## 17. Current resumable state — 2026-08-27
 
-A dossier is not `READY` unless:
-- source and infopack were verified;
-- deadline/date/country/age checks are resolved;
-- AI policy is resolved;
-- all mandatory questions are captured;
-- each proposed claim maps to verified evidence;
-- missing evidence is called out, not hallucinated;
-- submission URL/mode is canonical;
-- human review is explicit.
-
-## Wave 2 incremental checkpoint — 2026-08-27
-- [x] source registry loader
-- [x] bounded HTTP fetch primitive + content hash
-- [x] canonical URL normalisation
-- [x] source-pattern link discovery primitives
-- [x] stable opportunity fingerprint hierarchy
-- [x] URL-level dedupe
-- [x] deterministic TOY-reference qualification gates
-- [x] application readiness / duplicate / evidence-gap gates
-- [x] regression suite: 19 tests, 0 failures
-- [ ] provider-specific pagination/extraction adapters
-- [ ] persistent fetch state + incremental change detection
-- [ ] first real opportunity batch persisted to CRM
+The repo/Drive/Library foundation is operational. The live CRM contains six verified SALTO youth-worker opportunities plus one future trainer/facilitator watch. Eligibility is intentionally `UNKNOWN` where the private evidence layer has not yet verified a mandatory applicant profile condition. The next engineering bottleneck is not more schema: it is repeatable provider ingestion + private applicant evidence verification.
