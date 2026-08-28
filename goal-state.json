@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.3.0",
+  "schema_version": "1.3.1",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-28",
-  "status": "v0_4_merged_credential_acquisition_live",
+  "status": "v0_4_merged_dual_lane_operational",
   "north_star": {"name": "accepted_high_value_opportunities_per_human_application_hour", "target_direction": "maximize"},
   "slos": {
     "eligibility_false_pass_known_rules": 0,
@@ -25,14 +25,15 @@
     "deduplication": {"current": 9, "target": 10},
     "eligibility_precision": {"current": 10, "target": 10},
     "infopack_extraction": {"current": 7, "target": 9},
-    "application_personalisation": {"current": 8, "target": 9},
+    "application_personalisation": {"current": 9, "target": 9},
     "ai_policy_safety": {"current": 9, "target": 10},
     "organisation_intelligence": {"current": 7, "target": 9},
     "trainer_progression": {"current": 9, "target": 9},
     "outcome_analytics": {"current": 2, "target": 9},
     "drive_handoff": {"current": 10, "target": 10},
     "git_local_handoff": {"current": 9, "target": 10},
-    "todoist_execution_projection": {"current": 9, "target": 10}
+    "todoist_execution_projection": {"current": 9, "target": 10},
+    "persistent_monitoring": {"current": 9, "target": 10}
   },
   "waves": [
     {"id": 0, "name": "definition_architecture", "status": "complete"},
@@ -42,7 +43,7 @@
     {"id": 3.5, "name": "credential_acquisition", "status": "live"},
     {"id": 4, "name": "application_intelligence", "status": "live_execution"},
     {"id": 5, "name": "trainer_compounding", "status": "credential_graph_live"},
-    {"id": 6, "name": "analytics_automation", "status": "planned"},
+    {"id": 6, "name": "analytics_automation", "status": "watch_live_outcomes_pending"},
     {"id": 7, "name": "portfolio_commitment_guard", "status": "complete_v0_3"},
     {"id": 8, "name": "platform_eligibility_guard", "status": "complete_v0_4"}
   ],
@@ -51,8 +52,8 @@
     "crm": "UE-Xchanges-OS — Opportunity & Application CRM",
     "crm_timezone": "Europe/Madrid",
     "decision_queue": "operational_live_projection",
-    "canonical_opportunity_rows": 27,
-    "application_nodes": 8,
+    "canonical_opportunity_rows": 28,
+    "application_nodes": 9,
     "private_evidence_items_seeded": 7,
     "verified_youth_work_context": null,
     "verified_toy_qualifying_references": 0,
@@ -60,33 +61,42 @@
     "workshop_v1_doc": "1yiA1_K9-anY0nzEBoeZq0zmohWMreWKPuDhsWWgv8j0",
     "credential_outreach_drafts": 3,
     "organiser_application_drafts": 4,
-    "todoist_credential_wave": "W3B created",
+    "active_priority_dossiers": 6,
+    "todoist_credential_wave": "W3B active",
     "merged_pull_requests": [1, 3, 4, 5],
     "closed_unmerged_pull_requests": [2]
   },
   "release": {
     "current_main": "v0.4",
-    "pull_request": 5,
     "merge_commit_sha": "6209fccf04d65066455066078f6a5a71f2cdb4a7",
     "pr_validated_head_sha": "629507439a27f95b46508a7c3400ff4f6071545a",
     "pr_workflow_run": 33159777452,
     "main_push_workflow_run": 33159875513,
     "pr_ci": "success",
-    "main_push_ci": "success",
-    "validated_jobs": ["unit (3.11)", "unit (3.12)"],
-    "rule": "Only claim CI against exact validated heads/runs."
+    "main_push_ci": "success"
+  },
+  "operating_lanes": {
+    "participant_now": {
+      "status": "active",
+      "rule": "Youth Exchanges, ESC and other non-SALTO calls use call-specific eligibility and may proceed independently of SALTO platform policy.",
+      "p0": ["telegram-thrive-shine", "2026-1-BG01-KA152-YOU-000396917"],
+      "verification_focus": ["telegram-thrive-shine", "doc1-yupi-building"]
+    },
+    "credential_builder": {
+      "status": "active",
+      "rule": "SALTO high-fit opportunities remain target specs until genuine youth-work context is verified.",
+      "targets": ["doc1-digi-hack", "salto-15226", "salto-ctrl-real", "salto-15018", "salto-15195", "salto-15231"]
+    },
+    "organisation_build": {
+      "status": "active",
+      "targets": ["salto-15084"]
+    }
   },
   "platform_policy": {
-    "salto_calendar": {
-      "requires_youth_work_context": true,
-      "decision_code": "VERIFY_YOUTH_WORK_CONTEXT",
-      "private_profile_field": "youth_work_context_verified",
-      "unverified_result": "UNKNOWN"
-    },
+    "salto_calendar": {"requires_youth_work_context": true, "decision_code": "VERIFY_YOUTH_WORK_CONTEXT", "private_profile_field": "youth_work_context_verified", "unverified_result": "UNKNOWN"},
     "scope_rule": "Do not globalise SALTO policy to Youth Exchanges/ESC/other providers."
   },
   "credential_acquisition": {
-    "goal": "Create legitimate L1/L2/L3 youth-work evidence without manufacturing credentials.",
     "ladder": ["L0_SELF_DESCRIPTION", "L1_AFFILIATION", "L2_DELIVERED_YOUTH_ACTIVITY", "L3_EXTERNAL_REFERENCE", "L4_TOY_QUALIFYING_REFERENCE"],
     "murcia_routes": ["Euroaccion", "585m2 Espacio Joven", "Servicio Juventud / Informajoven"],
     "outreach_state": "3_gmail_drafts_prepared_not_sent",
@@ -94,20 +104,38 @@
     "workshop_status": "designed_not_delivered",
     "profile_recheck_trigger": "real activity delivery + evidence pack"
   },
-  "high_priority_states": {
-    "digi_hack": "EVIDENCE_BLOCKED",
-    "unleashing_creativity": "EVIDENCE_BLOCKED",
-    "ctrl_real": "EVIDENCE_BLOCKED",
-    "ask_better_teach_better": "EVIDENCE_BLOCKED",
-    "towards_collaborative_practice": "EVIDENCE_BLOCKED",
-    "storytelling_as_tool_for_change": "EVIDENCE_BLOCKED",
-    "eye_opener": "CONSTRAINT_BLOCKED_CURRENT_CYCLE",
-    "building_with_our_hands": "NEEDS_VERIFICATION",
-    "game_of_nature": "NEEDS_CALL_SPECIFIC_EVIDENCE"
+  "participant_p0": {
+    "thrive_and_shine": {
+      "state": "VERIFICATION_DEBT",
+      "location": "Paphos, Cyprus",
+      "dates": "2026-10-24..2026-10-31",
+      "countries_signal": ["LT", "ES", "RO", "CY"],
+      "deadline_signal": "ASAP",
+      "application": "https://forms.gle/awfmMswY2eCkvpyB7",
+      "infopack": "https://canva.link/9a0dnlclo0ijnl4",
+      "dossier": "1qOfwKNBJmyrofmnN7_stlRQdtxbyhYmyut-hhhK_olU",
+      "next_gate": "VERIFY_ORIGINAL_INFOPACK_AND_FORM"
+    },
+    "game_of_nature": {
+      "state": "NEEDS_CALL_SPECIFIC_EVIDENCE",
+      "deadline": "2026-09-15",
+      "application": "https://forms.gle/QMRf3DjuufCmAkG9A",
+      "next_gate": "VERIFY_PARTICIPANT_PROFILE_EVIDENCE"
+    }
   },
-  "participant_lane": {
-    "status": "active",
-    "rule": "Continue massive discovery/application of legitimate Youth Exchanges, ESC and non-SALTO calls under their own requirements."
+  "todoist": {
+    "dedicated_project": "blocked_by_account_project_limit",
+    "fallback": "Inbox master graph + labels + wave tasks",
+    "credential_wave": "W3B active",
+    "daily_discovery": "active",
+    "participant_p0_tasks": ["Thrive and Shine", "Game of Nature"],
+    "do_not_archive_unrelated_projects_without_user_instruction": true
+  },
+  "monitoring": {
+    "eu_mobility_watch": "enabled",
+    "cadence": "every_6_hours",
+    "mode": "condition_watch",
+    "notify_on": ["new_P0_or_P1", "material_deadline_or_status_change", "meaningful_paid_trainer_call"]
   },
   "private_profile_debt": [
     "verify_current_legal_residence",
@@ -118,17 +146,5 @@
     "map_degree_if_blue_book_is_pursued",
     "map_formal_language_evidence_where_calls_require_cefr"
   ],
-  "todoist": {
-    "dedicated_project": "blocked_by_account_project_limit",
-    "fallback": "Inbox master graph + labels + wave tasks",
-    "credential_wave": "W3B active",
-    "daily_discovery": "active",
-    "do_not_archive_unrelated_projects_without_user_instruction": true
-  },
-  "quality": {
-    "v0_3_main_ci": "success",
-    "v0_4_pr_ci": {"head_sha": "629507439a27f95b46508a7c3400ff4f6071545a", "workflow_run": 33159777452, "conclusion": "success"},
-    "v0_4_main_push_ci": {"merge_commit_sha": "6209fccf04d65066455066078f6a5a71f2cdb4a7", "workflow_run": 33159875513, "conclusion": "success"}
-  },
-  "next_checkpoint": "Human-review credential outreach drafts; secure a real youth-work collaboration/activity; deliver Workshop V1 or equivalent; capture L2 evidence and re-evaluate youth_work_context_verified. In parallel continue participant Youth Exchange/ESC discovery, verify YUPI current call and progress Game of Nature call-specific evidence."
+  "next_checkpoint": "Human-review credential outreach drafts; verify Thrive and Shine original infopack/form ASAP; resolve YUPI current-call evidence; progress Game of Nature participant profile; deliver first youth-work activity and capture L2 evidence; continue six-hour monitoring and daily participant discovery."
 }
