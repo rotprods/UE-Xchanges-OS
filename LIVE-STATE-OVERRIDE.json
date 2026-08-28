@@ -1,29 +1,69 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "created_at": "2026-08-28T14:27:00+02:00",
-  "status": "ACTIVE_OVERRIDE",
-  "scope": "deadline-critical operational facts that supersede stale goal-state fields until integrated",
+  "updated_at": "2026-08-28T15:17:00+02:00",
+  "status": "ACTIVE_POST_DEADLINE_OVERRIDE",
+  "scope": "Execution-wave facts that supersede stale goal-state fields until the next consolidated release state.",
   "overrides": {
     "p0_verification.triglav": {
       "opportunity_id": "eyp-53491",
       "title": "Guardians of Triglav National Park",
-      "state": "DEADLINE_CRITICAL_PORTAL_SIGNIN_REQUIRED",
+      "state": "DEADLINE_CROSSED_RECEIPT_UNKNOWN",
       "official_deadline": "2026-08-28T15:00:00+02:00",
       "activity_dates": "2026-09-21..2026-10-05",
       "source": "https://youth.europa.eu/solidarity/opportunity/53491_en",
       "fact_resolution": "FRESH_OFFICIAL_DETAIL_PAGE_CONTROLS",
+      "post_deadline_check": {
+        "checked_at": "2026-08-28T15:02:00+02:00",
+        "gmail_receipt_found": false,
+        "interpretation": "Absence of a connected receipt is not proof of non-submission in the authenticated portal. User confirmation or receipt is required before assigning SUBMITTED or CLOSED_NOT_SUBMITTED."
+      },
+      "execution_state": "REMOVED_FROM_ACTIVE_QUEUE_PENDING_RECEIPT_RESOLUTION",
       "revokes": [
         "goal-state.json p0_verification.triglav.official_deadline=2026-09-05T15:00:00",
-        "Drive/CRM claims that a newer official page moved the deadline to 05 Sep"
-      ],
-      "manual_gate": "Sign in to the European Youth Portal and submit before 15:00 if private age, availability, prior-participation and portal-policy gates pass."
+        "Drive/CRM claims that a newer official page moved the deadline to 05 Sep",
+        "pre-deadline state DEADLINE_CRITICAL_PORTAL_SIGNIN_REQUIRED"
+      ]
     },
     "p0_verification.future_careers_ai": {
       "state": "FORM_CAPTURED_AI_POLICY_AND_PRIVATE_GATES_PENDING",
-      "dates": "2026-09-04..2026-09-13"
+      "dates": "2026-09-04..2026-09-13",
+      "form_questions_captured": true,
+      "organisation_prior": "TICKET2EUROPE_PAST_ACCEPTED_PARTICIPANT"
+    },
+    "p0_verification.thrive_and_shine": {
+      "state": "INFOPACK_VERIFIED_FORM_POLICY_PENDING",
+      "dates": "2026-10-24..2026-11-01",
+      "lead": "Collective Intelligence",
+      "spanish_partner": "Promesas",
+      "age": "18..30",
+      "spanish_travel_cap_eur": 395,
+      "selection": "profile_and_motivation_then_zoom",
+      "deadline": "ASAP_EXACT_CUTOFF_UNKNOWN",
+      "clarification_sent": true
+    },
+    "p0_verification.step_into_paralympics": {
+      "state": "INFOPACK_VERIFIED_TARGET_PROFILE_CONFLICT_REPLY_PENDING",
+      "dates": "2026-10-20..2026-10-29",
+      "official_infopack_deadline": "2026-08-29",
+      "spanish_partner": "Fundacion Tambien",
+      "age": "18..30",
+      "spanish_travel_cap_eur": 395,
+      "conflict": "Original infopack does not require disability/youth-work experience; a partner public summary mentions disabled aspiring youth workers.",
+      "decision": "VERIFY_TARGET_PROFILE_SPANISH_ROUTE_AI_POLICY",
+      "clarification_sent": true,
+      "sensitive_attribute_rule": "Never infer, request unnecessarily or disclose disability status."
+    },
+    "runtime": {
+      "canonical_opportunities": 34,
+      "application_nodes": 13,
+      "organisation_nodes": 13,
+      "outcome_records": 4,
+      "private_evidence_nodes": 12,
+      "toy_qualifying_references": 0
     },
     "execution_wave": {
-      "external_messages_sent": 9,
+      "external_messages_sent": 11,
       "sent": [
         "BreGal waitlist confirmation",
         "Ticket2Europe Future/O-live verification",
@@ -33,9 +73,20 @@
         "585m2 youth workshop proposal",
         "Murcia Youth Service collaboration proposal",
         "Digi-Hack eligibility query",
-        "Unleashing Creativity eligibility query"
+        "Unleashing Creativity eligibility query",
+        "Thrive and Shine deadline/AI-policy query",
+        "Step Into Paralympics target-profile/route/AI-policy query"
+      ],
+      "replies_received": 0,
+      "next_active_queue": [
+        "Step Into Paralympics — deadline 29 Aug / reply pending",
+        "Thrive and Shine — exact deadline/form policy pending",
+        "Building With Our Hands — deadline 31 Aug / YUPI reply pending",
+        "Future Careers and AI — AI policy/private gates pending",
+        "O-live T.R.E.E.S. — Spanish route pending",
+        "Game of Nature — current-profile criterion pending"
       ]
     }
   },
-  "read_rule": "When this file conflicts with goal-state.json, this file controls the listed fields. Integrate and delete the override in the next coherent state commit."
+  "read_rule": "When this file conflicts with goal-state.json, this file controls the listed fields. The next consolidated release must integrate these facts and delete this override."
 }
