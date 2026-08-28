@@ -1,7 +1,7 @@
 # UE-Xchanges-OS — AGENTS.md
 
 > Canonical cross-session operating contract. Read in order:
-> `goal.md` → `goal-state.json` → `AGENTS.md` → `ARCHITECTURE.md` → `docs/GRAPH_OPERATING_PROTOCOL.md` → latest `checkpoints/` → relevant `knowledge/`.
+> `goal.md` → `goal-state.json` → `AGENTS.md` → `ARCHITECTURE.md` → `docs/GRAPH_OPERATING_PROTOCOL.md` → relevant protocol/knowledge files.
 
 ## 1. Mission lock
 Build an evidence-first operating system that discovers legitimate EU youth-mobility/trainer opportunities, verifies eligibility, reads infopacks, ranks expected value, prepares truthful personalised dossiers, and compounds acceptance/trainer outcomes.
@@ -10,7 +10,7 @@ Build an evidence-first operating system that discovers legitimate EU youth-mobi
 
 ## 2. Truth hierarchy
 1. Original official page / original infopack / application form / organiser confirmation.
-2. Provider metadata and timestamps.
+2. Platform eligibility rules + provider metadata/timestamps.
 3. Normalised canonical record.
 4. Deterministic rules/calculations.
 5. LLM extraction/classification with explicit provenance.
@@ -34,22 +34,49 @@ Private operational data belongs under Drive `07_PERSONAL_TRAVEL/01_TRAVEL/UE_XC
 ## 5. Mandatory graph execution path
 Canonical route:
 
-`DISCOVERED → INGESTED → DEDUPED → SOURCE_VERIFIED → ELIGIBILITY_EVALUATED → INFOPACK_ANALYSED → FIT_SCORED → EXECUTION_PRIORITISED → APPLICATION_POLICY_RESOLVED → EVIDENCE_MAPPED → DOSSIER_READY → HUMAN_REVIEW → SUBMITTED → OUTCOME_RECORDED → LEARNING_EVENT`
+`DISCOVERED → INGESTED → DEDUPED → SOURCE_VERIFIED → PLATFORM_ELIGIBILITY_APPLIED → ELIGIBILITY_EVALUATED → INFOPACK_ANALYSED → FIT_SCORED → EXECUTION_PRIORITISED → APPLICATION_POLICY_RESOLVED → EVIDENCE_MAPPED → DOSSIER_READY → HUMAN_REVIEW → SUBMITTED → OUTCOME_RECORDED → LEARNING_EVENT`
+
+Post-selection:
+`ACCEPTED → PORTFOLIO_RESOLUTION? → COMMITTED`.
+
+Credential-gap route:
+`CREDENTIAL_GAP_IDENTIFIED → OUTREACH_PREPARED → HUMAN_REVIEW → COLLABORATION_CONFIRMED → ACTIVITY_DESIGNED → ACTIVITY_DELIVERED → EVIDENCE_PACK_CAPTURED → PROFILE_GATE_REEVALUATED`.
 
 Terminal/alternate states include:
-`DUPLICATE_MERGED`, `BLOCKED_INELIGIBLE`, `EXPIRED`, `CLOSED`, `VERIFICATION_DEBT`, `HUMAN_WRITE_REQUIRED`, `WITHDRAWN`.
+`DUPLICATE_MERGED`, `BLOCKED_INELIGIBLE`, `EVIDENCE_BLOCKED`, `EXPIRED`, `CLOSED`, `VERIFICATION_DEBT`, `HUMAN_WRITE_REQUIRED`, `WITHDRAWN`.
 
-No agent chooses an arbitrary next step. `docs/GRAPH_OPERATING_PROTOCOL.md` defines transition guards and decision codes.
+No agent chooses an arbitrary next step.
 
 ## 6. Hard gates
-Block on a confirmed mandatory failure: deadline, residence/nationality, age, dates/availability, role/profile, previous-participation rule, support/sending organisation, mandatory language/conditions, duplicate submission or application policy.
+Block on a confirmed mandatory failure: platform target-group eligibility, deadline, residence/nationality, age, dates/availability, role/profile, previous-participation rule, support/sending organisation, mandatory language/conditions, duplicate submission or application policy.
 
 Gate output = `PASS | FAIL | UNKNOWN`.
 - `FAIL` blocks submission regardless of fit.
-- `UNKNOWN` creates verification debt.
+- `UNKNOWN` creates verification/evidence debt.
 - High urgency may prioritise **verification**, never bypass a gate.
 
-## 7. AI policy
+## 7. Platform eligibility is mandatory
+Some sources impose eligibility before call-specific fit.
+
+### SALTO European Training Calendar
+Treat current SALTO ETC applicant guidance as a source-level requirement for existing youth-work/youth-training involvement or another target explicitly situated in the youth-work context.
+
+After normalisation, `src/uexchanges/platform_policy.py` applies:
+`salto_calendar -> requires_youth_work_context = true`.
+
+Private profile state:
+`youth_work_context_verified = true | false | null`.
+- `true` only from real private evidence.
+- `false` only from verified evidence.
+- `null` when evidence is insufficient.
+
+Do not auto-pass from subject expertise, a CV saying mentor/trainer, undelivered workshop material, photography/video work, AI expertise or self-description.
+
+High Fit/Media/Trainer scores may make credential acquisition urgent; they never override the gate.
+
+See `docs/PLATFORM_ELIGIBILITY_PROTOCOL.md`.
+
+## 8. AI policy
 Classify every call:
 `AI_ALLOWED | AI_ASSIST_ONLY | AI_FINAL_TEXT_PROHIBITED | AI_UNKNOWN`.
 
@@ -57,111 +84,121 @@ Classify every call:
 - `AI_UNKNOWN`: final-answer generation blocked until resolved.
 - Do not treat lack of a visible prohibition as proof that AI is allowed.
 
-## 8. Personalisation contract
+## 9. Personalisation contract
 No adjective without proof. Application value is:
 
 `criterion → verified proof → concrete contribution → credible learning goal → multiplier/dissemination`.
 
 Every externally used claim maps to a private Evidence Node. Never fabricate credentials, youth-work history, volunteering, fewer-opportunities status, language level, availability, organisation membership, disability/access needs or circumstances.
 
-## 9. Score separation
+## 10. Score separation
 Eligibility is not desirability.
 
-### Fit Score
-Strategic/thematic value independent of deadline.
-
-### Media Value
-Potential legitimate value of professional photo/video/storytelling for project learning/documentation/dissemination.
-
-### Trainer Leverage
-Potential to build NFE competence, organiser relationships, facilitation responsibility or qualifying trainer references.
-
-### Deadline Urgency
-Time pressure only.
-
-### Execution Priority
-Chooses the next operation. It never overrides duplicate, expiry, conflict, eligibility or policy gates.
+- **Fit Score:** strategic/thematic value independent of deadline.
+- **Media Value:** legitimate value of professional photo/video/storytelling.
+- **Trainer Leverage:** potential to build NFE competence, organiser relationships, responsibility or qualifying references.
+- **Deadline Urgency:** time pressure only.
+- **Execution Priority:** chooses the next operation; never overrides hard gates.
+- **Portfolio option cost:** represented by overlap graph, not hidden inside Fit Score.
 
 Weights are versioned in `configs/scoring.json`.
 
-## 10. Media contribution rule
-Professional photography/videography is a reusable secondary value proposition, not the reason someone is automatically eligible.
+## 11. Media contribution rule
+Photography/videography is a reusable secondary value proposition, not automatic eligibility.
 
-Use only when relevant and permitted. Required safeguards:
+Safeguards:
 - organiser approval;
-- informed consent/privacy process;
-- special care with minors/vulnerable/sensitive contexts;
-- no reduction in full programme participation;
+- informed consent/privacy;
+- safeguarding for minors/vulnerable/sensitive contexts;
+- full programme participation remains primary;
 - no over-promising deliverables.
 
-See `knowledge/MEDIA_CONTRIBUTION.md`.
-
-## 11. Role lanes
+## 12. Role lanes
 `PARTICIPANT · YOUTH_WORKER · FACILITATOR · TRAINER · EXPERT`.
 
 Positioning is role-aware. Participant applications do not pretend to be trainer applications. Trainer calls require educational responsibility, methods, outcomes and references.
 
-## 12. Credential / trainer progression
+## 13. Credential / trainer progression
 Current verified TOY-qualifying references: **0**.
 
 Strategy: **BUILD, DO NOT CLAIM.**
 
-Credential levels:
-`L0 self-description → L1 artifact → L2 delivery proof → L3 outcome/reference → L4 TOY-qualifying reference`.
+Credential ladder:
+`L0 self-description → L1 verified affiliation/collaboration → L2 delivered youth activity → L3 external reference/repeated practice → L4 TOY-qualifying international full-time trainer reference`.
 
 Target path:
-`Professional subject expertise → youth-work eligibility confirmation → participation → real NFE/youth-facing contribution → organiser reference → co-facilitation → full-time international trainer refs #1–#3 → TOY-ready → paid trainer calls`.
+`Professional subject expertise → verified youth-work context → participant/youth-facing activity → real NFE contribution → organiser reference → co-facilitation → full-time international trainer refs #1–#3 → TOY-ready → paid trainer calls`.
 
-A TOY candidate reference must independently satisfy the current SALTO criteria. Participant/group-leader status or one isolated workshop is not silently counted.
+A local short workshop can build L2/L3 evidence; it is not silently a TOY reference.
 
-See `knowledge/CREDENTIAL_ACQUISITION_GRAPH.md` and `knowledge/TRAINER_PATH.md`.
+See `docs/CREDENTIAL_ACQUISITION_LOOP.md` and `knowledge/TRAINER_PATH.md`.
 
-## 13. Graph contract
+## 14. Graph contract
 History is append-only; projections are rebuildable.
 
 Core nodes:
 `Person`, `Opportunity`, `Programme`, `Organisation`, `Call`, `Infopack`, `Application`, `Evidence`, `Requirement`, `Competency`, `Topic`, `Country`, `Activity`, `TrainerReference`, `Outcome`, `Source`.
 
-Core edges:
-`PUBLISHED_BY`, `HOSTED_BY`, `SUPPORTED_BY`, `ELIGIBLE_FOR`, `REQUIRES`, `MATCHES`, `SUPPORTED_BY_EVIDENCE`, `APPLIED_TO`, `RESULTED_IN`, `PARTNERED_WITH`, `TRAINED_AT`, `FACILITATED`, `VALIDATED_BY`, `DERIVED_FROM`.
+Core edges include:
+`PUBLISHED_BY`, `HOSTED_BY`, `SUPPORTED_BY`, `ELIGIBLE_FOR`, `REQUIRES`, `MATCHES`, `SUPPORTED_BY_EVIDENCE`, `APPLIED_TO`, `RESULTED_IN`, `PARTNERED_WITH`, `TRAINED_AT`, `FACILITATED`, `VALIDATED_BY`, `DERIVED_FROM`, `MUTUALLY_EXCLUSIVE_IF_ACCEPTED`.
 
-Do not introduce Neo4j/Qdrant or another specialised graph/vector store until real queries/scale justify it. SQLite is acceptable for single-operator collector state; Postgres/Supabase remains the v1 shared persistence target.
+Do not introduce specialised graph/vector infrastructure until real queries/scale justify it.
 
-## 14. Provider access modes
-Never treat a zero-result generic scraper as success.
+## 15. Fact conflicts
+Never resolve conflicting evidence by majority vote or LLM preference.
 
-- SALTO Training Calendar: static/paginated HTML plus verified detail pages.
-- SALTO Calls for Trainers: public detail pages only when legitimately discoverable; never bypass MySALTO auth.
-- European Youth Portal / Eurodesk: supported browser/search/API-backed discovery when their indexes are dynamic.
-- Telegram/public social archives: discovery sources only; promote facts only after mapping to stable provider keys and higher-authority source/infopack where available.
+Use `src/uexchanges/facts.py`:
+- missing -> `VERIFY_MISSING_FACT`
+- consistent -> `RESOLVE_CONSISTENT_FACT`
+- conflict default -> `VERIFY_CONFLICTING_FACT`
+- only a unique, highest-authority, live-current and strictly newer peer claim may produce `LIVE_SOURCE_SUPERSEDES_STALE_ARTIFACT`.
 
-## 15. Anti-duplicate identity hierarchy
+## 16. Portfolio commitment guard
+Opportunity applications may overlap. Preserve option value.
+
+Before `ACCEPTED -> COMMITTED`, use the portfolio graph. An overlapping `ACCEPTED/COMMITTED` node routes to `PORTFOLIO_RESOLUTION`. An empty calendar is not proof of real-world availability.
+
+See `docs/PORTFOLIO_CONFLICT_GRAPH.md`.
+
+## 17. Provider access rules
+Never treat a zero-result generic scraper as success and never bypass authentication/access controls.
+
+- SALTO Training Calendar: static/paginated discovery + platform eligibility policy + verified detail pages.
+- SALTO Calls for Trainers: public detail pages only when legitimately discoverable.
+- European Youth Portal / Eurodesk: supported browser/search/API-backed discovery for dynamic indexes.
+- Telegram/social archives: discovery only; promote facts after stable identity + higher-authority verification.
+
+## 18. Anti-duplicate hierarchy
 1. provider project/call ID;
 2. provider/channel post ID;
 3. canonical application/opportunity URL;
-4. fallback fingerprint `(host, normalised title, start date, country)`.
+4. fallback `(host, normalised title, start date, country)`.
 
-Raw duplicates remain as provenance nodes but only one canonical opportunity may be promoted.
+Raw duplicates remain provenance nodes; only one canonical opportunity is promoted.
 
-## 16. Agent roles
+## 19. Agent roles
 - **Scout** — discovery only.
-- **Deduper** — identity/canonical merge.
+- **Deduper** — canonical merge.
 - **Verifier** — source facts/freshness/conflicts.
+- **Platform Policy Guard** — source-level target requirements.
 - **Infopack Analyst** — requirements/funding/logistics/policy.
 - **Eligibility Engine** — hard gates.
-- **Ranker** — score components and execution priority.
-- **Evidence Retriever** — private proof retrieval.
+- **Ranker** — score components/execution priority.
+- **Evidence Retriever** — private proof.
+- **Credential Builder** — turns evidence gaps into legitimate activity/outreach plans; never fabricates completion.
 - **Application Strategist** — criteria→proof→value mapping.
 - **Policy Guard** — duplicate/AI/submission blocks.
+- **Portfolio Guard** — acceptance/commitment conflicts.
 - **Trainer Career Agent** — credential/reference/call graph.
 - **Outcome Analyst** — results and empirical priors.
 
-One agent may hold several roles, but outputs and decisions must preserve role boundaries.
+One agent may hold several roles, but outputs must preserve role boundaries.
 
-## 17. Dossier definition of done
+## 20. Dossier definition of done
 `READY_TO_SUBMIT` requires:
 - canonical identity resolved;
 - source/current call verified;
+- platform requirements applied;
 - hard eligibility = PASS;
 - deadline open;
 - infopack/form requirements captured;
@@ -171,53 +208,43 @@ One agent may hold several roles, but outputs and decisions must preserve role b
 - duplicate check passed;
 - human review completed.
 
-A strategic/internal dossier may exist earlier but must be visibly marked `NEEDS_EVIDENCE`, `NEEDS_VERIFICATION`, or `NOT FINAL SUBMISSION TEXT`.
+A strategic dossier may exist earlier but must be visibly marked `EVIDENCE_BLOCKED`, `NEEDS_EVIDENCE`, `NEEDS_VERIFICATION`, or `NOT FINAL SUBMISSION TEXT`.
 
-## 18. Todoist rules
-Requested dedicated project creation currently fails because the Todoist account is at its active-project limit; no workspace fallback is available. Filter creation also hits the account filter limit.
+## 21. Todoist rules
+Dedicated project creation is currently blocked by the account's active-project limit; no workspace fallback is available.
 
 Until a project slot exists:
-- use the Inbox master graph task + labelled Wave/subtasks;
-- preserve graph state in CRM/GitHub, not Todoist;
-- do not archive/delete unrelated Todoist projects automatically;
-- recurring daily opportunity/deadline sweep is allowed as execution projection.
+- use Inbox master graph task + labels + Wave subtasks;
+- preserve truth in CRM/GitHub;
+- never archive/delete unrelated projects automatically;
+- recurring daily discovery is allowed.
 
-## 19. Commit/checkpoint protocol
+## 22. Commit/checkpoint protocol
 Before ending a coherent wave:
 1. update `goal-state.json`;
-2. create/update latest `checkpoints/` file;
-3. update this AGENTS contract if routing/roles changed;
-4. run relevant deterministic tests;
-5. record test scope honestly;
-6. observe remote CI after opening a PR;
-7. refresh `git.local` when handoff changes materially.
+2. update AGENTS/protocol docs when routing changes;
+3. run relevant deterministic tests;
+4. record local vs remote test scope honestly;
+5. open PR and observe exact-head CI;
+6. merge only after green exact-head CI;
+7. refresh git.local when handoff changes materially.
 
-## 20. Current checkpoint — 2026-08-27
-Latest detailed state: `checkpoints/2026-08-27-wave2c-3.md`.
+## 23. Current checkpoint — 2026-08-28
+Main release: v0.3 merged, PR #4 and main push CI green.
 
-Current private CRM state:
-- 23 canonical opportunity rows;
-- 21 opportunities from supplied Doc 1;
-- 61 raw Telegram references / 60 unique provider keys / 1 exact duplicate;
-- P0/P1 active dossiers for Unleashing Creativity, CTRL+REAL, Game of Nature and Building With Our Hands;
-- eligibility dossiers for Blue Book and Amani Pamoja;
-- organiser-verification drafts created for AREAAA, YUPI and Papaya, not sent.
+Operational truth:
+- 23 canonical opportunities + Decision Queue in Drive CRM;
+- supplied Telegram raw refs: 61 / 60 unique / 1 exact duplicate;
+- private evidence bank seeded, but delivered youth-work/NFE evidence remains unverified;
+- SALTO high-fit nodes Digi-Hack, Unleashing Creativity and CTRL+REAL are now `EVIDENCE_BLOCKED`, not application-ready;
+- Credential Acquisition Loop exists in Drive/Todoist;
+- collaboration drafts to Euroacción, 585m² Espacio Joven and Murcia Youth Service are prepared and unsent;
+- participant-youth-exchange/ESC lane continues independently under its own call-specific eligibility.
 
-Current strongest nodes:
-- `Unleashing Creativity: From Lens to Life` — subject fit 100 / media 100 / trainer leverage 98; role evidence unresolved.
-- `CTRL+REAL` — subject fit 100 / trainer leverage 100; role evidence unresolved.
-- `Building With Our Hands` — source/current-call/AI-policy verification pending.
-- `Game of Nature` — community/youth/education-profile evidence pending.
-
-Quality truth:
-- merged PR #1 baseline: 27 tests / 0 failures; GitHub Actions run 33091677275 = success.
-- post-PR1 scoring/workflow/credential changes: 14 focused checks / 0 failures; full remote CI pending PR #2.
-
-## 21. Next mandatory operations
-1. Open PR #2 and observe CI.
-2. Review/send organiser eligibility/current-call queries.
-3. Convert organiser replies into provenance-backed gate events.
-4. Resolve private residence/age/availability and call-specific formal evidence.
-5. Parse forms only for viable nodes.
-6. Generate final submission answers only after policy/evidence gates pass.
-7. Store submission receipt/outcome and update organisation priors.
+## 24. Next mandatory operations
+1. Finish v0.4 Platform Eligibility PR + CI.
+2. Review/send credential-acquisition drafts only with human approval.
+3. Deliver a real youth activity; capture L2 evidence; re-evaluate private youth-work context.
+4. Continue daily discovery of participant Youth Exchanges/ESC and broader opportunities where no SALTO platform gate applies.
+5. Promote only `PASS + policy-resolved` nodes to final submission.
+6. Capture submission receipts/outcomes and update organisation/source priors.
