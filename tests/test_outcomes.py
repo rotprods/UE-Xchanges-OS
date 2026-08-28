@@ -22,6 +22,18 @@ class OutcomeLearningTests(unittest.TestCase):
         self.assertFalse(policy.update_negative_selection_prior)
         self.assertIn("train_negative_application_penalty_from_waitlist", policy.forbidden_inferences)
 
+    def test_unranked_waitlist_is_near_accept_but_not_top_rank_prior(self):
+        policy = learning_policy(OutcomeRecord(OutcomeType.WAITLIST_UNRANKED))
+        self.assertTrue(policy.near_accept)
+        self.assertFalse(policy.update_positive_selection_prior)
+        self.assertFalse(policy.update_negative_selection_prior)
+        self.assertIn("invent_waitlist_rank", policy.forbidden_inferences)
+        self.assertIn("treat_unranked_waitlist_as_top_waitlist", policy.forbidden_inferences)
+
+    def test_unranked_waitlist_rejects_invented_rank(self):
+        with self.assertRaises(ValueError):
+            OutcomeRecord(OutcomeType.WAITLIST_UNRANKED, waitlist_rank=1)
+
     def test_high_competition_rejection_updates_base_rate_only(self):
         policy = learning_policy(OutcomeRecord(OutcomeType.REJECTED_HIGH_COMPETITION, competition_pool=430))
         self.assertEqual(policy.causal_strength, CausalStrength.NONE)
@@ -39,8 +51,6 @@ class OutcomeLearningTests(unittest.TestCase):
 
     def test_feedback_type_requires_actual_feedback(self):
         with self.assertRaises(ValueError):
-            OutcomeRecord(OutcomeType.REJECTED_WITH_FEEDBACK, explicit_feedback=False)
-            # Validation is deliberately enforced by learning_policy.
             learning_policy(OutcomeRecord(OutcomeType.REJECTED_WITH_FEEDBACK, explicit_feedback=False))
 
     def test_no_response_is_not_rejection(self):
