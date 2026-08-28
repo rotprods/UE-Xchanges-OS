@@ -1,9 +1,18 @@
 {
-  "schema_version": "1.5.2",
+  "schema_version": "1.7.0",
   "project": "UE-Xchanges-OS",
-  "updated_at": "2026-08-28",
-  "status": "v0_6_merged_causal_outcome_learning_live",
-  "north_star": {"name": "accepted_high_value_opportunities_per_human_application_hour", "target_direction": "maximize"},
+  "updated_at": "2026-08-28T20:48:00+02:00",
+  "status": "v0_7_execution_campaign_live",
+  "state_precedence": [
+    "original_official_source_or_organiser_confirmation_or_submission_receipt",
+    "private_drive_crm_and_evidence_graph",
+    "goal-state.json",
+    "todoist_execution_projection"
+  ],
+  "north_star": {
+    "name": "accepted_high_value_opportunities_per_human_application_hour",
+    "target_direction": "maximize"
+  },
   "slos": {
     "eligibility_false_pass_known_rules": 0,
     "duplicate_submissions": 0,
@@ -13,9 +22,11 @@
     "unresolved_double_commitments": 0,
     "platform_gate_bypasses": 0,
     "temporal_evidence_scope_errors": 0,
+    "invented_sensitive_attributes": 0,
     "invented_rejection_causes": 0,
-    "waitlist_trained_as_negative": 0,
-    "invented_waitlist_ranks": 0
+    "invented_waitlist_ranks": 0,
+    "receipt_state_guesses": 0,
+    "projection_divergence_known": 0
   },
   "dimensions": {
     "goal_definition": {"current": 10, "target": 10},
@@ -25,120 +36,222 @@
     "portfolio_conflict_graph": {"current": 9, "target": 10},
     "platform_eligibility": {"current": 10, "target": 10},
     "temporal_evidence": {"current": 10, "target": 10},
-    "credential_acquisition": {"current": 9, "target": 10},
-    "discovery_coverage": {"current": 8, "target": 9},
-    "deduplication": {"current": 9, "target": 10},
-    "eligibility_precision": {"current": 10, "target": 10},
-    "infopack_extraction": {"current": 7, "target": 9},
+    "execution_orchestrator": {"current": 10, "target": 10},
+    "single_next_operation_routing": {"current": 10, "target": 10},
+    "reply_ingestion": {"current": 9, "target": 10},
+    "submission_receipt_integrity": {"current": 10, "target": 10},
     "application_personalisation": {"current": 9, "target": 9},
-    "decision_queue_routing": {"current": 10, "target": 10},
-    "ai_policy_safety": {"current": 9, "target": 10},
-    "organisation_intelligence": {"current": 8, "target": 9},
+    "ai_policy_safety": {"current": 10, "target": 10},
+    "organisation_intelligence": {"current": 9, "target": 9},
+    "credential_acquisition": {"current": 9, "target": 10},
     "trainer_progression": {"current": 9, "target": 9},
     "outcome_analytics": {"current": 9, "target": 9},
     "drive_handoff": {"current": 10, "target": 10},
+    "todoist_execution_projection": {"current": 10, "target": 10},
     "git_local_handoff": {"current": 9, "target": 10},
-    "todoist_execution_projection": {"current": 9, "target": 10},
     "persistent_monitoring": {"current": 9, "target": 10}
   },
   "waves": [
     {"id": 0, "name": "definition_architecture", "status": "complete"},
     {"id": 1, "name": "deterministic_core", "status": "complete"},
     {"id": 2, "name": "discovery_connectors", "status": "operational_partial"},
-    {"id": 3, "name": "persistence_drive_sync", "status": "operational_partial"},
-    {"id": 3.5, "name": "credential_acquisition", "status": "live"},
+    {"id": 3, "name": "persistence_drive_sync", "status": "operational"},
+    {"id": 3.5, "name": "credential_acquisition", "status": "outreach_live"},
     {"id": 4, "name": "application_intelligence", "status": "live_execution"},
     {"id": 5, "name": "trainer_compounding", "status": "credential_graph_live"},
     {"id": 6, "name": "analytics_automation", "status": "outcome_history_live"},
     {"id": 6.1, "name": "causal_strength_outcome_policy", "status": "complete_v0_6"},
     {"id": 7, "name": "portfolio_commitment_guard", "status": "complete_v0_3"},
     {"id": 8, "name": "platform_eligibility_guard", "status": "complete_v0_4"},
-    {"id": 9, "name": "temporal_evidence_guard", "status": "complete_v0_5"}
+    {"id": 9, "name": "temporal_evidence_guard", "status": "complete_v0_5"},
+    {"id": 10, "name": "execution_control_plane", "status": "complete_v0_7"},
+    {"id": 11, "name": "application_execution_campaign", "status": "live"}
   ],
   "runtime": {
     "drive_workspace": "07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS",
     "crm": "UE-Xchanges-OS — Opportunity & Application CRM",
     "crm_timezone": "Europe/Madrid",
-    "decision_queue": "operational_live_projection_with_execution_rank",
-    "canonical_opportunity_rows": 34,
-    "application_nodes": 12,
-    "organisation_nodes": 13,
+    "crm_tabs": [
+      "Dashboard",
+      "Decision_Queue",
+      "Execution_Campaign",
+      "Human_Gates",
+      "Opportunities",
+      "Applications",
+      "Organisations",
+      "Trainer_References",
+      "Sources",
+      "Source_Inbox",
+      "Outcome_History",
+      "Execution_Log"
+    ],
+    "canonical_opportunity_rows": 36,
+    "application_nodes": 15,
+    "organisation_nodes": 17,
     "outcome_history_rows": 4,
+    "execution_log_events": 24,
     "private_evidence_items": 12,
+    "external_messages_sent": 14,
+    "organisation_replies_ingested": 2,
+    "submission_receipts_stored": 0,
     "verified_historical_youth_sector_experience": true,
     "verified_current_youth_work_context": null,
     "verified_toy_qualifying_references": 0,
     "completed_erasmus_youth_staff_mobilities": 2,
     "completed_erasmus_youth_exchanges": 1,
     "last_verified_youth_sector_activity": "2024-01-25",
-    "active_priority_dossiers": 9,
-    "credential_outreach_drafts": 3,
-    "organiser_verification_drafts": 5,
-    "merged_pull_requests": [1, 3, 4, 5, 6, 7],
+    "probabilistic_acceptance_forecasting_enabled": false,
+    "merged_pull_requests": [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     "closed_unmerged_pull_requests": [2]
   },
   "release": {
-    "current_main": "v0.6",
-    "pr_number": 7,
-    "pr_validated_head_sha": "1994fb6c3a2da892c964d03354089df7c7bae103",
-    "pr_workflow_run": 33167991003,
-    "merge_commit_sha": "e3bb4d053114d68cf827e7e9d297303f9c05548d",
-    "main_push_workflow_run": 33168056247,
+    "current_main": "v0.7",
+    "execution_orchestrator_pr": 12,
+    "pr_validated_head_sha": "0338ac70a067a96e7ebd5d3ec15ca4fd77f87a69",
+    "pr_workflow_run": 33188100045,
     "pr_ci": "success",
+    "code_merge_sha": "e9bbdc98769ffb2b8af42688cf9b938d4220228f",
+    "main_push_workflow_run": 33200643246,
     "main_push_ci": "success",
-    "rule": "Only claim CI against exact validated heads/runs."
+    "local_regression_tests": 79,
+    "rule": "Only claim CI against exact validated heads and workflow runs."
   },
-  "outcome_learning": {
-    "probabilistic_forecasting_enabled": false,
-    "reason": "Sparse outcomes do not justify a calibrated acceptance-probability model.",
-    "policy_module": "src/uexchanges/outcomes.py",
-    "schema": "schemas/outcome.schema.json",
-    "protocol": "docs/OUTCOME_LEARNING_PROTOCOL.md",
-    "hard_rules": [
-      "WAITLIST_PRIORITY rank 1-3 is NEAR_ACCEPT and never a negative application penalty",
-      "WAITLIST_UNRANKED is viable/near-accept but must never invent or assume rank",
-      "REJECTED_HIGH_COMPETITION without individual feedback updates competition/base rate only",
-      "NO_RESPONSE is not a verified rejection",
-      "ACCEPTED_COMPLETED is a positive selection prior but does not prove every application component caused selection",
-      "REJECTED_WITH_FEEDBACK updates only supported call-specific criteria and never becomes a universal rule"
-    ],
-    "private_fixtures": [
-      {"outcome":"ACCEPTED_COMPLETED","organisation":"Ticket2Europe"},
-      {"outcome":"WAITLIST_PRIORITY","rank":1,"organisation":"BreGal","classification":"NEAR_ACCEPT"},
-      {"outcome":"WAITLIST_UNRANKED","organisation":"Youth BCN","classification":"NEAR_ACCEPT_LOW_STRENGTH"},
-      {"outcome":"REJECTED_HIGH_COMPETITION","organisation":"Make it Happen NGO","competition_pool":"430+","individual_reason":null}
-    ]
+  "execution_campaign": {
+    "id": "W8_APPLICATION_EXECUTION_SUPERWAVE",
+    "status": "live",
+    "definition_of_done": {
+      "submission_receipts": {"target": 2, "current": 0},
+      "organisation_replies_ingested": {"target": 5, "current": 2},
+      "youth_facing_collaboration_confirmed": {"target": 1, "current": 0},
+      "real_activity_date_agreed": {"target": 1, "current": 0},
+      "known_projection_divergence": {"target": 0, "current": 0}
+    },
+    "engineering_freeze": "Only change code when live execution exposes a missing deterministic state, invariant or safety requirement."
+  },
+  "active_nodes": {
+    "step_into_paralympics": {
+      "opportunity_id": "doc1-step-paralympics",
+      "state": "DUAL_ROUTE_CLARIFICATION_PENDING",
+      "deadline": "2026-08-29",
+      "blocking_gates": [
+        "mandatory_vs_preference_vs_open_sensitive_target_profile",
+        "spanish_application_route",
+        "effective_closing_hour",
+        "ai_policy"
+      ],
+      "queries_sent_to": ["Be Visible Be YOU", "Fundacion Tambien"],
+      "rule": "Never infer or request disability status until source-backed relevance is established."
+    },
+    "building_with_our_hands": {
+      "opportunity_id": "doc1-yupi-building",
+      "state": "CALL_VERIFIED_PRIVATE_GATES_AND_HUMAN_ASSETS",
+      "deadline": "2026-08-31",
+      "ai_policy": "AI_ASSIST_ONLY_HUMAN_OWNED_FINAL_WORDING",
+      "blocking_gates": [
+        "current_legal_residence",
+        "availability_2026_10_01_to_2026_10_16",
+        "manual_farm_and_natural_construction_willingness",
+        "tent_and_shared_facility_acceptance",
+        "human_authorship_and_review"
+      ],
+      "media_role": "optional_secondary_contribution"
+    },
+    "behind_the_scenes": {
+      "opportunity_id": "eyp-53846",
+      "state": "ORIGINAL_INFOPACK_AND_EMAIL_ROUTE_VERIFIED_PRIVATE_GATES",
+      "deadline": "2026-08-31T23:59:00+02:00",
+      "fit_score": 100,
+      "media_value": 100,
+      "trainer_leverage": 98,
+      "blocking_gates": [
+        "current_legal_residence",
+        "availability_2026_09_21_to_2026_11_13",
+        "54_day_business_and_client_option_cost",
+        "mixed_youth_project_operations_and_farm_work_willingness",
+        "call_specific_ai_policy",
+        "human_authorship_and_review"
+      ],
+      "application_route": "email_to_geral@yupi.pt_with_cv_motivation_letter_and_video_max_90_seconds",
+      "portfolio_relation": "MUTUALLY_EXCLUSIVE_IF_ACCEPTED_WITH_BUILDING_AND_OVERLAPPING_AUTUMN_NODES"
+    },
+    "thrive_and_shine": {
+      "opportunity_id": "telegram-thrive-shine",
+      "state": "INFOPACK_VERIFIED_FORM_POLICY_PENDING",
+      "blocking_gates": ["exact_deadline", "form_questions", "ai_policy", "private_availability"]
+    },
+    "olive_trees": {
+      "opportunity_id": "ticket2europe-olive-trees",
+      "state": "WAITING_SPANISH_APPLICATION_ROUTE",
+      "blocking_gates": ["remaining_places", "spanish_form", "effective_deadline", "ai_policy"]
+    },
+    "game_of_nature": {
+      "opportunity_id": "2026-1-BG01-KA152-YOU-000396917",
+      "state": "WAITING_PROFILE_CLARIFICATION",
+      "blocking_gates": ["current_youth_or_community_involvement_criterion", "ai_policy"],
+      "historical_erasmus_experience": "verified_but_not_current_context"
+    },
+    "triglav": {
+      "opportunity_id": "eyp-53491",
+      "state": "DEADLINE_CROSSED_RECEIPT_UNKNOWN",
+      "official_deadline": "2026-08-28T15:00:00+02:00",
+      "next_action": "human_supplies_receipt_or_explicit_non_submission",
+      "rule": "Missing connected receipt is not proof of non-submission."
+    },
+    "future_careers_ai": {
+      "opportunity_id": "ticket2europe-future-careers-ai",
+      "state": "CLOSED_BEFORE_APPLICATION_NO_PLACES",
+      "learning": "No rejection or negative copy/profile signal may be recorded."
+    },
+    "credential_acquisition": {
+      "state": "OUTREACH_SENT_WAITING_RESPONSE",
+      "routes": ["Euroaccion", "585m2 Espacio Joven", "Murcia Youth Service"],
+      "next_action": "Convert first positive reply into a scoped discovery call and real activity date."
+    }
+  },
+  "application_assets": {
+    "yupi_decision_and_human_authorship_pack": "Drive document 1aDFlzJVoSXDrqpKWrWz9bYTlqfdPdVvYbzZSIbLFp3Q",
+    "behind_cv_draft": "Drive document 1ocXYU-cN6hikyjDSBp5pdLcLOTPepEB9OoXK-lPG0C8",
+    "building_cv_draft": "Drive document 1kZInQHfbx0imxGYREmsJwOHAANsYCPXZSwTwKmFKi7s",
+    "rule": "Prepared assets are not submissions. Private fields, applicant authorship, human review and receipt are required."
   },
   "temporal_evidence": {
     "historical_experience_field": "youth_sector_experience_verified",
     "current_context_field": "youth_work_context_verified",
-    "invariant": "historical experience never auto-promotes current context",
+    "invariant": "Historical experience never auto-promotes current context, facilitation responsibility or trainer qualification.",
     "completed_youth_staff_mobilities": 2,
     "completed_youth_exchanges": 1,
     "first_time_erasmus": false
   },
-  "decision_queue": {"current_top":["telegram-thrive-shine","ticket2europe-future-careers-ai","doc1-yupi-building","ticket2europe-olive-trees","eyp-53491"]},
-  "p0_verification": {
-    "future_careers_ai": {"state":"VERIFY_CURRENT_CALL_AND_DATES","fit":100,"organisation_prior":"Ticket2Europe PAST_ACCEPTED_PARTICIPANT","dossier":"1JQA_jqoqpQBCIWIoUwVqCCPucFDAoubFJQz_TMz2rAw"},
-    "olive_trees": {"state":"VERIFY_SPANISH_APPLICATION_ROUTE_ASAP","fit":96,"media_value":100,"organisation_prior":"Ticket2Europe PAST_ACCEPTED_PARTICIPANT","dossier":"1bXJUZt3ixbawn6aTsn60FHxmOTV6M67k06Mw33fi7mU"},
-    "thrive_and_shine": {"state":"VERIFY_ORIGINAL_INFOPACK_AND_FORM"},
-    "building_with_our_hands": {"state":"VERIFY_CURRENT_CALL"},
-    "triglav": {"state":"DOSSIER_READY_PRIVATE_GATES_AND_PORTAL_PENDING","official_deadline":"2026-09-05T15:00:00"}
+  "outcome_learning": {
+    "probabilistic_forecasting_enabled": false,
+    "reason": "Sparse outcomes do not justify a calibrated acceptance-probability model.",
+    "hard_rules": [
+      "Waitlist is not rejection.",
+      "No-response is not verified rejection.",
+      "Closed before application is not rejection.",
+      "High-competition rejection without individual feedback updates competition prior only.",
+      "Specific negative learning requires explicit organiser feedback."
+    ]
   },
-  "game_of_nature": {
-    "state":"CURRENT_PROFILE_CRITERION_UNRESOLVED",
-    "historical_youth_sector_experience":"verified",
-    "current_active_youth_ngo_education_volunteering_context":"unresolved",
-    "papaya_clarification_draft":"updated_not_sent",
-    "first_time_erasmus":false
-  },
-  "trainer_state": {"verified_toy_qualifying_references":0,"strategy":"build_current_delivery_and_references"},
-  "monitoring": {"eu_mobility_watch":"enabled","cadence":"every_6_hours","mode":"condition_watch"},
-  "quality": {
-    "v0_5_main_ci": {"head_sha":"7e21238ceffc854bcf6c2b6452cb23114c66133c","workflow_run":33167413488,"conclusion":"success"},
-    "v0_6_pr_ci": {"head_sha":"1994fb6c3a2da892c964d03354089df7c7bae103","workflow_run":33167991003,"conclusion":"success"},
-    "v0_6_main_push_ci": {"merge_commit_sha":"e3bb4d053114d68cf827e7e9d297303f9c05548d","workflow_run":33168056247,"conclusion":"success"},
-    "v0_6_outcome_regressions": 10
-  },
-  "next_checkpoint": "Refresh git.local to v0.6 and verify its full local suite. Then return to P0 execution: resolve Future/O-live, Thrive/YUPI and Game of Nature gates; human-review BreGal waitlist reply; continue current youth-work credential acquisition."
+  "human_gate_debt": [
+    "verify_current_legal_residence",
+    "verify_age_or_date_of_birth",
+    "resolve_triglav_receipt_state",
+    "decide_behind_54_day_commitment_and_business_option_cost",
+    "decide_building_16_day_commitment_and_living_conditions",
+    "human_author_final_application_wording",
+    "complete_authenticated_or_email_submission",
+    "capture_submission_receipt"
+  ],
+  "next_mandatory_operations": [
+    "Ingest any reply from Be Visible Be YOU or Fundacion Tambien before Step deadline; otherwise close safely without sensitive inference.",
+    "Resolve Roberto's YUPI private gates using the canonical decision pack.",
+    "Choose Behind, Building, both as options, or neither before producing final applicant-owned materials.",
+    "Capture and ingest YUPI follow-up on Behind call-specific AI policy if received.",
+    "Continue Thrive, O-live and Game of Nature reply ingestion.",
+    "Resolve Triglav receipt state explicitly.",
+    "Convert the first positive Murcia credential reply into a real youth-facing collaboration and date.",
+    "Store a receipt immediately after every legitimate submission."
+  ],
+  "next_checkpoint": "Human-gate resolution and first receipt-backed YUPI submission, or an explicit gate-based decision not to apply."
 }
