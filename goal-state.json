@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.5.1",
+  "schema_version": "1.5.2",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-28",
-  "status": "v0_6_outcome_learning_pending_pr_ci",
+  "status": "v0_6_merged_causal_outcome_learning_live",
   "north_star": {"name": "accepted_high_value_opportunities_per_human_application_hour", "target_direction": "maximize"},
   "slos": {
     "eligibility_false_pass_known_rules": 0,
@@ -35,7 +35,7 @@
     "ai_policy_safety": {"current": 9, "target": 10},
     "organisation_intelligence": {"current": 8, "target": 9},
     "trainer_progression": {"current": 9, "target": 9},
-    "outcome_analytics": {"current": 8, "target": 9},
+    "outcome_analytics": {"current": 9, "target": 9},
     "drive_handoff": {"current": 10, "target": 10},
     "git_local_handoff": {"current": 9, "target": 10},
     "todoist_execution_projection": {"current": 9, "target": 10},
@@ -50,7 +50,7 @@
     {"id": 4, "name": "application_intelligence", "status": "live_execution"},
     {"id": 5, "name": "trainer_compounding", "status": "credential_graph_live"},
     {"id": 6, "name": "analytics_automation", "status": "outcome_history_live"},
-    {"id": 6.1, "name": "causal_strength_outcome_policy", "status": "implemented_v0_6_branch"},
+    {"id": 6.1, "name": "causal_strength_outcome_policy", "status": "complete_v0_6"},
     {"id": 7, "name": "portfolio_commitment_guard", "status": "complete_v0_3"},
     {"id": 8, "name": "platform_eligibility_guard", "status": "complete_v0_4"},
     {"id": 9, "name": "temporal_evidence_guard", "status": "complete_v0_5"}
@@ -74,16 +74,19 @@
     "active_priority_dossiers": 9,
     "credential_outreach_drafts": 3,
     "organiser_verification_drafts": 5,
-    "merged_pull_requests": [1, 3, 4, 5, 6],
-    "closed_unmerged_pull_requests": [2],
-    "v0_6_branch": "feat/v0.6-outcome-learning"
+    "merged_pull_requests": [1, 3, 4, 5, 6, 7],
+    "closed_unmerged_pull_requests": [2]
   },
   "release": {
-    "current_main": "v0.5",
-    "current_main_head": "7e21238ceffc854bcf6c2b6452cb23114c66133c",
-    "current_main_ci_run": 33167413488,
-    "current_main_ci": "success",
-    "v0_6_status": "implementation_complete_pending_exact_head_ci"
+    "current_main": "v0.6",
+    "pr_number": 7,
+    "pr_validated_head_sha": "1994fb6c3a2da892c964d03354089df7c7bae103",
+    "pr_workflow_run": 33167991003,
+    "merge_commit_sha": "e3bb4d053114d68cf827e7e9d297303f9c05548d",
+    "main_push_workflow_run": 33168056247,
+    "pr_ci": "success",
+    "main_push_ci": "success",
+    "rule": "Only claim CI against exact validated heads/runs."
   },
   "outcome_learning": {
     "probabilistic_forecasting_enabled": false,
@@ -91,21 +94,13 @@
     "policy_module": "src/uexchanges/outcomes.py",
     "schema": "schemas/outcome.schema.json",
     "protocol": "docs/OUTCOME_LEARNING_PROTOCOL.md",
-    "allowed_update_dimensions": [
-      "positive_selection_prior",
-      "negative_selection_prior_when_explicit_feedback_exists",
-      "competition_prior",
-      "criterion_heuristics_when_explicit_feedback_exists",
-      "organisation_relationship_prior",
-      "organisation_response_prior"
-    ],
     "hard_rules": [
       "WAITLIST_PRIORITY rank 1-3 is NEAR_ACCEPT and never a negative application penalty",
-      "WAITLIST_UNRANKED is a viable/near-accept signal but must never invent or assume rank",
+      "WAITLIST_UNRANKED is viable/near-accept but must never invent or assume rank",
       "REJECTED_HIGH_COMPETITION without individual feedback updates competition/base rate only",
       "NO_RESPONSE is not a verified rejection",
       "ACCEPTED_COMPLETED is a positive selection prior but does not prove every application component caused selection",
-      "REJECTED_WITH_FEEDBACK may update only the supported call-specific criterion and must not become a universal rule"
+      "REJECTED_WITH_FEEDBACK updates only supported call-specific criteria and never becomes a universal rule"
     ],
     "private_fixtures": [
       {"outcome":"ACCEPTED_COMPLETED","organisation":"Ticket2Europe"},
@@ -141,8 +136,9 @@
   "monitoring": {"eu_mobility_watch":"enabled","cadence":"every_6_hours","mode":"condition_watch"},
   "quality": {
     "v0_5_main_ci": {"head_sha":"7e21238ceffc854bcf6c2b6452cb23114c66133c","workflow_run":33167413488,"conclusion":"success"},
-    "v0_6_tests_added": 10,
-    "v0_6_remote_ci": "pending_new_head_after_unranked_waitlist_fix"
+    "v0_6_pr_ci": {"head_sha":"1994fb6c3a2da892c964d03354089df7c7bae103","workflow_run":33167991003,"conclusion":"success"},
+    "v0_6_main_push_ci": {"merge_commit_sha":"e3bb4d053114d68cf827e7e9d297303f9c05548d","workflow_run":33168056247,"conclusion":"success"},
+    "v0_6_outcome_regressions": 10
   },
-  "next_checkpoint": "Observe exact-head CI for PR7 after WAITLIST_UNRANKED fix. Merge only if green, then refresh git.local once with v0.5+v0.6. Operationally resolve Future/O-live, Thrive/YUPI and Game of Nature gates; human-review BreGal waitlist reply; continue youth-work credential acquisition."
+  "next_checkpoint": "Refresh git.local to v0.6 and verify its full local suite. Then return to P0 execution: resolve Future/O-live, Thrive/YUPI and Game of Nature gates; human-review BreGal waitlist reply; continue current youth-work credential acquisition."
 }
