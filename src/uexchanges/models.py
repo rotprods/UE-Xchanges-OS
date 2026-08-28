@@ -42,8 +42,17 @@ class ApplicantProfile:
     available_to: date | None = None
     previous_programme_months: dict[str, float] = field(default_factory=dict)
     evidence_ids: set[str] = field(default_factory=set)
-    # True only when private evidence demonstrates actual involvement in youth work
-    # (or another explicitly accepted youth-work-context target). None means unverified.
+
+    # Historical youth-sector experience and CURRENT youth-work context are different facts.
+    # Historical participation may improve fit/selection evidence but must never auto-satisfy
+    # a call that explicitly requires present involvement in youth work.
+    youth_sector_experience_verified: bool | None = None
+    youth_sector_last_activity_date: date | None = None
+    completed_erasmus_youth_staff_mobilities: int = 0
+    completed_erasmus_youth_exchanges: int = 0
+
+    # True only when private evidence demonstrates CURRENT involvement in youth work
+    # (or another explicitly accepted current youth-work-context target). None = unverified.
     youth_work_context_verified: bool | None = None
 
 @dataclass
@@ -62,9 +71,8 @@ class Opportunity:
     required_languages: set[str] = field(default_factory=set)
     required_topics: set[str] = field(default_factory=set)
     requires_support_org: bool | None = None
-    # Platform/call-level eligibility requirement. For example, the SALTO European
-    # Training Calendar targets people already involved in youth work; recommended
-    # sub-profiles may further narrow that target.
+    # Platform/call-level CURRENT-context requirement. Historical youth-sector
+    # participation is evidence, but it cannot silently satisfy this gate.
     requires_youth_work_context: bool = False
     ai_policy: AIPolicy = AIPolicy.UNKNOWN
     facts: dict[str, Any] = field(default_factory=dict)

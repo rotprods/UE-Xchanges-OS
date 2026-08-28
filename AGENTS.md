@@ -1,7 +1,7 @@
 # UE-Xchanges-OS — AGENTS.md
 
 > Canonical cross-session operating contract. Read in order:
-> `goal.md` → `goal-state.json` → `AGENTS.md` → `ARCHITECTURE.md` → `docs/GRAPH_OPERATING_PROTOCOL.md` → relevant protocol/knowledge files.
+> `goal.md` → `goal-state.json` → `AGENTS.md` → `ARCHITECTURE.md` → `docs/GRAPH_OPERATING_PROTOCOL.md` → `docs/PLATFORM_ELIGIBILITY_PROTOCOL.md` → `docs/TEMPORAL_EVIDENCE_PROTOCOL.md` → relevant knowledge/checkpoints.
 
 ## 1. Mission lock
 Build an evidence-first operating system that discovers legitimate EU youth-mobility/trainer opportunities, verifies eligibility, reads infopacks, ranks expected value, prepares truthful personalised dossiers, and compounds acceptance/trainer outcomes.
@@ -9,30 +9,30 @@ Build an evidence-first operating system that discovers legitimate EU youth-mobi
 **North Star:** accepted high-value funded opportunities per human application hour. Never optimise raw submission volume.
 
 ## 2. Truth hierarchy
-1. Original official page / original infopack / application form / organiser confirmation.
+1. Original official page / original infopack / application form / organiser confirmation / official outcome evidence.
 2. Platform eligibility rules + provider metadata/timestamps.
 3. Normalised canonical record.
 4. Deterministic rules/calculations.
 5. LLM extraction/classification with explicit provenance.
-6. Heuristic ranking.
+6. Heuristic ranking or empirical prior.
 
 `UNKNOWN` is a first-class state. Never silently coerce it to `PASS`.
 
 ## 3. Source-of-truth topology
-- Original official evidence = authority for opportunity facts.
+- Original official evidence = authority for opportunity/outcome facts.
 - GitHub = executable/versioned truth for schemas, rules, collectors, tests and public knowledge.
-- Google Drive = private applicant evidence, infopacks, dossiers, CRM and trainer references.
+- Google Drive = private applicant evidence, infopacks, dossiers, CRM, outcomes and trainer references.
 - Library `/git.local/UE-Xchanges-OS` = portable cold-start snapshot.
 - Graph projections = disposable/rebuildable from evidence + append-only events.
 - Todoist = execution projection only; never authoritative opportunity data.
 
 ## 4. Public/private boundary
-Public GitHub may contain code, public programme/source facts, anonymised fixtures and aggregate metrics. It must not contain identity/contact documents, private application answers/emails, medical/accessibility data, restricted infopacks, secrets or private applicant evidence.
+Public GitHub may contain code, public programme/source facts, anonymised fixtures and aggregate metrics. It must not contain identity/contact documents, historical application answers, medical/accessibility data, private emails, restricted infopacks, secrets or private applicant evidence.
 
 Private operational data belongs under Drive `07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS/`.
 
-## 5. Mandatory graph execution path
-Canonical route:
+## 5. Mandatory execution graph
+Canonical application route:
 
 `DISCOVERED → INGESTED → DEDUPED → SOURCE_VERIFIED → PLATFORM_ELIGIBILITY_APPLIED → ELIGIBILITY_EVALUATED → INFOPACK_ANALYSED → FIT_SCORED → EXECUTION_PRIORITISED → APPLICATION_POLICY_RESOLVED → EVIDENCE_MAPPED → DOSSIER_READY → HUMAN_REVIEW → SUBMITTED → OUTCOME_RECORDED → LEARNING_EVENT`
 
@@ -53,73 +53,112 @@ Block on a confirmed mandatory failure: platform target-group eligibility, deadl
 Gate output = `PASS | FAIL | UNKNOWN`.
 - `FAIL` blocks submission regardless of fit.
 - `UNKNOWN` creates verification/evidence debt.
-- High urgency may prioritise **verification**, never bypass a gate.
+- High urgency may prioritise verification, never bypass a gate.
 
-## 7. Platform eligibility is mandatory
+## 7. Platform eligibility
 Some sources impose eligibility before call-specific fit.
 
 ### SALTO European Training Calendar
-Treat current SALTO ETC applicant guidance as a source-level requirement for existing youth-work/youth-training involvement or another target explicitly situated in the youth-work context.
+Current source policy: listings target youth workers/trainers or people already involved in youth-work context. `src/uexchanges/platform_policy.py` sets `requires_youth_work_context = true` for `salto_calendar`.
 
-After normalisation, `src/uexchanges/platform_policy.py` applies:
-`salto_calendar -> requires_youth_work_context = true`.
-
-Private profile state:
+Current-context gate uses only:
 `youth_work_context_verified = true | false | null`.
-- `true` only from real private evidence.
-- `false` only from verified evidence.
-- `null` when evidence is insufficient.
 
-Do not auto-pass from subject expertise, a CV saying mentor/trainer, undelivered workshop material, photography/video work, AI expertise or self-description.
+Do not auto-pass from subject expertise, a CV saying trainer/mentor, undelivered materials, photography/video work, AI expertise, historical mobility, or self-description.
 
-High Fit/Media/Trainer scores may make credential acquisition urgent; they never override the gate.
+## 8. Temporal evidence semantics — mandatory
+Historical youth-sector experience, current youth-work involvement, delivery/facilitation responsibility and trainer qualification are **four different facts**.
 
-See `docs/PLATFORM_ELIGIBILITY_PROTOCOL.md`.
+Private profile fields include:
+- `youth_sector_experience_verified`
+- `youth_sector_last_activity_date`
+- `completed_erasmus_youth_staff_mobilities`
+- `completed_erasmus_youth_exchanges`
+- `youth_work_context_verified` — CURRENT context only.
 
-## 8. AI policy
+Rules:
+1. Historical verified mobility may support programme literacy, experience, fit and organisation priors.
+2. Historical mobility never auto-promotes current youth-work context.
+3. Attendance never implies facilitator/trainer responsibility.
+4. Participant/group-leader/facilitator/trainer roles remain separate; unknown role stays unknown.
+5. A call saying `currently active` requires current evidence regardless of historical experience.
+6. A call asking for `experience in` may use historical evidence only to the strength of its verified `role_scope`.
+7. Never claim first-time Erasmus participation when verified prior mobilities exist.
+
+See `docs/TEMPORAL_EVIDENCE_PROTOCOL.md`.
+
+## 9. Current private historical evidence — use by reference, not public replication
+Private evidence currently verifies at least:
+- 2 completed Erasmus+ KA1 Youth Staff professional-development mobilities (2022 Germany; 2023 Türkiye);
+- 1 completed Erasmus+ Youth Exchange (January 2024; exact participant/group-leader role unresolved);
+- Youthpass/attendance for the 2022 training;
+- prior accepted/completed relationship with Ticket2Europe.
+
+These facts belong in the private Evidence Graph. Public repo stores only schema/protocol semantics, never personal email/form content.
+
+Current verified TOY-qualifying trainer references remain **0**.
+
+## 10. AI policy
 Classify every call:
 `AI_ALLOWED | AI_ASSIST_ONLY | AI_FINAL_TEXT_PROHIBITED | AI_UNKNOWN`.
 
 - `AI_FINAL_TEXT_PROHIBITED`: research/evidence organisation allowed; final-answer drafting/rewrite disabled.
 - `AI_UNKNOWN`: final-answer generation blocked until resolved.
-- Do not treat lack of a visible prohibition as proof that AI is allowed.
+- Absence of a visible prohibition is not proof that AI is allowed.
 
-## 9. Personalisation contract
+## 11. Personalisation contract
 No adjective without proof. Application value is:
 
 `criterion → verified proof → concrete contribution → credible learning goal → multiplier/dissemination`.
 
-Every externally used claim maps to a private Evidence Node. Never fabricate credentials, youth-work history, volunteering, fewer-opportunities status, language level, availability, organisation membership, disability/access needs or circumstances.
+Every externally used claim maps to a private Evidence Node. Never fabricate credentials, current youth-work history, volunteering, fewer-opportunities status, language level, availability, organisation membership, disability/access needs or circumstances.
 
-## 10. Score separation
+Historical application answers are not objective evidence. A previously accepted application is a **selection prior**, not proof that every self-reported statement in it was true/current.
+
+## 12. Score separation
 Eligibility is not desirability.
+- **Fit Score** — strategic/thematic value.
+- **Media Value** — legitimate photo/video/storytelling contribution.
+- **Trainer Leverage** — NFE/relationship/responsibility/reference leverage.
+- **Deadline Urgency** — time pressure only.
+- **Execution Rank** — chooses what operation happens next after state penalties/route bonuses.
+- **Portfolio option cost** — represented by overlap graph, not hidden in fit.
+- **Competition density / outcome priors** — may inform selection leverage but cannot fabricate rejection causes.
 
-- **Fit Score:** strategic/thematic value independent of deadline.
-- **Media Value:** legitimate value of professional photo/video/storytelling.
-- **Trainer Leverage:** potential to build NFE competence, organiser relationships, responsibility or qualifying references.
-- **Deadline Urgency:** time pressure only.
-- **Execution Priority:** chooses the next operation; never overrides hard gates.
-- **Portfolio option cost:** represented by overlap graph, not hidden inside Fit Score.
+High strategic fit never outranks an executable route solely because fit is higher. `EVIDENCE_BLOCKED` and `CONSTRAINT_BLOCKED` receive routing penalties.
 
-Weights are versioned in `configs/scoring.json`.
+## 13. Outcome-learning contract
+Outcome states must preserve causal strength:
+- `ACCEPTED_COMPLETED`
+- `ACCEPTED`
+- `WAITLIST_PRIORITY_N`
+- `NEAR_ACCEPT`
+- `REJECTED_WITH_FEEDBACK`
+- `REJECTED_HIGH_COMPETITION`
+- `NO_RESPONSE`
+- `WITHDRAWN`
 
-## 11. Media contribution rule
+Learning rules:
+1. A #1 waitlist is not a normal rejection; do not learn negative copy/fit penalties without feedback.
+2. A rejection from a 430+ applicant pool with no individual reason updates competition/base-rate priors only.
+3. Explicit organiser feedback may update criterion/answer heuristics only if provenance is preserved.
+4. One acceptance/rejection never becomes a universal rule.
+5. Organisation relationship priors are separate from eligibility.
+
+Private CRM `Outcome_History` is the operational projection.
+
+## 14. Media contribution rule
 Photography/videography is a reusable secondary value proposition, not automatic eligibility.
 
-Safeguards:
+Use only when relevant to project outputs/documentation/dissemination. Safeguards:
 - organiser approval;
 - informed consent/privacy;
-- safeguarding for minors/vulnerable/sensitive contexts;
+- special care with minors/vulnerable/sensitive contexts;
 - full programme participation remains primary;
 - no over-promising deliverables.
 
-## 12. Role lanes
+## 15. Role lanes and trainer progression
 `PARTICIPANT · YOUTH_WORKER · FACILITATOR · TRAINER · EXPERT`.
-
-Positioning is role-aware. Participant applications do not pretend to be trainer applications. Trainer calls require educational responsibility, methods, outcomes and references.
-
-## 13. Credential / trainer progression
-Current verified TOY-qualifying references: **0**.
 
 Strategy: **BUILD, DO NOT CLAIM.**
 
@@ -127,48 +166,31 @@ Credential ladder:
 `L0 self-description → L1 verified affiliation/collaboration → L2 delivered youth activity → L3 external reference/repeated practice → L4 TOY-qualifying international full-time trainer reference`.
 
 Target path:
-`Professional subject expertise → verified youth-work context → participant/youth-facing activity → real NFE contribution → organiser reference → co-facilitation → full-time international trainer refs #1–#3 → TOY-ready → paid trainer calls`.
+`professional subject expertise + verified historical programme experience → refreshed/current youth-work context → youth-facing contribution → co-facilitation → qualifying trainer refs #1–#3 → TOY-ready → paid trainer calls`.
 
-A local short workshop can build L2/L3 evidence; it is not silently a TOY reference.
+Historical Youth Staff participation is useful context but not a trainer reference.
 
-See `docs/CREDENTIAL_ACQUISITION_LOOP.md` and `knowledge/TRAINER_PATH.md`.
-
-## 14. Graph contract
-History is append-only; projections are rebuildable.
-
-Core nodes:
-`Person`, `Opportunity`, `Programme`, `Organisation`, `Call`, `Infopack`, `Application`, `Evidence`, `Requirement`, `Competency`, `Topic`, `Country`, `Activity`, `TrainerReference`, `Outcome`, `Source`.
-
-Core edges include:
-`PUBLISHED_BY`, `HOSTED_BY`, `SUPPORTED_BY`, `ELIGIBLE_FOR`, `REQUIRES`, `MATCHES`, `SUPPORTED_BY_EVIDENCE`, `APPLIED_TO`, `RESULTED_IN`, `PARTNERED_WITH`, `TRAINED_AT`, `FACILITATED`, `VALIDATED_BY`, `DERIVED_FROM`, `MUTUALLY_EXCLUSIVE_IF_ACCEPTED`.
-
-Do not introduce specialised graph/vector infrastructure until real queries/scale justify it.
-
-## 15. Fact conflicts
+## 16. Fact conflicts
 Never resolve conflicting evidence by majority vote or LLM preference.
 
-Use `src/uexchanges/facts.py`:
-- missing -> `VERIFY_MISSING_FACT`
-- consistent -> `RESOLVE_CONSISTENT_FACT`
-- conflict default -> `VERIFY_CONFLICTING_FACT`
+`src/uexchanges/facts.py`:
+- missing → `VERIFY_MISSING_FACT`
+- consistent → `RESOLVE_CONSISTENT_FACT`
+- conflict default → `VERIFY_CONFLICTING_FACT`
 - only a unique, highest-authority, live-current and strictly newer peer claim may produce `LIVE_SOURCE_SUPERSEDES_STALE_ARTIFACT`.
 
-## 16. Portfolio commitment guard
-Opportunity applications may overlap. Preserve option value.
+## 17. Portfolio commitment guard
+Applications may overlap. Preserve option value. Before `ACCEPTED → COMMITTED`, resolve overlapping accepted/committed nodes. Empty Calendar is weak evidence only, never proof of real-world availability.
 
-Before `ACCEPTED -> COMMITTED`, use the portfolio graph. An overlapping `ACCEPTED/COMMITTED` node routes to `PORTFOLIO_RESOLUTION`. An empty calendar is not proof of real-world availability.
-
-See `docs/PORTFOLIO_CONFLICT_GRAPH.md`.
-
-## 17. Provider access rules
+## 18. Provider access rules
 Never treat a zero-result generic scraper as success and never bypass authentication/access controls.
-
-- SALTO Training Calendar: static/paginated discovery + platform eligibility policy + verified detail pages.
+- SALTO Training Calendar: static/paginated discovery + source-level platform policy + verified details.
 - SALTO Calls for Trainers: public detail pages only when legitimately discoverable.
 - European Youth Portal / Eurodesk: supported browser/search/API-backed discovery for dynamic indexes.
-- Telegram/social archives: discovery only; promote facts after stable identity + higher-authority verification.
+- Telegram/social archives: discovery only until higher-authority verification.
+- Sending-organisation archives (e.g. recurring Spanish NGOs) may seed calls, but each call still needs current form/deadline validation.
 
-## 18. Anti-duplicate hierarchy
+## 19. Anti-duplicate hierarchy
 1. provider project/call ID;
 2. provider/channel post ID;
 3. canonical application/opportunity URL;
@@ -176,25 +198,26 @@ Never treat a zero-result generic scraper as success and never bypass authentica
 
 Raw duplicates remain provenance nodes; only one canonical opportunity is promoted.
 
-## 19. Agent roles
-- **Scout** — discovery only.
-- **Deduper** — canonical merge.
-- **Verifier** — source facts/freshness/conflicts.
-- **Platform Policy Guard** — source-level target requirements.
-- **Infopack Analyst** — requirements/funding/logistics/policy.
-- **Eligibility Engine** — hard gates.
-- **Ranker** — score components/execution priority.
-- **Evidence Retriever** — private proof.
-- **Credential Builder** — turns evidence gaps into legitimate activity/outreach plans; never fabricates completion.
-- **Application Strategist** — criteria→proof→value mapping.
-- **Policy Guard** — duplicate/AI/submission blocks.
-- **Portfolio Guard** — acceptance/commitment conflicts.
-- **Trainer Career Agent** — credential/reference/call graph.
-- **Outcome Analyst** — results and empirical priors.
+## 20. Agent roles
+- Scout — discovery only.
+- Deduper — canonical identity/merge.
+- Verifier — source facts/freshness/conflicts.
+- Platform Policy Guard — source-level target requirements.
+- Temporal Evidence Guard — separates historical/current/role-scope evidence.
+- Infopack Analyst — requirements/funding/logistics/policy.
+- Eligibility Engine — hard gates.
+- Ranker — fit/urgency/execution rank.
+- Evidence Retriever — private proof.
+- Credential Builder — legitimate activity/outreach to close gaps.
+- Application Strategist — criteria→proof→value mapping.
+- Policy Guard — duplicate/AI/submission blocks.
+- Portfolio Guard — acceptance/commitment conflicts.
+- Trainer Career Agent — credentials/references/paid calls.
+- Outcome Analyst — calibrated outcomes and organisation priors.
 
 One agent may hold several roles, but outputs must preserve role boundaries.
 
-## 20. Dossier definition of done
+## 21. Dossier definition of done
 `READY_TO_SUBMIT` requires:
 - canonical identity resolved;
 - source/current call verified;
@@ -204,47 +227,50 @@ One agent may hold several roles, but outputs must preserve role boundaries.
 - infopack/form requirements captured;
 - AI policy resolved;
 - mandatory documents ready;
-- every external claim mapped to evidence;
+- every external claim mapped to evidence with correct temporal/role scope;
 - duplicate check passed;
 - human review completed.
 
-A strategic dossier may exist earlier but must be visibly marked `EVIDENCE_BLOCKED`, `NEEDS_EVIDENCE`, `NEEDS_VERIFICATION`, or `NOT FINAL SUBMISSION TEXT`.
+Earlier dossiers must be visibly marked `EVIDENCE_BLOCKED`, `NEEDS_EVIDENCE`, `NEEDS_VERIFICATION`, `VERIFICATION_DEBT` or `NOT FINAL SUBMISSION TEXT`.
 
-## 21. Todoist rules
-Dedicated project creation is currently blocked by the account's active-project limit; no workspace fallback is available.
-
-Until a project slot exists:
-- use Inbox master graph task + labels + Wave subtasks;
+## 22. Todoist rules
+Dedicated project creation is currently blocked by the account's active-project limit. Until a slot exists:
+- use the existing master graph task + labelled Wave/subtasks;
 - preserve truth in CRM/GitHub;
-- never archive/delete unrelated projects automatically;
-- recurring daily discovery is allowed.
+- never archive/delete unrelated projects automatically.
 
-## 22. Commit/checkpoint protocol
+## 23. Commit/checkpoint protocol
 Before ending a coherent wave:
 1. update `goal-state.json`;
 2. update AGENTS/protocol docs when routing changes;
-3. run relevant deterministic tests;
-4. record local vs remote test scope honestly;
-5. open PR and observe exact-head CI;
-6. merge only after green exact-head CI;
-7. refresh git.local when handoff changes materially.
+3. add/update checkpoint;
+4. run relevant deterministic tests;
+5. record local vs remote test scope honestly;
+6. open PR and observe exact-head CI;
+7. merge only after green exact-head CI;
+8. refresh git.local when handoff changes materially.
 
-## 23. Current checkpoint — 2026-08-28
-Main release: v0.3 merged, PR #4 and main push CI green.
-
+## 24. Current checkpoint — 2026-08-28 / v0.5
 Operational truth:
-- 23 canonical opportunities + Decision Queue in Drive CRM;
-- supplied Telegram raw refs: 61 / 60 unique / 1 exact duplicate;
-- private evidence bank seeded, but delivered youth-work/NFE evidence remains unverified;
-- SALTO high-fit nodes Digi-Hack, Unleashing Creativity and CTRL+REAL are now `EVIDENCE_BLOCKED`, not application-ready;
-- Credential Acquisition Loop exists in Drive/Todoist;
-- collaboration drafts to Euroacción, 585m² Espacio Joven and Murcia Youth Service are prepared and unsent;
-- participant-youth-exchange/ESC lane continues independently under its own call-specific eligibility.
+- 34 canonical opportunities;
+- 12 application nodes;
+- 12 organisation nodes;
+- 3 structured historical outcomes in `Outcome_History`;
+- private Evidence Bank contains EV-001..EV-012;
+- verified historical minimum: 2 Youth Staff professional-development mobilities + 1 Youth Exchange;
+- current youth-work context remains unresolved;
+- TOY-qualified trainer references = 0;
+- Ticket2Europe relationship prior = `PAST_ACCEPTED_PARTICIPANT`;
+- P0 verification queue includes Thrive and Shine, Future Careers & AI, Building With Our Hands, O-live T.R.E.E.S. and Triglav;
+- Documentary Circles = #1 waitlist / near-accept; reply-confirmation draft exists, not sent;
+- I Dream Green = historical high-competition rejection (430+ applications), no individual reason.
 
-## 24. Next mandatory operations
-1. Finish v0.4 Platform Eligibility PR + CI.
-2. Review/send credential-acquisition drafts only with human approval.
-3. Deliver a real youth activity; capture L2 evidence; re-evaluate private youth-work context.
-4. Continue daily discovery of participant Youth Exchanges/ESC and broader opportunities where no SALTO platform gate applies.
-5. Promote only `PASS + policy-resolved` nodes to final submission.
-6. Capture submission receipts/outcomes and update organisation/source priors.
+## 25. Next mandatory operations
+1. Finish v0.5 Temporal Evidence PR + exact-head CI.
+2. Keep Ticket2Europe/Papaya/BreGal communications as drafts until human send approval.
+3. Resolve Future Careers date/current-call conflict and O-live Spanish application route.
+4. Resolve Thrive original source and YUPI current call.
+5. Progress Game of Nature only after current-profile criterion is resolved.
+6. Continue outcome discovery/calibration without inventing rejection reasons.
+7. Build current youth-work L2/L3 evidence; historical mobility does not replace it.
+8. Refresh git.local after v0.5 merge.
