@@ -28,3 +28,14 @@ class EligibilityTests(unittest.TestCase):
     def test_required_youth_work_context_verified_false_fails(self):
         p,o=self.base(); o.requires_youth_work_context=True; p.youth_work_context_verified=False
         self.assertEqual(evaluate_eligibility(p,o,now=datetime(2026,8,27,tzinfo=timezone.utc)).result,GateResult.FAIL)
+    def test_historical_youth_sector_experience_does_not_auto_pass_current_context(self):
+        p,o=self.base(); o.requires_youth_work_context=True
+        p.youth_sector_experience_verified=True
+        p.youth_sector_last_activity_date=date(2024,1,25)
+        p.completed_erasmus_youth_staff_mobilities=2
+        p.completed_erasmus_youth_exchanges=1
+        p.youth_work_context_verified=None
+        d=evaluate_eligibility(p,o,now=datetime(2026,8,27,tzinfo=timezone.utc))
+        self.assertEqual(d.result,GateResult.UNKNOWN)
+        gate=next(g for g in d.gates if g.name=="youth_work_context")
+        self.assertEqual(gate.result,GateResult.UNKNOWN)
