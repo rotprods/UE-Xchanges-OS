@@ -1,7 +1,7 @@
 # UE-Xchanges-OS — AGENTS.md
 
 > Canonical cross-session operating contract. Read in order:
-> `goal.md` → `goal-state.json` → `AGENTS.md` → `ARCHITECTURE.md` → `docs/GRAPH_OPERATING_PROTOCOL.md` → `docs/PLATFORM_ELIGIBILITY_PROTOCOL.md` → `docs/TEMPORAL_EVIDENCE_PROTOCOL.md` → relevant knowledge/checkpoints.
+> `goal.md` → `goal-state.json` → `AGENTS.md` → `ARCHITECTURE.md` → `docs/GRAPH_OPERATING_PROTOCOL.md` → `docs/PLATFORM_ELIGIBILITY_PROTOCOL.md` → `docs/TEMPORAL_EVIDENCE_PROTOCOL.md` → `docs/OUTCOME_LEARNING_PROTOCOL.md` → relevant knowledge/checkpoints.
 
 ## 1. Mission lock
 Build an evidence-first operating system that discovers legitimate EU youth-mobility/trainer opportunities, verifies eligibility, reads infopacks, ranks expected value, prepares truthful personalised dossiers, and compounds acceptance/trainer outcomes.
@@ -14,7 +14,7 @@ Build an evidence-first operating system that discovers legitimate EU youth-mobi
 3. Normalised canonical record.
 4. Deterministic rules/calculations.
 5. LLM extraction/classification with explicit provenance.
-6. Heuristic ranking or empirical prior.
+6. Heuristic ranking or evidence-calibrated prior.
 
 `UNKNOWN` is a first-class state. Never silently coerce it to `PASS`.
 
@@ -127,25 +127,32 @@ Eligibility is not desirability.
 
 High strategic fit never outranks an executable route solely because fit is higher. `EVIDENCE_BLOCKED` and `CONSTRAINT_BLOCKED` receive routing penalties.
 
-## 13. Outcome-learning contract
-Outcome states must preserve causal strength:
+## 13. Outcome-learning contract — causal strength first
+Do **not** fit an acceptance-probability model from sparse outcomes. `src/uexchanges/outcomes.py` determines which learning updates are allowed.
+
+Canonical outcomes:
 - `ACCEPTED_COMPLETED`
 - `ACCEPTED`
-- `WAITLIST_PRIORITY_N`
-- `NEAR_ACCEPT`
+- `WAITLIST_PRIORITY`
+- `WAITLIST_UNRANKED`
 - `REJECTED_WITH_FEEDBACK`
 - `REJECTED_HIGH_COMPETITION`
+- `REJECTED_NO_REASON`
 - `NO_RESPONSE`
 - `WITHDRAWN`
 
-Learning rules:
-1. A #1 waitlist is not a normal rejection; do not learn negative copy/fit penalties without feedback.
-2. A rejection from a 430+ applicant pool with no individual reason updates competition/base-rate priors only.
-3. Explicit organiser feedback may update criterion/answer heuristics only if provenance is preserved.
-4. One acceptance/rejection never becomes a universal rule.
-5. Organisation relationship priors are separate from eligibility.
+Rules:
+1. Ranked waitlist 1–3 = weak near-accept/positive signal; never a negative application penalty without feedback.
+2. Unranked waitlist = viable/near-accept with unknown strength; never invent rank, never assume top-3, never train negative penalty.
+3. High-competition rejection without individual reason updates competition/base-rate prior only.
+4. No-response updates organisation response behaviour only; it is not a verified rejection.
+5. Accepted/completed supports a positive selection/relationship prior but does not prove every application component caused selection.
+6. Only explicit organiser feedback may update a call-specific negative criterion heuristic.
+7. Specific feedback stays call/criterion scoped and never becomes a universal rule.
+8. One acceptance/rejection/waitlist never becomes a universal rule.
+9. Organisation relationship priors are separate from eligibility.
 
-Private CRM `Outcome_History` is the operational projection.
+See `docs/OUTCOME_LEARNING_PROTOCOL.md`. Private CRM `Outcome_History` is the operational projection.
 
 ## 14. Media contribution rule
 Photography/videography is a reusable secondary value proposition, not automatic eligibility.
@@ -188,7 +195,7 @@ Never treat a zero-result generic scraper as success and never bypass authentica
 - SALTO Calls for Trainers: public detail pages only when legitimately discoverable.
 - European Youth Portal / Eurodesk: supported browser/search/API-backed discovery for dynamic indexes.
 - Telegram/social archives: discovery only until higher-authority verification.
-- Sending-organisation archives (e.g. recurring Spanish NGOs) may seed calls, but each call still needs current form/deadline validation.
+- Sending-organisation archives may seed calls, but each call still needs current form/deadline validation.
 
 ## 19. Anti-duplicate hierarchy
 1. provider project/call ID;
@@ -213,7 +220,7 @@ Raw duplicates remain provenance nodes; only one canonical opportunity is promot
 - Policy Guard — duplicate/AI/submission blocks.
 - Portfolio Guard — acceptance/commitment conflicts.
 - Trainer Career Agent — credentials/references/paid calls.
-- Outcome Analyst — calibrated outcomes and organisation priors.
+- Outcome Analyst — causal-strength learning + organisation priors.
 
 One agent may hold several roles, but outputs must preserve role boundaries.
 
@@ -250,27 +257,31 @@ Before ending a coherent wave:
 7. merge only after green exact-head CI;
 8. refresh git.local when handoff changes materially.
 
-## 24. Current checkpoint — 2026-08-28 / v0.5
+## 24. Current checkpoint — 2026-08-28 / v0.6
 Operational truth:
 - 34 canonical opportunities;
 - 12 application nodes;
-- 12 organisation nodes;
-- 3 structured historical outcomes in `Outcome_History`;
+- 13 organisation nodes;
+- 4 structured outcomes in `Outcome_History`;
 - private Evidence Bank contains EV-001..EV-012;
 - verified historical minimum: 2 Youth Staff professional-development mobilities + 1 Youth Exchange;
 - current youth-work context remains unresolved;
 - TOY-qualified trainer references = 0;
 - Ticket2Europe relationship prior = `PAST_ACCEPTED_PARTICIPANT`;
+- outcome fixtures: Ticket2Europe `ACCEPTED_COMPLETED`, BreGal `WAITLIST_PRIORITY_1`, Youth BCN `WAITLIST_UNRANKED`, Make it Happen `REJECTED_HIGH_COMPETITION` (430+ / no individual reason);
 - P0 verification queue includes Thrive and Shine, Future Careers & AI, Building With Our Hands, O-live T.R.E.E.S. and Triglav;
-- Documentary Circles = #1 waitlist / near-accept; reply-confirmation draft exists, not sent;
-- I Dream Green = historical high-competition rejection (430+ applications), no individual reason.
+- combined Ticket2Europe, Papaya and BreGal communications remain drafts, not sent;
+- probabilistic acceptance forecasting remains disabled.
+
+Release truth:
+- v0.6 PR #7 exact head `1994fb6c3a2da892c964d03354089df7c7bae103` passed CI;
+- merged commit `e3bb4d053114d68cf827e7e9d297303f9c05548d` passed main push CI.
 
 ## 25. Next mandatory operations
-1. Finish v0.5 Temporal Evidence PR + exact-head CI.
+1. Refresh `/git.local/UE-Xchanges-OS` to v0.6 and run the full local suite before overwriting Library.
 2. Keep Ticket2Europe/Papaya/BreGal communications as drafts until human send approval.
 3. Resolve Future Careers date/current-call conflict and O-live Spanish application route.
 4. Resolve Thrive original source and YUPI current call.
 5. Progress Game of Nature only after current-profile criterion is resolved.
-6. Continue outcome discovery/calibration without inventing rejection reasons.
-7. Build current youth-work L2/L3 evidence; historical mobility does not replace it.
-8. Refresh git.local after v0.5 merge.
+6. Continue outcome discovery/calibration without inventing rejection reasons or waitlist ranks.
+7. Build current youth-work L2/L3 evidence; historical mobility does not replace current delivery evidence.
