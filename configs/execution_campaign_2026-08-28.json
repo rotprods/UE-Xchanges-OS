@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0",
+  "campaign_id": "execution-2026-08-28-v0.7",
+  "status": "active",
+  "timezone": "Europe/Madrid",
+  "north_star": "accepted_high_value_opportunities_per_human_application_hour",
+  "success_targets": {
+    "submitted_with_receipt": 2,
+    "external_replies_ingested": 5,
+    "youth_facing_collaborations_confirmed": 1,
+    "workshop_dates_confirmed": 1,
+    "projection_divergence": 0
+  },
+  "hard_slos": {
+    "eligibility_false_passes": 0,
+    "fabricated_claims": 0,
+    "known_ai_policy_violations": 0,
+    "duplicate_submissions": 0,
+    "invented_sensitive_attributes": 0,
+    "receipt_state_guesses": 0
+  },
+  "execution_precedence": [
+    "submission_receipt_outcome_integrity",
+    "deadline_crossed_resolution",
+    "canonical_source_verification",
+    "material_fact_conflict_resolution",
+    "deadline_verification",
+    "external_clarification",
+    "public_eligibility",
+    "private_applicant_gates",
+    "form_capture",
+    "ai_policy",
+    "human_write_or_review",
+    "submission",
+    "outcome_ingestion"
+  ],
+  "active_lanes": {
+    "future_careers_ai": "WAITING_EXTERNAL_EVIDENCE",
+    "step_into_paralympics": "CONFLICTING_TARGET_PROFILE",
+    "building_with_our_hands": "WAITING_EXTERNAL_EVIDENCE",
+    "thrive_and_shine": "INFOPACK_VERIFIED_FORM_POLICY_PENDING",
+    "olive_trees": "WAITING_SPANISH_APPLICATION_ROUTE",
+    "game_of_nature": "WAITING_PROFILE_CLARIFICATION",
+    "triglav": "DEADLINE_CROSSED_RECEIPT_UNKNOWN",
+    "credential_acquisition": "OUTREACH_SENT_WAITING_RESPONSE"
+  },
+  "human_gates": [
+    "confirm_current_legal_residence_when_required",
+    "confirm_real_world_availability",
+    "review_or_write_final_answers",
+    "authenticate_to_external_portals",
+    "submit_and_store_receipt"
+  ],
+  "monitoring": {
+    "reply_ingestion": "daily",
+    "deadline_sweep": "daily",
+    "receipt_integrity_sweep": "daily",
+    "eu_mobility_watch": "every_6_hours_condition_watch"
+  }
+}
