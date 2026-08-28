@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.3.2",
+  "schema_version": "1.4.0",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-28",
-  "status": "v0_4_merged_dual_lane_operational",
+  "status": "v0_5_temporal_evidence_pending_pr_ci",
   "north_star": {"name": "accepted_high_value_opportunities_per_human_application_hour", "target_direction": "maximize"},
   "slos": {
     "eligibility_false_pass_known_rules": 0,
@@ -11,7 +11,9 @@
     "known_ai_policy_violations": 0,
     "missed_verified_priority_deadlines": 0,
     "unresolved_double_commitments": 0,
-    "platform_gate_bypasses": 0
+    "platform_gate_bypasses": 0,
+    "temporal_evidence_scope_errors": 0,
+    "invented_rejection_causes": 0
   },
   "dimensions": {
     "goal_definition": {"current": 10, "target": 10},
@@ -20,6 +22,7 @@
     "fact_conflict_resolution": {"current": 10, "target": 10},
     "portfolio_conflict_graph": {"current": 9, "target": 10},
     "platform_eligibility": {"current": 10, "target": 10},
+    "temporal_evidence": {"current": 10, "target": 10},
     "credential_acquisition": {"current": 9, "target": 10},
     "discovery_coverage": {"current": 8, "target": 9},
     "deduplication": {"current": 9, "target": 10},
@@ -28,9 +31,9 @@
     "application_personalisation": {"current": 9, "target": 9},
     "decision_queue_routing": {"current": 10, "target": 10},
     "ai_policy_safety": {"current": 9, "target": 10},
-    "organisation_intelligence": {"current": 7, "target": 9},
+    "organisation_intelligence": {"current": 8, "target": 9},
     "trainer_progression": {"current": 9, "target": 9},
-    "outcome_analytics": {"current": 2, "target": 9},
+    "outcome_analytics": {"current": 6, "target": 9},
     "drive_handoff": {"current": 10, "target": 10},
     "git_local_handoff": {"current": 9, "target": 10},
     "todoist_execution_projection": {"current": 9, "target": 10},
@@ -44,132 +47,159 @@
     {"id": 3.5, "name": "credential_acquisition", "status": "live"},
     {"id": 4, "name": "application_intelligence", "status": "live_execution"},
     {"id": 5, "name": "trainer_compounding", "status": "credential_graph_live"},
-    {"id": 6, "name": "analytics_automation", "status": "watch_live_outcomes_pending"},
+    {"id": 6, "name": "analytics_automation", "status": "outcome_history_live"},
     {"id": 7, "name": "portfolio_commitment_guard", "status": "complete_v0_3"},
-    {"id": 8, "name": "platform_eligibility_guard", "status": "complete_v0_4"}
+    {"id": 8, "name": "platform_eligibility_guard", "status": "complete_v0_4"},
+    {"id": 9, "name": "temporal_evidence_guard", "status": "implemented_v0_5_branch"}
   ],
   "runtime": {
     "drive_workspace": "07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS",
     "crm": "UE-Xchanges-OS — Opportunity & Application CRM",
     "crm_timezone": "Europe/Madrid",
     "decision_queue": "operational_live_projection_with_execution_rank",
-    "canonical_opportunity_rows": 32,
-    "application_nodes": 10,
-    "private_evidence_items_seeded": 7,
-    "verified_youth_work_context": null,
+    "canonical_opportunity_rows": 34,
+    "application_nodes": 12,
+    "organisation_nodes": 12,
+    "outcome_history_rows": 3,
+    "private_evidence_items": 12,
+    "verified_historical_youth_sector_experience": true,
+    "verified_current_youth_work_context": null,
     "verified_toy_qualifying_references": 0,
-    "credential_acquisition_doc": "1J5nSSWja0-QE6Td0WoCwV-EZGNddePuxEmQIWxNjkLQ",
-    "workshop_v1_doc": "1yiA1_K9-anY0nzEBoeZq0zmohWMreWKPuDhsWWgv8j0",
+    "completed_erasmus_youth_staff_mobilities": 2,
+    "completed_erasmus_youth_exchanges": 1,
+    "last_verified_youth_sector_activity": "2024-01-25",
+    "active_priority_dossiers": 9,
     "credential_outreach_drafts": 3,
-    "organiser_application_drafts": 4,
-    "active_priority_dossiers": 7,
-    "todoist_credential_wave": "W3B active",
+    "organiser_verification_drafts": 5,
     "merged_pull_requests": [1, 3, 4, 5],
-    "closed_unmerged_pull_requests": [2]
+    "closed_unmerged_pull_requests": [2],
+    "v0_5_branch": "feat/v0.5-temporal-evidence"
   },
   "release": {
     "current_main": "v0.4",
-    "merge_commit_sha": "6209fccf04d65066455066078f6a5a71f2cdb4a7",
-    "pr_validated_head_sha": "629507439a27f95b46508a7c3400ff4f6071545a",
-    "pr_workflow_run": 33159777452,
-    "main_push_workflow_run": 33159875513,
-    "pr_ci": "success",
-    "main_push_ci": "success"
+    "main_head_before_v0_5": "3ddb37f58e4e98ac746b6bf317ff04b0a10292ef",
+    "v0_5_status": "implementation_complete_pending_pr_ci",
+    "rule": "Only merge after exact-head CI succeeds."
+  },
+  "temporal_evidence": {
+    "historical_experience_field": "youth_sector_experience_verified",
+    "current_context_field": "youth_work_context_verified",
+    "invariant": "historical experience never auto-promotes current context",
+    "verified_inventory": [
+      {
+        "type": "KA1_YOUTH_STAFF_PROFESSIONAL_DEVELOPMENT",
+        "dates": "2022-10-29..2022-11-05",
+        "country": "Germany",
+        "sending_organisation": "Ticket2Europe",
+        "receiving_organisation": "klick e.V.",
+        "role_scope": "professional_development_participant",
+        "youthpass": true
+      },
+      {
+        "type": "KA1_YOUTH_STAFF_PROFESSIONAL_DEVELOPMENT",
+        "dates": "2023-06-21..2023-06-28",
+        "country": "Türkiye",
+        "sending_organisation": "ASOCIATIA TINERII 3 D",
+        "receiving_organisation": "TechnoYOUth",
+        "role_scope": "professional_development_participant",
+        "youthpass": null
+      },
+      {
+        "type": "YOUTH_EXCHANGE",
+        "dates": "2024-01-20..2024-01-25",
+        "sending_organisation": "Ayuntamiento de Alguazas",
+        "role_scope": "unknown_participant_or_group_role",
+        "youthpass": null
+      }
+    ],
+    "unverified_signal_not_counted": "A 2022 sent email mentions another Erasmus project in Türkiye before Berlin; no official record recovered, so it is excluded."
+  },
+  "selection_history": {
+    "ticket2europe": {
+      "relationship": "PAST_ACCEPTED_PARTICIPANT",
+      "verified_outcome": "ACCEPTED_COMPLETED",
+      "selection_prior_doc": "1p3fCaL70Dz-mMUU7AfSbjdFAXdl8tzlJAqkwYtDMpio",
+      "rule": "historical winning application is a selection prior, not objective proof of every old self-reported answer"
+    },
+    "documentary_circles": {
+      "organisation": "BreGal",
+      "outcome": "WAITLIST_PRIORITY_1",
+      "classification": "NEAR_ACCEPT",
+      "feedback": "first on waiting list; organiser said more places likely",
+      "reply_draft": "prepared_not_sent"
+    },
+    "i_dream_green": {
+      "organisation": "Make it Happen NGO",
+      "outcome": "REJECTED_HIGH_COMPETITION",
+      "competition_pool": "430+",
+      "individual_reason": null,
+      "learning_rule": "update competition/base-rate prior only; do not infer copy or competence failure"
+    }
   },
   "decision_queue": {
     "ranking_formula": "priority_base + deadline_urgency + 0.2*fit + route_bonus - evidence_or_constraint_penalties",
-    "state_penalties": {"EVIDENCE_BLOCKED": -150, "CONSTRAINT_BLOCKED": -500, "terminal": -9999},
-    "route_bonuses": {"APPLY_TODAY": 50, "VERIFY_AND_APPLY_ASAP": 40, "VERIFY_NOW_OR_PRIVATE_PROFILE": 20, "PREP_DOSSIER": 10},
-    "semantic_rule": "exact known deadline outranks ASAP-without-exact-deadline; high strategic fit never outranks an executable hard-deadline route solely because fit is higher",
-    "current_top": ["eyp-53491", "telegram-thrive-shine", "doc1-yupi-building"]
+    "current_top": [
+      "telegram-thrive-shine",
+      "ticket2europe-future-careers-ai",
+      "doc1-yupi-building",
+      "ticket2europe-olive-trees",
+      "eyp-53491"
+    ]
   },
-  "operating_lanes": {
-    "participant_now": {
-      "status": "active",
-      "rule": "Youth Exchanges, ESC and other non-SALTO calls use call-specific eligibility and may proceed independently of SALTO platform policy.",
-      "p0": ["eyp-53491", "telegram-thrive-shine"],
-      "p1": ["2026-1-BG01-KA152-YOU-000396917"],
-      "verification_focus": ["eyp-53491", "telegram-thrive-shine", "doc1-yupi-building"]
+  "p0_verification": {
+    "future_careers_ai": {
+      "state": "VERIFY_CURRENT_CALL_AND_DATES",
+      "fit": 100,
+      "organisation_prior": "Ticket2Europe PAST_ACCEPTED_PARTICIPANT",
+      "dossier": "1JQA_jqoqpQBCIWIoUwVqCCPucFDAoubFJQz_TMz2rAw"
     },
-    "credential_builder": {
-      "status": "active",
-      "rule": "SALTO high-fit opportunities remain target specs until genuine youth-work context is verified.",
-      "targets": ["doc1-digi-hack", "salto-15226", "salto-ctrl-real", "salto-15018", "salto-15195", "salto-15231"]
+    "olive_trees": {
+      "state": "VERIFY_SPANISH_APPLICATION_ROUTE_ASAP",
+      "fit": 96,
+      "media_value": 100,
+      "organisation_prior": "Ticket2Europe PAST_ACCEPTED_PARTICIPANT",
+      "dossier": "1bXJUZt3ixbawn6aTsn60FHxmOTV6M67k06Mw33fi7mU"
     },
-    "organisation_build": {"status": "active", "targets": ["salto-15084"]},
-    "long_term_strategic": {"status": "track_only", "targets": ["eyp-53887", "eyp-53828", "eyp-53829"]}
-  },
-  "deadline_critical": {
-    "eyp-53491": {
-      "title": "Guardians of Triglav National Park",
-      "official_deadline": "2026-08-28T15:00:00",
-      "source": "https://youth.europa.eu/solidarity/opportunity/53491_en",
-      "fact_resolution": "LIVE_SOURCE_SUPERSEDES_SEARCH_INDEX",
-      "state": "PRIVATE_GATES_AND_PORTAL_REVIEW_PENDING",
-      "dossier": "1Owwl19P-Ptt0sFKVMPslc4MnSX6SoGh6uE21LwYOg0w",
-      "next_gate": "PRIVATE_AGE_AVAILABILITY_THEN_ESC_PORTAL"
+    "thrive_and_shine": {"state": "VERIFY_ORIGINAL_INFOPACK_AND_FORM"},
+    "building_with_our_hands": {"state": "VERIFY_CURRENT_CALL"},
+    "triglav": {
+      "state": "DOSSIER_READY_PRIVATE_GATES_AND_PORTAL_PENDING",
+      "official_deadline": "2026-09-05T15:00:00",
+      "fact_resolution": "LIVE_SOURCE_SUPERSEDES_STALE_ARTIFACT"
     }
   },
-  "participant_p0": {
-    "thrive_and_shine": {
-      "state": "VERIFICATION_DEBT",
-      "location": "Paphos, Cyprus",
-      "dates": "2026-10-24..2026-10-31",
-      "countries_signal": ["LT", "ES", "RO", "CY"],
-      "deadline_signal": "ASAP_UNRESOLVED",
-      "deadline_urgency": 90,
-      "application": "https://forms.gle/awfmMswY2eCkvpyB7",
-      "infopack": "https://canva.link/9a0dnlclo0ijnl4",
-      "dossier": "1qOfwKNBJmyrofmnN7_stlRQdtxbyhYmyut-hhhK_olU",
-      "next_gate": "VERIFY_ORIGINAL_INFOPACK_AND_FORM"
-    },
-    "game_of_nature": {
-      "state": "NEEDS_CALL_SPECIFIC_EVIDENCE",
-      "deadline": "2026-09-15",
-      "application": "https://forms.gle/QMRf3DjuufCmAkG9A",
-      "next_gate": "VERIFY_PARTICIPANT_PROFILE_EVIDENCE"
-    }
+  "game_of_nature": {
+    "state": "CURRENT_PROFILE_CRITERION_UNRESOLVED",
+    "historical_youth_sector_experience": "verified",
+    "current_active_youth_ngo_education_volunteering_context": "unresolved",
+    "papaya_clarification_draft": "updated_not_sent",
+    "first_time_erasmus": false
   },
-  "esc_portfolio": {
-    "short_urgent": ["eyp-53491"],
-    "medium_option_cost": ["eyp-53828", "eyp-53829"],
-    "high_leverage_long_term": ["eyp-53887"],
-    "principle": "ESC/Youthpass value is scored separately from duration/portfolio option cost"
+  "salto_policy": {
+    "current_context_required": true,
+    "historical_experience_can_support_fit": true,
+    "historical_experience_can_bypass_gate": false
   },
-  "platform_policy": {
-    "salto_calendar": {"requires_youth_work_context": true, "decision_code": "VERIFY_YOUTH_WORK_CONTEXT", "private_profile_field": "youth_work_context_verified", "unverified_result": "UNKNOWN"},
-    "scope_rule": "Do not globalise SALTO policy to Youth Exchanges/ESC/other providers."
-  },
-  "credential_acquisition": {
-    "ladder": ["L0_SELF_DESCRIPTION", "L1_AFFILIATION", "L2_DELIVERED_YOUTH_ACTIVITY", "L3_EXTERNAL_REFERENCE", "L4_TOY_QUALIFYING_REFERENCE"],
-    "murcia_routes": ["Euroaccion", "585m2 Espacio Joven", "Servicio Juventud / Informajoven"],
-    "outreach_state": "3_gmail_drafts_prepared_not_sent",
-    "workshop_v1": "AI Creative Literacy: Detect Manipulation & Create Responsibly",
-    "workshop_status": "designed_not_delivered",
-    "profile_recheck_trigger": "real activity delivery + evidence pack"
+  "trainer_state": {
+    "verified_toy_qualifying_references": 0,
+    "strategy": "build_current_delivery_and_references",
+    "historical_youth_staff_experience": 2
   },
   "todoist": {
     "dedicated_project": "blocked_by_account_project_limit",
-    "fallback": "Inbox master graph + labels + wave tasks",
+    "fallback": "existing master graph + labelled wave tasks",
     "credential_wave": "W3B active",
-    "daily_discovery": "active",
-    "deadline_critical_task": "Triglav due 13:00 local for 15:00 official deadline",
-    "do_not_archive_unrelated_projects_without_user_instruction": true
+    "daily_discovery": "active"
   },
   "monitoring": {
     "eu_mobility_watch": "enabled",
     "cadence": "every_6_hours",
-    "mode": "condition_watch",
-    "notify_on": ["new_P0_or_P1", "material_deadline_or_status_change", "meaningful_paid_trainer_call"]
+    "mode": "condition_watch"
   },
-  "private_profile_debt": [
-    "verify_current_legal_residence",
-    "add_verify_age_or_dob",
-    "add_explicit_availability_confirmation",
-    "build_and_verify_youth_work_context",
-    "map_actually_delivered_training_and_references",
-    "map_degree_if_blue_book_is_pursued",
-    "map_formal_language_evidence_where_calls_require_cefr"
-  ],
-  "next_checkpoint": "Deadline-critical human step: resolve Triglav private gates and signed-in ESC portal before 15:00 today. Then verify Thrive original infopack/form and YUPI current call; progress Game of Nature; review/send credential-acquisition drafts only with human approval; capture first real youth-work L2 evidence."
+  "quality": {
+    "v0_4_main_ci": "success",
+    "v0_5_new_regression": "historical 2 Youth Staff + 1 Youth Exchange must still leave current-context gate UNKNOWN when current context is unverified",
+    "v0_5_remote_ci": "not_yet_observed"
+  },
+  "next_checkpoint": "Open v0.5 PR and observe exact-head CI; merge only if green. Operationally resolve Ticket2Europe Future/O-live calls, Thrive/YUPI source debt, Game of Nature current-profile criterion, and keep BreGal waitlist option alive via human-reviewed reply. Continue current youth-work credential acquisition; historical mobility does not replace current delivery evidence."
 }
