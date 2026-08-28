@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.3.1",
+  "schema_version": "1.3.2",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-28",
   "status": "v0_4_merged_dual_lane_operational",
@@ -17,7 +17,7 @@
     "goal_definition": {"current": 10, "target": 10},
     "truth_provenance": {"current": 10, "target": 10},
     "graph_model": {"current": 9, "target": 9},
-    "fact_conflict_resolution": {"current": 9, "target": 10},
+    "fact_conflict_resolution": {"current": 10, "target": 10},
     "portfolio_conflict_graph": {"current": 9, "target": 10},
     "platform_eligibility": {"current": 10, "target": 10},
     "credential_acquisition": {"current": 9, "target": 10},
@@ -26,6 +26,7 @@
     "eligibility_precision": {"current": 10, "target": 10},
     "infopack_extraction": {"current": 7, "target": 9},
     "application_personalisation": {"current": 9, "target": 9},
+    "decision_queue_routing": {"current": 10, "target": 10},
     "ai_policy_safety": {"current": 9, "target": 10},
     "organisation_intelligence": {"current": 7, "target": 9},
     "trainer_progression": {"current": 9, "target": 9},
@@ -51,9 +52,9 @@
     "drive_workspace": "07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS",
     "crm": "UE-Xchanges-OS — Opportunity & Application CRM",
     "crm_timezone": "Europe/Madrid",
-    "decision_queue": "operational_live_projection",
-    "canonical_opportunity_rows": 28,
-    "application_nodes": 9,
+    "decision_queue": "operational_live_projection_with_execution_rank",
+    "canonical_opportunity_rows": 32,
+    "application_nodes": 10,
     "private_evidence_items_seeded": 7,
     "verified_youth_work_context": null,
     "verified_toy_qualifying_references": 0,
@@ -61,7 +62,7 @@
     "workshop_v1_doc": "1yiA1_K9-anY0nzEBoeZq0zmohWMreWKPuDhsWWgv8j0",
     "credential_outreach_drafts": 3,
     "organiser_application_drafts": 4,
-    "active_priority_dossiers": 6,
+    "active_priority_dossiers": 7,
     "todoist_credential_wave": "W3B active",
     "merged_pull_requests": [1, 3, 4, 5],
     "closed_unmerged_pull_requests": [2]
@@ -75,22 +76,65 @@
     "pr_ci": "success",
     "main_push_ci": "success"
   },
+  "decision_queue": {
+    "ranking_formula": "priority_base + deadline_urgency + 0.2*fit + route_bonus - evidence_or_constraint_penalties",
+    "state_penalties": {"EVIDENCE_BLOCKED": -150, "CONSTRAINT_BLOCKED": -500, "terminal": -9999},
+    "route_bonuses": {"APPLY_TODAY": 50, "VERIFY_AND_APPLY_ASAP": 40, "VERIFY_NOW_OR_PRIVATE_PROFILE": 20, "PREP_DOSSIER": 10},
+    "semantic_rule": "exact known deadline outranks ASAP-without-exact-deadline; high strategic fit never outranks an executable hard-deadline route solely because fit is higher",
+    "current_top": ["eyp-53491", "telegram-thrive-shine", "doc1-yupi-building"]
+  },
   "operating_lanes": {
     "participant_now": {
       "status": "active",
       "rule": "Youth Exchanges, ESC and other non-SALTO calls use call-specific eligibility and may proceed independently of SALTO platform policy.",
-      "p0": ["telegram-thrive-shine", "2026-1-BG01-KA152-YOU-000396917"],
-      "verification_focus": ["telegram-thrive-shine", "doc1-yupi-building"]
+      "p0": ["eyp-53491", "telegram-thrive-shine"],
+      "p1": ["2026-1-BG01-KA152-YOU-000396917"],
+      "verification_focus": ["eyp-53491", "telegram-thrive-shine", "doc1-yupi-building"]
     },
     "credential_builder": {
       "status": "active",
       "rule": "SALTO high-fit opportunities remain target specs until genuine youth-work context is verified.",
       "targets": ["doc1-digi-hack", "salto-15226", "salto-ctrl-real", "salto-15018", "salto-15195", "salto-15231"]
     },
-    "organisation_build": {
-      "status": "active",
-      "targets": ["salto-15084"]
+    "organisation_build": {"status": "active", "targets": ["salto-15084"]},
+    "long_term_strategic": {"status": "track_only", "targets": ["eyp-53887", "eyp-53828", "eyp-53829"]}
+  },
+  "deadline_critical": {
+    "eyp-53491": {
+      "title": "Guardians of Triglav National Park",
+      "official_deadline": "2026-08-28T15:00:00",
+      "source": "https://youth.europa.eu/solidarity/opportunity/53491_en",
+      "fact_resolution": "LIVE_SOURCE_SUPERSEDES_SEARCH_INDEX",
+      "state": "PRIVATE_GATES_AND_PORTAL_REVIEW_PENDING",
+      "dossier": "1Owwl19P-Ptt0sFKVMPslc4MnSX6SoGh6uE21LwYOg0w",
+      "next_gate": "PRIVATE_AGE_AVAILABILITY_THEN_ESC_PORTAL"
     }
+  },
+  "participant_p0": {
+    "thrive_and_shine": {
+      "state": "VERIFICATION_DEBT",
+      "location": "Paphos, Cyprus",
+      "dates": "2026-10-24..2026-10-31",
+      "countries_signal": ["LT", "ES", "RO", "CY"],
+      "deadline_signal": "ASAP_UNRESOLVED",
+      "deadline_urgency": 90,
+      "application": "https://forms.gle/awfmMswY2eCkvpyB7",
+      "infopack": "https://canva.link/9a0dnlclo0ijnl4",
+      "dossier": "1qOfwKNBJmyrofmnN7_stlRQdtxbyhYmyut-hhhK_olU",
+      "next_gate": "VERIFY_ORIGINAL_INFOPACK_AND_FORM"
+    },
+    "game_of_nature": {
+      "state": "NEEDS_CALL_SPECIFIC_EVIDENCE",
+      "deadline": "2026-09-15",
+      "application": "https://forms.gle/QMRf3DjuufCmAkG9A",
+      "next_gate": "VERIFY_PARTICIPANT_PROFILE_EVIDENCE"
+    }
+  },
+  "esc_portfolio": {
+    "short_urgent": ["eyp-53491"],
+    "medium_option_cost": ["eyp-53828", "eyp-53829"],
+    "high_leverage_long_term": ["eyp-53887"],
+    "principle": "ESC/Youthpass value is scored separately from duration/portfolio option cost"
   },
   "platform_policy": {
     "salto_calendar": {"requires_youth_work_context": true, "decision_code": "VERIFY_YOUTH_WORK_CONTEXT", "private_profile_field": "youth_work_context_verified", "unverified_result": "UNKNOWN"},
@@ -104,31 +148,12 @@
     "workshop_status": "designed_not_delivered",
     "profile_recheck_trigger": "real activity delivery + evidence pack"
   },
-  "participant_p0": {
-    "thrive_and_shine": {
-      "state": "VERIFICATION_DEBT",
-      "location": "Paphos, Cyprus",
-      "dates": "2026-10-24..2026-10-31",
-      "countries_signal": ["LT", "ES", "RO", "CY"],
-      "deadline_signal": "ASAP",
-      "application": "https://forms.gle/awfmMswY2eCkvpyB7",
-      "infopack": "https://canva.link/9a0dnlclo0ijnl4",
-      "dossier": "1qOfwKNBJmyrofmnN7_stlRQdtxbyhYmyut-hhhK_olU",
-      "next_gate": "VERIFY_ORIGINAL_INFOPACK_AND_FORM"
-    },
-    "game_of_nature": {
-      "state": "NEEDS_CALL_SPECIFIC_EVIDENCE",
-      "deadline": "2026-09-15",
-      "application": "https://forms.gle/QMRf3DjuufCmAkG9A",
-      "next_gate": "VERIFY_PARTICIPANT_PROFILE_EVIDENCE"
-    }
-  },
   "todoist": {
     "dedicated_project": "blocked_by_account_project_limit",
     "fallback": "Inbox master graph + labels + wave tasks",
     "credential_wave": "W3B active",
     "daily_discovery": "active",
-    "participant_p0_tasks": ["Thrive and Shine", "Game of Nature"],
+    "deadline_critical_task": "Triglav due 13:00 local for 15:00 official deadline",
     "do_not_archive_unrelated_projects_without_user_instruction": true
   },
   "monitoring": {
@@ -146,5 +171,5 @@
     "map_degree_if_blue_book_is_pursued",
     "map_formal_language_evidence_where_calls_require_cefr"
   ],
-  "next_checkpoint": "Human-review credential outreach drafts; verify Thrive and Shine original infopack/form ASAP; resolve YUPI current-call evidence; progress Game of Nature participant profile; deliver first youth-work activity and capture L2 evidence; continue six-hour monitoring and daily participant discovery."
+  "next_checkpoint": "Deadline-critical human step: resolve Triglav private gates and signed-in ESC portal before 15:00 today. Then verify Thrive original infopack/form and YUPI current call; progress Game of Nature; review/send credential-acquisition drafts only with human approval; capture first real youth-work L2 evidence."
 }
