@@ -2,7 +2,7 @@
   "schema_version": "1.3.0",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-28",
-  "status": "v0_4_platform_eligibility_in_progress",
+  "status": "v0_4_merged_credential_acquisition_live",
   "north_star": {"name": "accepted_high_value_opportunities_per_human_application_hour", "target_direction": "maximize"},
   "slos": {
     "eligibility_false_pass_known_rules": 0,
@@ -19,11 +19,11 @@
     "graph_model": {"current": 9, "target": 9},
     "fact_conflict_resolution": {"current": 9, "target": 10},
     "portfolio_conflict_graph": {"current": 9, "target": 10},
-    "platform_eligibility": {"current": 9, "target": 10},
-    "credential_acquisition": {"current": 8, "target": 10},
+    "platform_eligibility": {"current": 10, "target": 10},
+    "credential_acquisition": {"current": 9, "target": 10},
     "discovery_coverage": {"current": 8, "target": 9},
     "deduplication": {"current": 9, "target": 10},
-    "eligibility_precision": {"current": 9, "target": 10},
+    "eligibility_precision": {"current": 10, "target": 10},
     "infopack_extraction": {"current": 7, "target": 9},
     "application_personalisation": {"current": 8, "target": 9},
     "ai_policy_safety": {"current": 9, "target": 10},
@@ -44,94 +44,70 @@
     {"id": 5, "name": "trainer_compounding", "status": "credential_graph_live"},
     {"id": 6, "name": "analytics_automation", "status": "planned"},
     {"id": 7, "name": "portfolio_commitment_guard", "status": "complete_v0_3"},
-    {"id": 8, "name": "platform_eligibility_guard", "status": "implemented_v0_4_branch"}
+    {"id": 8, "name": "platform_eligibility_guard", "status": "complete_v0_4"}
   ],
   "runtime": {
     "drive_workspace": "07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS",
     "crm": "UE-Xchanges-OS — Opportunity & Application CRM",
     "crm_timezone": "Europe/Madrid",
-    "decision_queue": "operational",
-    "canonical_opportunity_rows": 23,
+    "decision_queue": "operational_live_projection",
+    "canonical_opportunity_rows": 27,
     "application_nodes": 8,
     "private_evidence_items_seeded": 7,
     "verified_youth_work_context": null,
     "verified_toy_qualifying_references": 0,
-    "credential_acquisition_doc": "Credential Acquisition Loop — Youth Work → Trainer Path",
+    "credential_acquisition_doc": "1J5nSSWja0-QE6Td0WoCwV-EZGNddePuxEmQIWxNjkLQ",
+    "workshop_v1_doc": "1yiA1_K9-anY0nzEBoeZq0zmohWMreWKPuDhsWWgv8j0",
     "credential_outreach_drafts": 3,
     "organiser_application_drafts": 4,
-    "todoist_credential_wave": "created",
-    "merged_pull_requests": [1, 3, 4],
+    "todoist_credential_wave": "W3B created",
+    "merged_pull_requests": [1, 3, 4, 5],
     "closed_unmerged_pull_requests": [2]
   },
   "release": {
-    "current_main": "v0.3",
-    "v0_4_branch": "feat/v0.4-platform-eligibility",
-    "v0_4_status": "implementation_complete_pending_pr_ci",
-    "rule": "Only merge after exact-head remote CI success."
+    "current_main": "v0.4",
+    "pull_request": 5,
+    "merge_commit_sha": "6209fccf04d65066455066078f6a5a71f2cdb4a7",
+    "pr_validated_head_sha": "629507439a27f95b46508a7c3400ff4f6071545a",
+    "pr_workflow_run": 33159777452,
+    "main_push_workflow_run": 33159875513,
+    "pr_ci": "success",
+    "main_push_ci": "success",
+    "validated_jobs": ["unit (3.11)", "unit (3.12)"],
+    "rule": "Only claim CI against exact validated heads/runs."
   },
   "platform_policy": {
     "salto_calendar": {
       "requires_youth_work_context": true,
       "decision_code": "VERIFY_YOUTH_WORK_CONTEXT",
       "private_profile_field": "youth_work_context_verified",
-      "unverified_result": "UNKNOWN",
-      "rule": "Thematic fit, urgency or adjacent professional expertise never overrides this source-level gate."
-    }
+      "unverified_result": "UNKNOWN"
+    },
+    "scope_rule": "Do not globalise SALTO policy to Youth Exchanges/ESC/other providers."
   },
-  "high_priority_nodes": [
-    {
-      "id": "doc1-digi-hack",
-      "title": "Digi-Hack — A Journey Through Digital Competence",
-      "fit_score": 99,
-      "deadline": "2026-08-28",
-      "state": "EVIDENCE_BLOCKED",
-      "decision": "VERIFY_YOUTH_WORK_CONTEXT_NOW",
-      "reason": "SALTO platform context not verified"
-    },
-    {
-      "id": "salto-15226",
-      "title": "Unleashing Creativity: From Lens to Life",
-      "fit_score": 100,
-      "deadline": "2026-09-02",
-      "state": "EVIDENCE_BLOCKED",
-      "decision": "BUILD_YOUTH_WORK_CREDENTIAL"
-    },
-    {
-      "id": "salto-ctrl-real",
-      "title": "CTRL+REAL — Manipulated Realities DECODED",
-      "fit_score": 100,
-      "deadline": "2026-09-05",
-      "state": "EVIDENCE_BLOCKED",
-      "decision": "BUILD_YOUTH_WORK_CREDENTIAL"
-    },
-    {
-      "id": "doc1-yupi-building",
-      "title": "Building With Our Hands",
-      "fit_score": 82,
-      "deadline": "2026-08-31",
-      "state": "NEEDS_VERIFICATION",
-      "decision": "VERIFY_CURRENT_CALL"
-    },
-    {
-      "id": "2026-1-BG01-KA152-YOU-000396917",
-      "title": "Game of Nature",
-      "fit_score": 88,
-      "deadline": "2026-09-15",
-      "state": "NEEDS_EVIDENCE",
-      "decision": "VERIFY_CALL_SPECIFIC_PARTICIPANT_PROFILE"
-    }
-  ],
   "credential_acquisition": {
     "goal": "Create legitimate L1/L2/L3 youth-work evidence without manufacturing credentials.",
     "ladder": ["L0_SELF_DESCRIPTION", "L1_AFFILIATION", "L2_DELIVERED_YOUTH_ACTIVITY", "L3_EXTERNAL_REFERENCE", "L4_TOY_QUALIFYING_REFERENCE"],
     "murcia_routes": ["Euroaccion", "585m2 Espacio Joven", "Servicio Juventud / Informajoven"],
-    "outreach_state": "drafts_prepared_not_sent",
-    "workshop_v1": "AI creative/media literacy: detect manipulation and create responsibly",
-    "profile_recheck_trigger": "after real delivery evidence is captured"
+    "outreach_state": "3_gmail_drafts_prepared_not_sent",
+    "workshop_v1": "AI Creative Literacy: Detect Manipulation & Create Responsibly",
+    "workshop_status": "designed_not_delivered",
+    "profile_recheck_trigger": "real activity delivery + evidence pack"
+  },
+  "high_priority_states": {
+    "digi_hack": "EVIDENCE_BLOCKED",
+    "unleashing_creativity": "EVIDENCE_BLOCKED",
+    "ctrl_real": "EVIDENCE_BLOCKED",
+    "ask_better_teach_better": "EVIDENCE_BLOCKED",
+    "towards_collaborative_practice": "EVIDENCE_BLOCKED",
+    "storytelling_as_tool_for_change": "EVIDENCE_BLOCKED",
+    "eye_opener": "CONSTRAINT_BLOCKED_CURRENT_CYCLE",
+    "building_with_our_hands": "NEEDS_VERIFICATION",
+    "game_of_nature": "NEEDS_CALL_SPECIFIC_EVIDENCE"
   },
   "participant_lane": {
-    "status": "continues_independently",
-    "rule": "Youth Exchanges/ESC and other non-SALTO calls use their own call-specific eligibility; do not apply SALTO platform policy globally."
+    "status": "active",
+    "rule": "Continue massive discovery/application of legitimate Youth Exchanges, ESC and non-SALTO calls under their own requirements."
   },
   "private_profile_debt": [
     "verify_current_legal_residence",
@@ -142,18 +118,17 @@
     "map_degree_if_blue_book_is_pursued",
     "map_formal_language_evidence_where_calls_require_cefr"
   ],
-  "quality": {
-    "v0_3_main_ci": "success",
-    "v0_4_local_focus_expected": "eligibility + platform policy regressions added",
-    "v0_4_remote_ci": "not_yet_observed",
-    "rule": "Do not claim v0.4 green until exact-head PR CI completes."
-  },
   "todoist": {
     "dedicated_project": "blocked_by_account_project_limit",
     "fallback": "Inbox master graph + labels + wave tasks",
-    "credential_wave": "W3B created",
+    "credential_wave": "W3B active",
     "daily_discovery": "active",
     "do_not_archive_unrelated_projects_without_user_instruction": true
   },
-  "next_checkpoint": "Open v0.4 PR and observe exact-head CI; ingest new high-fit target-spec opportunities; review credential outreach drafts with human owner; deliver first youth activity and capture L2 evidence; only then re-evaluate SALTO high-fit nodes."
+  "quality": {
+    "v0_3_main_ci": "success",
+    "v0_4_pr_ci": {"head_sha": "629507439a27f95b46508a7c3400ff4f6071545a", "workflow_run": 33159777452, "conclusion": "success"},
+    "v0_4_main_push_ci": {"merge_commit_sha": "6209fccf04d65066455066078f6a5a71f2cdb4a7", "workflow_run": 33159875513, "conclusion": "success"}
+  },
+  "next_checkpoint": "Human-review credential outreach drafts; secure a real youth-work collaboration/activity; deliver Workshop V1 or equivalent; capture L2 evidence and re-evaluate youth_work_context_verified. In parallel continue participant Youth Exchange/ESC discovery, verify YUPI current call and progress Game of Nature call-specific evidence."
 }
