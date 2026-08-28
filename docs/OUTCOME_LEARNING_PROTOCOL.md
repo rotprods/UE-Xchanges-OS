@@ -11,6 +11,7 @@ The system currently has sparse outcome data. It must therefore control **which 
 - `ACCEPTED_COMPLETED`
 - `ACCEPTED`
 - `WAITLIST_PRIORITY`
+- `WAITLIST_UNRANKED`
 - `REJECTED_WITH_FEEDBACK`
 - `REJECTED_HIGH_COMPETITION`
 - `REJECTED_NO_REASON`
@@ -28,7 +29,7 @@ An outcome may update one or more of these independent priors:
 5. organisation relationship prior;
 6. organisation response-behaviour prior.
 
-No single scalar 'acceptance score' is updated from sparse evidence.
+No single scalar acceptance score is updated from sparse evidence.
 
 ## Causal-strength rules
 
@@ -38,9 +39,19 @@ Positive selection signal. May update organisation relationship and a weak/mediu
 Forbidden: concluding that every application component caused selection or treating historical self-reported application answers as verified evidence.
 
 ### WAITLIST_PRIORITY
-A high-priority waitlist is a **near-accept** signal.
+A ranked high-priority waitlist is a **near-accept** signal.
 
 Rank 1–3 may create a weak positive selection prior. It never creates a negative application-quality penalty without explicit feedback.
+
+### WAITLIST_UNRANKED
+An unranked waitlist is also a viable/near-accept signal, but its selection strength is unknown.
+
+Rules:
+- do not invent a rank;
+- do not treat it as top-3;
+- do not create a negative application-quality penalty;
+- do not create a positive selection prior solely from unknown rank;
+- it may update organisation relationship/response history and preserve the application as a viable-selection signal.
 
 ### REJECTED_WITH_FEEDBACK
 Only this class allows call-specific negative criterion/answer heuristic updates, and only when explicit organiser feedback exists.
@@ -63,10 +74,11 @@ No selection-quality learning unless independent organiser feedback exists.
 
 ## Current private fixtures
 
-Private CRM currently includes:
+Private CRM currently includes examples of:
 
-- accepted/completed historical mobility with Ticket2Europe;
-- first-place waitlist / near-accept with BreGal;
+- accepted/completed historical mobility;
+- first-place waitlist / near-accept;
+- unranked waitlist / viable-selection signal;
 - high-competition rejection with 430+ applications and no individual reason.
 
 These are operational fixtures, not public test data containing personal/private content.
