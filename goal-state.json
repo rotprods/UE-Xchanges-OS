@@ -2,7 +2,7 @@
   "schema_version": "1.2.0",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-28",
-  "status": "v0_3_live_execution_in_progress",
+  "status": "v0_3_pr4_ci_green_pending_merge",
   "north_star": {
     "name": "accepted_high_value_opportunities_per_human_application_hour",
     "target_direction": "maximize"
@@ -42,7 +42,7 @@
     {"id": 4, "name": "application_intelligence", "status": "live_execution"},
     {"id": 5, "name": "trainer_compounding", "status": "credential_graph_live"},
     {"id": 6, "name": "analytics_automation", "status": "planned"},
-    {"id": 7, "name": "portfolio_commitment_guard", "status": "implemented_in_v0_3_branch"}
+    {"id": 7, "name": "portfolio_commitment_guard", "status": "implemented_pr4"}
   ],
   "runtime": {
     "drive_workspace": "07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS",
@@ -72,9 +72,14 @@
   },
   "release": {
     "current_main": "v0.2",
-    "v0_3_status": "branch_in_progress",
-    "v0_3_remote_ci": "not_yet_observed",
-    "rule": "Only claim CI against the exact release head/PR that produced it."
+    "v0_3_status": "pr4_ci_green_pending_merge",
+    "pull_request": 4,
+    "validated_head_sha": "8cb7aa60934806c5002a4b0910163117c45ba0c8",
+    "validated_workflow_run": 33158214451,
+    "validated_jobs": ["unit (3.11)", "unit (3.12)"],
+    "validated_conclusion": "success",
+    "current_head_after_state_update": "pending_new_ci",
+    "rule": "Only claim CI against the exact head SHA that produced it. Any later commit must receive its own green run before merge."
   },
   "high_priority_nodes": [
     {
@@ -171,8 +176,14 @@
     "v0_2_remote_ci": "success",
     "v0_3_portfolio_focused_local": {"tests_passed": 7, "tests_failed": 0},
     "v0_3_fact_resolution_focused_local": {"tests_passed": 6, "tests_failed": 0},
-    "v0_3_remote_ci": "not_yet_observed",
+    "v0_3_remote_ci_validated_head": {
+      "head_sha": "8cb7aa60934806c5002a4b0910163117c45ba0c8",
+      "workflow_run": 33158214451,
+      "python_3_11": "success",
+      "python_3_12": "success"
+    },
+    "v0_3_current_head_ci": "pending_after_goal_state_update",
     "rule": "Local focused checks do not substitute for the exact PR CI run."
   },
-  "next_checkpoint": "Open v0.3 PR and observe CI; capture Digi-Hack form questions/policy through a supported human/browser surface before the 28 Aug deadline; send/review organiser eligibility queries only with explicit human approval; promote only PASS + policy-resolved nodes to final submission; record receipts and accepted/committed portfolio conflicts."
+  "next_checkpoint": "Observe green CI for the new PR4 head after this state-only commit; merge v0.3 if clean. Operationally: capture Digi-Hack form questions/policy through a supported human/browser surface before the 28 Aug deadline; review/send organiser eligibility queries only with explicit human approval; promote only PASS + policy-resolved nodes to final submission; record receipts and accepted/committed portfolio conflicts."
 }
