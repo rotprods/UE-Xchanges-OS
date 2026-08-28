@@ -17,3 +17,14 @@ class EligibilityTests(unittest.TestCase):
         p,o=self.base(); self.assertEqual(evaluate_eligibility(p,o,now=datetime(2026,9,2,tzinfo=timezone.utc)).result,GateResult.FAIL)
     def test_unknown_not_assumed_pass(self):
         p,o=self.base(); o.eligible_countries=None; self.assertEqual(evaluate_eligibility(p,o,now=datetime(2026,8,27,tzinfo=timezone.utc)).result,GateResult.UNKNOWN)
+    def test_required_youth_work_context_unverified_is_unknown(self):
+        p,o=self.base(); o.requires_youth_work_context=True
+        d=evaluate_eligibility(p,o,now=datetime(2026,8,27,tzinfo=timezone.utc))
+        self.assertEqual(d.result,GateResult.UNKNOWN)
+        self.assertEqual(next(g for g in d.gates if g.name=="youth_work_context").result,GateResult.UNKNOWN)
+    def test_required_youth_work_context_verified_passes(self):
+        p,o=self.base(); o.requires_youth_work_context=True; p.youth_work_context_verified=True
+        self.assertEqual(evaluate_eligibility(p,o,now=datetime(2026,8,27,tzinfo=timezone.utc)).result,GateResult.PASS)
+    def test_required_youth_work_context_verified_false_fails(self):
+        p,o=self.base(); o.requires_youth_work_context=True; p.youth_work_context_verified=False
+        self.assertEqual(evaluate_eligibility(p,o,now=datetime(2026,8,27,tzinfo=timezone.utc)).result,GateResult.FAIL)
