@@ -42,6 +42,9 @@ class ApplicantProfile:
     available_to: date | None = None
     previous_programme_months: dict[str, float] = field(default_factory=dict)
     evidence_ids: set[str] = field(default_factory=set)
+    # True only when private evidence demonstrates actual involvement in youth work
+    # (or another explicitly accepted youth-work-context target). None means unverified.
+    youth_work_context_verified: bool | None = None
 
 @dataclass
 class Opportunity:
@@ -59,6 +62,10 @@ class Opportunity:
     required_languages: set[str] = field(default_factory=set)
     required_topics: set[str] = field(default_factory=set)
     requires_support_org: bool | None = None
+    # Platform/call-level eligibility requirement. For example, the SALTO European
+    # Training Calendar targets people already involved in youth work; recommended
+    # sub-profiles may further narrow that target.
+    requires_youth_work_context: bool = False
     ai_policy: AIPolicy = AIPolicy.UNKNOWN
     facts: dict[str, Any] = field(default_factory=dict)
     provenance: dict[str, Provenance] = field(default_factory=dict)

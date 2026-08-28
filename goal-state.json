@@ -1,19 +1,17 @@
 {
-  "schema_version": "1.2.0",
+  "schema_version": "1.3.0",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-28",
-  "status": "v0_3_merged_live_execution",
-  "north_star": {
-    "name": "accepted_high_value_opportunities_per_human_application_hour",
-    "target_direction": "maximize"
-  },
+  "status": "v0_4_platform_eligibility_in_progress",
+  "north_star": {"name": "accepted_high_value_opportunities_per_human_application_hour", "target_direction": "maximize"},
   "slos": {
     "eligibility_false_pass_known_rules": 0,
     "duplicate_submissions": 0,
     "fabricated_external_claims": 0,
     "known_ai_policy_violations": 0,
     "missed_verified_priority_deadlines": 0,
-    "unresolved_double_commitments": 0
+    "unresolved_double_commitments": 0,
+    "platform_gate_bypasses": 0
   },
   "dimensions": {
     "goal_definition": {"current": 10, "target": 10},
@@ -21,172 +19,141 @@
     "graph_model": {"current": 9, "target": 9},
     "fact_conflict_resolution": {"current": 9, "target": 10},
     "portfolio_conflict_graph": {"current": 9, "target": 10},
-    "discovery_coverage": {"current": 7, "target": 9},
+    "platform_eligibility": {"current": 9, "target": 10},
+    "credential_acquisition": {"current": 8, "target": 10},
+    "discovery_coverage": {"current": 8, "target": 9},
     "deduplication": {"current": 9, "target": 10},
     "eligibility_precision": {"current": 9, "target": 10},
     "infopack_extraction": {"current": 7, "target": 9},
     "application_personalisation": {"current": 8, "target": 9},
     "ai_policy_safety": {"current": 9, "target": 10},
-    "organisation_intelligence": {"current": 6, "target": 9},
+    "organisation_intelligence": {"current": 7, "target": 9},
     "trainer_progression": {"current": 9, "target": 9},
     "outcome_analytics": {"current": 2, "target": 9},
     "drive_handoff": {"current": 10, "target": 10},
     "git_local_handoff": {"current": 9, "target": 10},
-    "todoist_execution_projection": {"current": 8, "target": 10}
+    "todoist_execution_projection": {"current": 9, "target": 10}
   },
   "waves": [
     {"id": 0, "name": "definition_architecture", "status": "complete"},
     {"id": 1, "name": "deterministic_core", "status": "complete"},
     {"id": 2, "name": "discovery_connectors", "status": "operational_partial"},
     {"id": 3, "name": "persistence_drive_sync", "status": "operational_partial"},
+    {"id": 3.5, "name": "credential_acquisition", "status": "live"},
     {"id": 4, "name": "application_intelligence", "status": "live_execution"},
     {"id": 5, "name": "trainer_compounding", "status": "credential_graph_live"},
     {"id": 6, "name": "analytics_automation", "status": "planned"},
-    {"id": 7, "name": "portfolio_commitment_guard", "status": "complete_v0_3"}
+    {"id": 7, "name": "portfolio_commitment_guard", "status": "complete_v0_3"},
+    {"id": 8, "name": "platform_eligibility_guard", "status": "implemented_v0_4_branch"}
   ],
   "runtime": {
     "drive_workspace": "07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS",
     "crm": "UE-Xchanges-OS — Opportunity & Application CRM",
     "crm_timezone": "Europe/Madrid",
+    "decision_queue": "operational",
     "canonical_opportunity_rows": 23,
-    "provided_doc1_opportunities": 21,
-    "telegram_raw_refs": 61,
-    "telegram_unique_provider_keys": 60,
-    "telegram_exact_duplicates_detected": 1,
-    "private_evidence_items_seeded": 7,
-    "active_priority_dossiers": 5,
-    "eligibility_dossiers": 2,
     "application_nodes": 8,
-    "organisation_nodes": 9,
-    "organiser_email_drafts": 3,
-    "git_local": "/git.local/UE-Xchanges-OS",
+    "private_evidence_items_seeded": 7,
+    "verified_youth_work_context": null,
+    "verified_toy_qualifying_references": 0,
+    "credential_acquisition_doc": "Credential Acquisition Loop — Youth Work → Trainer Path",
+    "credential_outreach_drafts": 3,
+    "organiser_application_drafts": 4,
+    "todoist_credential_wave": "created",
     "merged_pull_requests": [1, 3, 4],
-    "closed_unmerged_pull_requests": [2],
-    "calendar_scan": {
-      "calendar": "primary",
-      "range": "2026-09-15..2026-10-27",
-      "busy_windows": 0,
-      "interpretation": "weak evidence only; empty calendar is not proof of real-world availability"
-    }
+    "closed_unmerged_pull_requests": [2]
   },
   "release": {
     "current_main": "v0.3",
-    "pull_request": 4,
-    "merge_commit_sha": "324df56b79dddfcda5fac8bcd6e4f148bbcc36d4",
-    "pr_validated_head_sha": "17020ba29c7926f36949c2dd667bc79db3748289",
-    "pr_workflow_run": 33158334855,
-    "main_push_workflow_run": 33158405345,
-    "validated_jobs": ["unit (3.11)", "unit (3.12)"],
-    "pr_ci": "success",
-    "main_push_ci": "success",
-    "rule": "Only claim CI against the exact head/merge commit and workflow run that produced it."
+    "v0_4_branch": "feat/v0.4-platform-eligibility",
+    "v0_4_status": "implementation_complete_pending_pr_ci",
+    "rule": "Only merge after exact-head remote CI success."
+  },
+  "platform_policy": {
+    "salto_calendar": {
+      "requires_youth_work_context": true,
+      "decision_code": "VERIFY_YOUTH_WORK_CONTEXT",
+      "private_profile_field": "youth_work_context_verified",
+      "unverified_result": "UNKNOWN",
+      "rule": "Thematic fit, urgency or adjacent professional expertise never overrides this source-level gate."
+    }
   },
   "high_priority_nodes": [
     {
       "id": "doc1-digi-hack",
       "title": "Digi-Hack — A Journey Through Digital Competence",
       "fit_score": 99,
-      "media_value": 92,
-      "trainer_leverage": 98,
-      "state": "DOSSIER_READY_FORM_CAPTURE_PENDING",
       "deadline": "2026-08-28",
-      "next_action": "FORM_CAPTURE_THEN_ROLE_AND_AI_POLICY_GATE",
-      "fact_resolution": "LIVE_SOURCE_SUPERSEDES_STALE_ARTIFACT"
+      "state": "EVIDENCE_BLOCKED",
+      "decision": "VERIFY_YOUTH_WORK_CONTEXT_NOW",
+      "reason": "SALTO platform context not verified"
     },
     {
       "id": "salto-15226",
       "title": "Unleashing Creativity: From Lens to Life",
       "fit_score": 100,
-      "media_value": 100,
-      "trainer_leverage": 98,
-      "state": "NEEDS_EVIDENCE",
       "deadline": "2026-09-02",
-      "next_action": "ORGANISER_ELIGIBILITY_QUERY"
+      "state": "EVIDENCE_BLOCKED",
+      "decision": "BUILD_YOUTH_WORK_CREDENTIAL"
     },
     {
       "id": "salto-ctrl-real",
       "title": "CTRL+REAL — Manipulated Realities DECODED",
       "fit_score": 100,
-      "media_value": 94,
-      "trainer_leverage": 100,
-      "state": "NEEDS_EVIDENCE",
       "deadline": "2026-09-05",
-      "next_action": "ROLE_EVIDENCE_AND_APPLICATION_POLICY"
+      "state": "EVIDENCE_BLOCKED",
+      "decision": "BUILD_YOUTH_WORK_CREDENTIAL"
     },
     {
       "id": "doc1-yupi-building",
       "title": "Building With Our Hands",
       "fit_score": 82,
-      "media_value": 95,
-      "state": "NEEDS_VERIFICATION",
       "deadline": "2026-08-31",
-      "next_action": "ORGANISER_CALL_VERIFICATION"
+      "state": "NEEDS_VERIFICATION",
+      "decision": "VERIFY_CURRENT_CALL"
     },
     {
       "id": "2026-1-BG01-KA152-YOU-000396917",
       "title": "Game of Nature",
       "fit_score": 88,
-      "media_value": 96,
-      "state": "NEEDS_EVIDENCE",
       "deadline": "2026-09-15",
-      "next_action": "ORGANISER_ELIGIBILITY_QUERY"
+      "state": "NEEDS_EVIDENCE",
+      "decision": "VERIFY_CALL_SPECIFIC_PARTICIPANT_PROFILE"
     }
   ],
-  "portfolio_conflicts": {
-    "edge_type": "MUTUALLY_EXCLUSIVE_IF_ACCEPTED",
-    "application_overlap_allowed": true,
-    "commitment_guard": "ACCEPTED_TO_COMMITTED_REQUIRES_RESOLUTION",
-    "principal_edges": [
-      ["salto-ctrl-real", "doc1-yupi-building"],
-      ["doc1-yupi-building", "2026-1-BG01-KA152-YOU-000396917"],
-      ["2026-1-BG01-KA152-YOU-000396917", "salto-15226"]
-    ],
-    "high_option_cost_nodes": ["doc1-a-cu-apparteni", "doc1-solsona"],
-    "provisional_date_conflict_node": "doc1-bars-beyond-borders"
+  "credential_acquisition": {
+    "goal": "Create legitimate L1/L2/L3 youth-work evidence without manufacturing credentials.",
+    "ladder": ["L0_SELF_DESCRIPTION", "L1_AFFILIATION", "L2_DELIVERED_YOUTH_ACTIVITY", "L3_EXTERNAL_REFERENCE", "L4_TOY_QUALIFYING_REFERENCE"],
+    "murcia_routes": ["Euroaccion", "585m2 Espacio Joven", "Servicio Juventud / Informajoven"],
+    "outreach_state": "drafts_prepared_not_sent",
+    "workshop_v1": "AI creative/media literacy: detect manipulation and create responsibly",
+    "profile_recheck_trigger": "after real delivery evidence is captured"
   },
-  "blocked_or_archived_examples": {
-    "on_air": "BLOCK_COUNTRY",
-    "move_to_improve": "BLOCK_COUNTRY",
-    "pancha_tantra": "BLOCK_COUNTRY",
-    "storytelling_advocacy_peace": "BLOCK_DEADLINE",
-    "rise": "ARCHIVE_CLOSED_AND_AI_FINAL_TEXT_PROHIBITED"
+  "participant_lane": {
+    "status": "continues_independently",
+    "rule": "Youth Exchanges/ESC and other non-SALTO calls use their own call-specific eligibility; do not apply SALTO platform policy globally."
   },
   "private_profile_debt": [
     "verify_current_legal_residence",
     "add_verify_age_or_dob",
     "add_explicit_availability_confirmation",
-    "map_completed_youth_work_volunteering_nfe_history",
+    "build_and_verify_youth_work_context",
     "map_actually_delivered_training_and_references",
     "map_degree_if_blue_book_is_pursued",
     "map_formal_language_evidence_where_calls_require_cefr"
   ],
-  "trainer_state": {
-    "verified_toy_qualifying_references": 0,
-    "strategy": "build_not_claim",
-    "credential_levels": ["L0_SELF_DESCRIPTION", "L1_ARTIFACT", "L2_DELIVERY_PROOF", "L3_OUTCOME_REFERENCE", "L4_TOY_QUALIFYING_REFERENCE"]
+  "quality": {
+    "v0_3_main_ci": "success",
+    "v0_4_local_focus_expected": "eligibility + platform policy regressions added",
+    "v0_4_remote_ci": "not_yet_observed",
+    "rule": "Do not claim v0.4 green until exact-head PR CI completes."
   },
   "todoist": {
-    "requested_project_creation": "blocked_by_account_project_limit",
-    "workspace_fallback_available": false,
-    "fallback_projection": "Inbox master graph + labels + wave subtasks",
-    "daily_discovery_task": "created_recurring",
-    "portfolio_wave_task": "created",
+    "dedicated_project": "blocked_by_account_project_limit",
+    "fallback": "Inbox master graph + labels + wave tasks",
+    "credential_wave": "W3B created",
+    "daily_discovery": "active",
     "do_not_archive_unrelated_projects_without_user_instruction": true
   },
-  "quality": {
-    "v0_2_remote_ci": "success",
-    "v0_3_portfolio_focused_local": {"tests_passed": 7, "tests_failed": 0},
-    "v0_3_fact_resolution_focused_local": {"tests_passed": 6, "tests_failed": 0},
-    "v0_3_pr_ci": {
-      "head_sha": "17020ba29c7926f36949c2dd667bc79db3748289",
-      "workflow_run": 33158334855,
-      "conclusion": "success"
-    },
-    "v0_3_main_push_ci": {
-      "merge_commit_sha": "324df56b79dddfcda5fac8bcd6e4f148bbcc36d4",
-      "workflow_run": 33158405345,
-      "conclusion": "success"
-    }
-  },
-  "next_checkpoint": "Operational Wave 4: capture Digi-Hack form questions/policy through a supported human/browser surface before the 28 Aug deadline; review/send organiser eligibility queries only with explicit human approval; promote only PASS + policy-resolved nodes to final submission; record submission receipts and outcomes; expand source collectors and outcome analytics after deadline-critical queue is clear."
+  "next_checkpoint": "Open v0.4 PR and observe exact-head CI; ingest new high-fit target-spec opportunities; review credential outreach drafts with human owner; deliver first youth activity and capture L2 evidence; only then re-evaluate SALTO high-fit nodes."
 }

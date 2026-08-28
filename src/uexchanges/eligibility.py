@@ -43,4 +43,23 @@ def evaluate_eligibility(profile: ApplicantProfile, opportunity: Opportunity, *,
         gates.append(GateDecision("language", GateResult.PASS, "Mandatory language requirements are satisfied."))
     else:
         gates.append(GateDecision("language", GateResult.FAIL, "A mandatory language requirement is not satisfied."))
+    if opportunity.requires_youth_work_context:
+        if profile.youth_work_context_verified is None:
+            gates.append(GateDecision(
+                "youth_work_context",
+                GateResult.UNKNOWN,
+                "This platform/call requires existing youth-work involvement, but the applicant's youth-work context is not verified."
+            ))
+        elif profile.youth_work_context_verified:
+            gates.append(GateDecision(
+                "youth_work_context",
+                GateResult.PASS,
+                "Verified evidence satisfies the required youth-work context."
+            ))
+        else:
+            gates.append(GateDecision(
+                "youth_work_context",
+                GateResult.FAIL,
+                "Verified applicant profile does not satisfy the required youth-work context."
+            ))
     return EligibilityDecision(result=_combine(gates), gates=gates)
