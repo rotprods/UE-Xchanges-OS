@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "created_at": "2026-08-28T14:27:00+02:00",
+  "status": "ACTIVE_OVERRIDE",
+  "scope": "deadline-critical operational facts that supersede stale goal-state fields until integrated",
+  "overrides": {
+    "p0_verification.triglav": {
+      "opportunity_id": "eyp-53491",
+      "title": "Guardians of Triglav National Park",
+      "state": "DEADLINE_CRITICAL_PORTAL_SIGNIN_REQUIRED",
+      "official_deadline": "2026-08-28T15:00:00+02:00",
+      "activity_dates": "2026-09-21..2026-10-05",
+      "source": "https://youth.europa.eu/solidarity/opportunity/53491_en",
+      "fact_resolution": "FRESH_OFFICIAL_DETAIL_PAGE_CONTROLS",
+      "revokes": [
+        "goal-state.json p0_verification.triglav.official_deadline=2026-09-05T15:00:00",
+        "Drive/CRM claims that a newer official page moved the deadline to 05 Sep"
+      ],
+      "manual_gate": "Sign in to the European Youth Portal and submit before 15:00 if private age, availability, prior-participation and portal-policy gates pass."
+    },
+    "p0_verification.future_careers_ai": {
+      "state": "FORM_CAPTURED_AI_POLICY_AND_PRIVATE_GATES_PENDING",
+      "dates": "2026-09-04..2026-09-13"
+    },
+    "execution_wave": {
+      "external_messages_sent": 9,
+      "sent": [
+        "BreGal waitlist confirmation",
+        "Ticket2Europe Future/O-live verification",
+        "YUPI call verification",
+        "Papaya profile clarification",
+        "Euroaccion collaboration proposal",
+        "585m2 youth workshop proposal",
+        "Murcia Youth Service collaboration proposal",
+        "Digi-Hack eligibility query",
+        "Unleashing Creativity eligibility query"
+      ]
+    }
+  },
+  "read_rule": "When this file conflicts with goal-state.json, this file controls the listed fields. Integrate and delete the override in the next coherent state commit."
+}
