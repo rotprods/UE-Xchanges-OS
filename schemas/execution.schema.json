@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ExecutionEvent",
+  "type": "object",
+  "required": ["event_id", "entity_id", "event_type", "occurred_at", "source_ref"],
+  "properties": {
+    "event_id": {"type": "string"},
+    "entity_id": {"type": "string"},
+    "event_type": {
+      "enum": [
+        "communication_sent",
+        "communication_replied",
+        "communication_bounced",
+        "follow_up_sent",
+        "form_captured",
+        "ai_policy_resolved",
+        "human_review_completed",
+        "submission_reported",
+        "submission_receipt_captured",
+        "deadline_passed_receipt_unknown",
+        "closed_not_submitted"
+      ]
+    },
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "source_ref": {"type": "string"},
+    "communication_state": {
+      "enum": [
+        "sent_waiting",
+        "reply_received",
+        "bounced",
+        "follow_up_due",
+        "deadline_critical_no_reply",
+        "deadline_passed_no_reply",
+        null
+      ]
+    },
+    "submission_state": {
+      "enum": [
+        "pre_deadline",
+        "submitted_confirmed",
+        "submitted_unverified",
+        "deadline_passed_receipt_unknown",
+        "closed_not_submitted",
+        "withdrawn",
+        null
+      ]
+    },
+    "next_action": {"type": ["string", "null"]},
+    "deadline": {"type": ["string", "null"], "format": "date-time"},
+    "receipt_ref": {"type": ["string", "null"]},
+    "notes": {"type": ["string", "null"]}
+  }
+}
