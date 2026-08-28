@@ -2,7 +2,7 @@
   "schema_version": "1.2.0",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-28",
-  "status": "v0_3_pr4_ci_green_pending_merge",
+  "status": "v0_3_merged_live_execution",
   "north_star": {
     "name": "accepted_high_value_opportunities_per_human_application_hour",
     "target_direction": "maximize"
@@ -42,7 +42,7 @@
     {"id": 4, "name": "application_intelligence", "status": "live_execution"},
     {"id": 5, "name": "trainer_compounding", "status": "credential_graph_live"},
     {"id": 6, "name": "analytics_automation", "status": "planned"},
-    {"id": 7, "name": "portfolio_commitment_guard", "status": "implemented_pr4"}
+    {"id": 7, "name": "portfolio_commitment_guard", "status": "complete_v0_3"}
   ],
   "runtime": {
     "drive_workspace": "07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS",
@@ -60,9 +60,8 @@
     "organisation_nodes": 9,
     "organiser_email_drafts": 3,
     "git_local": "/git.local/UE-Xchanges-OS",
-    "merged_pull_requests": [1, 3],
+    "merged_pull_requests": [1, 3, 4],
     "closed_unmerged_pull_requests": [2],
-    "v0_3_branch": "feat/v0.3-live-execution",
     "calendar_scan": {
       "calendar": "primary",
       "range": "2026-09-15..2026-10-27",
@@ -71,15 +70,16 @@
     }
   },
   "release": {
-    "current_main": "v0.2",
-    "v0_3_status": "pr4_ci_green_pending_merge",
+    "current_main": "v0.3",
     "pull_request": 4,
-    "validated_head_sha": "8cb7aa60934806c5002a4b0910163117c45ba0c8",
-    "validated_workflow_run": 33158214451,
+    "merge_commit_sha": "324df56b79dddfcda5fac8bcd6e4f148bbcc36d4",
+    "pr_validated_head_sha": "17020ba29c7926f36949c2dd667bc79db3748289",
+    "pr_workflow_run": 33158334855,
+    "main_push_workflow_run": 33158405345,
     "validated_jobs": ["unit (3.11)", "unit (3.12)"],
-    "validated_conclusion": "success",
-    "current_head_after_state_update": "pending_new_ci",
-    "rule": "Only claim CI against the exact head SHA that produced it. Any later commit must receive its own green run before merge."
+    "pr_ci": "success",
+    "main_push_ci": "success",
+    "rule": "Only claim CI against the exact head/merge commit and workflow run that produced it."
   },
   "high_priority_nodes": [
     {
@@ -170,20 +170,23 @@
     "workspace_fallback_available": false,
     "fallback_projection": "Inbox master graph + labels + wave subtasks",
     "daily_discovery_task": "created_recurring",
+    "portfolio_wave_task": "created",
     "do_not_archive_unrelated_projects_without_user_instruction": true
   },
   "quality": {
     "v0_2_remote_ci": "success",
     "v0_3_portfolio_focused_local": {"tests_passed": 7, "tests_failed": 0},
     "v0_3_fact_resolution_focused_local": {"tests_passed": 6, "tests_failed": 0},
-    "v0_3_remote_ci_validated_head": {
-      "head_sha": "8cb7aa60934806c5002a4b0910163117c45ba0c8",
-      "workflow_run": 33158214451,
-      "python_3_11": "success",
-      "python_3_12": "success"
+    "v0_3_pr_ci": {
+      "head_sha": "17020ba29c7926f36949c2dd667bc79db3748289",
+      "workflow_run": 33158334855,
+      "conclusion": "success"
     },
-    "v0_3_current_head_ci": "pending_after_goal_state_update",
-    "rule": "Local focused checks do not substitute for the exact PR CI run."
+    "v0_3_main_push_ci": {
+      "merge_commit_sha": "324df56b79dddfcda5fac8bcd6e4f148bbcc36d4",
+      "workflow_run": 33158405345,
+      "conclusion": "success"
+    }
   },
-  "next_checkpoint": "Observe green CI for the new PR4 head after this state-only commit; merge v0.3 if clean. Operationally: capture Digi-Hack form questions/policy through a supported human/browser surface before the 28 Aug deadline; review/send organiser eligibility queries only with explicit human approval; promote only PASS + policy-resolved nodes to final submission; record receipts and accepted/committed portfolio conflicts."
+  "next_checkpoint": "Operational Wave 4: capture Digi-Hack form questions/policy through a supported human/browser surface before the 28 Aug deadline; review/send organiser eligibility queries only with explicit human approval; promote only PASS + policy-resolved nodes to final submission; record submission receipts and outcomes; expand source collectors and outcome analytics after deadline-critical queue is clear."
 }
