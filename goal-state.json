@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.4.1",
+  "schema_version": "1.5.0",
   "project": "UE-Xchanges-OS",
   "updated_at": "2026-08-28",
-  "status": "v0_5_merged_outcome_learning_live",
+  "status": "v0_6_outcome_learning_pending_pr_ci",
   "north_star": {"name": "accepted_high_value_opportunities_per_human_application_hour", "target_direction": "maximize"},
   "slos": {
     "eligibility_false_pass_known_rules": 0,
@@ -13,7 +13,8 @@
     "unresolved_double_commitments": 0,
     "platform_gate_bypasses": 0,
     "temporal_evidence_scope_errors": 0,
-    "invented_rejection_causes": 0
+    "invented_rejection_causes": 0,
+    "waitlist_trained_as_negative": 0
   },
   "dimensions": {
     "goal_definition": {"current": 10, "target": 10},
@@ -33,7 +34,7 @@
     "ai_policy_safety": {"current": 9, "target": 10},
     "organisation_intelligence": {"current": 8, "target": 9},
     "trainer_progression": {"current": 9, "target": 9},
-    "outcome_analytics": {"current": 6, "target": 9},
+    "outcome_analytics": {"current": 8, "target": 9},
     "drive_handoff": {"current": 10, "target": 10},
     "git_local_handoff": {"current": 9, "target": 10},
     "todoist_execution_projection": {"current": 9, "target": 10},
@@ -48,6 +49,7 @@
     {"id": 4, "name": "application_intelligence", "status": "live_execution"},
     {"id": 5, "name": "trainer_compounding", "status": "credential_graph_live"},
     {"id": 6, "name": "analytics_automation", "status": "outcome_history_live"},
+    {"id": 6.1, "name": "causal_strength_outcome_policy", "status": "implemented_v0_6_branch"},
     {"id": 7, "name": "portfolio_commitment_guard", "status": "complete_v0_3"},
     {"id": 8, "name": "platform_eligibility_guard", "status": "complete_v0_4"},
     {"id": 9, "name": "temporal_evidence_guard", "status": "complete_v0_5"}
@@ -72,37 +74,52 @@
     "credential_outreach_drafts": 3,
     "organiser_verification_drafts": 5,
     "merged_pull_requests": [1, 3, 4, 5, 6],
-    "closed_unmerged_pull_requests": [2]
+    "closed_unmerged_pull_requests": [2],
+    "v0_6_branch": "feat/v0.6-outcome-learning"
   },
   "release": {
     "current_main": "v0.5",
-    "merge_commit_sha": "8650d65dc5b785d085efba4ab5bbfe12b7e32ad8",
-    "pr_number": 6,
-    "pr_validated_head_sha": "bc624d7000fc4c6dbad4065d9b93680f4e854ad8",
-    "pr_workflow_run": 33167252654,
-    "main_push_workflow_run": 33167332914,
-    "pr_ci": "success",
-    "main_push_ci": "success",
-    "rule": "Only claim CI against exact validated heads/runs."
+    "current_main_head": "7e21238ceffc854bcf6c2b6452cb23114c66133c",
+    "current_main_ci_run": 33167413488,
+    "current_main_ci": "success",
+    "v0_6_status": "implementation_complete_pending_pr_ci"
+  },
+  "outcome_learning": {
+    "probabilistic_forecasting_enabled": false,
+    "reason": "Sparse outcomes do not justify a calibrated acceptance-probability model.",
+    "policy_module": "src/uexchanges/outcomes.py",
+    "schema": "schemas/outcome.schema.json",
+    "protocol": "docs/OUTCOME_LEARNING_PROTOCOL.md",
+    "allowed_update_dimensions": [
+      "positive_selection_prior",
+      "negative_selection_prior_when_explicit_feedback_exists",
+      "competition_prior",
+      "criterion_heuristics_when_explicit_feedback_exists",
+      "organisation_relationship_prior",
+      "organisation_response_prior"
+    ],
+    "hard_rules": [
+      "WAITLIST_PRIORITY_1 is NEAR_ACCEPT and never a negative application penalty",
+      "REJECTED_HIGH_COMPETITION without individual feedback updates competition/base rate only",
+      "NO_RESPONSE is not a verified rejection",
+      "ACCEPTED_COMPLETED is a positive selection prior but does not prove every application component caused selection",
+      "REJECTED_WITH_FEEDBACK may update only the supported call-specific criterion and must not become a universal rule"
+    ],
+    "private_fixtures": [
+      {"outcome":"ACCEPTED_COMPLETED","organisation":"Ticket2Europe"},
+      {"outcome":"WAITLIST_PRIORITY_1","organisation":"BreGal","classification":"NEAR_ACCEPT"},
+      {"outcome":"REJECTED_HIGH_COMPETITION","organisation":"Make it Happen NGO","competition_pool":"430+","individual_reason":null}
+    ]
   },
   "temporal_evidence": {
     "historical_experience_field": "youth_sector_experience_verified",
     "current_context_field": "youth_work_context_verified",
     "invariant": "historical experience never auto-promotes current context",
-    "verified_inventory": [
-      {"type":"KA1_YOUTH_STAFF_PROFESSIONAL_DEVELOPMENT","dates":"2022-10-29..2022-11-05","country":"Germany","sending_organisation":"Ticket2Europe","receiving_organisation":"klick e.V.","role_scope":"professional_development_participant","youthpass":true},
-      {"type":"KA1_YOUTH_STAFF_PROFESSIONAL_DEVELOPMENT","dates":"2023-06-21..2023-06-28","country":"Türkiye","sending_organisation":"ASOCIATIA TINERII 3 D","receiving_organisation":"TechnoYOUth","role_scope":"professional_development_participant","youthpass":null},
-      {"type":"YOUTH_EXCHANGE","dates":"2024-01-20..2024-01-25","sending_organisation":"Ayuntamiento de Alguazas","role_scope":"unknown_participant_or_group_role","youthpass":null}
-    ],
-    "unverified_signal_not_counted": "A 2022 sent email mentions another Erasmus project in Türkiye before Berlin; no official record recovered, so it is excluded."
-  },
-  "selection_history": {
-    "ticket2europe": {"relationship":"PAST_ACCEPTED_PARTICIPANT","verified_outcome":"ACCEPTED_COMPLETED","selection_prior_doc":"1p3fCaL70Dz-mMUU7AfSbjdFAXdl8tzlJAqkwYtDMpio","rule":"historical winning application is a selection prior, not objective proof of every old self-reported answer"},
-    "documentary_circles": {"organisation":"BreGal","outcome":"WAITLIST_PRIORITY_1","classification":"NEAR_ACCEPT","feedback":"first on waiting list; organiser said more places likely","reply_draft":"prepared_not_sent"},
-    "i_dream_green": {"organisation":"Make it Happen NGO","outcome":"REJECTED_HIGH_COMPETITION","competition_pool":"430+","individual_reason":null,"learning_rule":"update competition/base-rate prior only; do not infer copy or competence failure"}
+    "completed_youth_staff_mobilities": 2,
+    "completed_youth_exchanges": 1,
+    "first_time_erasmus": false
   },
   "decision_queue": {
-    "ranking_formula": "priority_base + deadline_urgency + 0.2*fit + route_bonus - evidence_or_constraint_penalties",
     "current_top": ["telegram-thrive-shine","ticket2europe-future-careers-ai","doc1-yupi-building","ticket2europe-olive-trees","eyp-53491"]
   },
   "p0_verification": {
@@ -110,7 +127,7 @@
     "olive_trees": {"state":"VERIFY_SPANISH_APPLICATION_ROUTE_ASAP","fit":96,"media_value":100,"organisation_prior":"Ticket2Europe PAST_ACCEPTED_PARTICIPANT","dossier":"1bXJUZt3ixbawn6aTsn60FHxmOTV6M67k06Mw33fi7mU"},
     "thrive_and_shine": {"state":"VERIFY_ORIGINAL_INFOPACK_AND_FORM"},
     "building_with_our_hands": {"state":"VERIFY_CURRENT_CALL"},
-    "triglav": {"state":"DOSSIER_READY_PRIVATE_GATES_AND_PORTAL_PENDING","official_deadline":"2026-09-05T15:00:00","fact_resolution":"LIVE_SOURCE_SUPERSEDES_STALE_ARTIFACT"}
+    "triglav": {"state":"DOSSIER_READY_PRIVATE_GATES_AND_PORTAL_PENDING","official_deadline":"2026-09-05T15:00:00"}
   },
   "game_of_nature": {
     "state": "CURRENT_PROFILE_CRITERION_UNRESOLVED",
@@ -119,15 +136,12 @@
     "papaya_clarification_draft": "updated_not_sent",
     "first_time_erasmus": false
   },
-  "salto_policy": {"current_context_required":true,"historical_experience_can_support_fit":true,"historical_experience_can_bypass_gate":false},
-  "trainer_state": {"verified_toy_qualifying_references":0,"strategy":"build_current_delivery_and_references","historical_youth_staff_experience":2},
-  "todoist": {"dedicated_project":"blocked_by_account_project_limit","fallback":"existing master graph + labelled wave tasks","credential_wave":"W3B active","daily_discovery":"active"},
+  "trainer_state": {"verified_toy_qualifying_references":0,"strategy":"build_current_delivery_and_references"},
   "monitoring": {"eu_mobility_watch":"enabled","cadence":"every_6_hours","mode":"condition_watch"},
   "quality": {
-    "v0_4_main_ci": "success",
-    "v0_5_pr_ci": {"head_sha":"bc624d7000fc4c6dbad4065d9b93680f4e854ad8","workflow_run":33167252654,"conclusion":"success"},
-    "v0_5_main_push_ci": {"merge_commit_sha":"8650d65dc5b785d085efba4ab5bbfe12b7e32ad8","workflow_run":33167332914,"conclusion":"success"},
-    "v0_5_regression": "historical 2 Youth Staff + 1 Youth Exchange leaves current-context gate UNKNOWN when current context is unverified"
+    "v0_5_main_ci": {"head_sha":"7e21238ceffc854bcf6c2b6452cb23114c66133c","workflow_run":33167413488,"conclusion":"success"},
+    "v0_6_tests_added": 8,
+    "v0_6_remote_ci": "not_yet_observed"
   },
-  "next_checkpoint": "Refresh git.local to v0.5. Then implement minimal causal-strength Outcome Learning rules; resolve Ticket2Europe Future/O-live, Thrive/YUPI source debt and Game of Nature current-profile criterion; keep BreGal waitlist option alive via human-reviewed reply; continue current youth-work L2/L3 evidence acquisition."
+  "next_checkpoint": "Open v0.6 PR and observe exact-head CI. Merge only if green, then refresh git.local once with v0.5+v0.6. Operationally resolve Future/O-live, Thrive/YUPI and Game of Nature gates; human-review BreGal waitlist reply; continue youth-work credential acquisition."
 }
