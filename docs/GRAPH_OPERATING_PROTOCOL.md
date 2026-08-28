@@ -45,6 +45,10 @@ Alternative terminal states:
 
 `DUPLICATE_MERGED` · `BLOCKED_INELIGIBLE` · `EXPIRED` · `CLOSED` · `WITHDRAWN` · `HUMAN_WRITE_REQUIRED`.
 
+Post-selection commitment states:
+
+`ACCEPTED -> PORTFOLIO_RESOLUTION? -> COMMITTED`
+
 ## 3. Transition guards
 
 | Current state | Required evidence | Next state | Agent |
@@ -61,6 +65,7 @@ Alternative terminal states:
 | EVIDENCE_MAPPED | no unsupported external claim | DOSSIER_READY | Application Strategist |
 | DOSSIER_READY | human approval | HUMAN_REVIEW / SUBMITTED | Human owner |
 | SUBMITTED | submission receipt | OUTCOME_RECORDED | Outcome Analyst |
+| ACCEPTED | conflict projection + human choice | COMMITTED or PORTFOLIO_RESOLUTION | Portfolio Guard + Human owner |
 
 No transition may skip a required predecessor.
 
@@ -83,6 +88,8 @@ Every decision uses an explicit code rather than free-form intuition:
 - `TRACK_HIGH_FIT_LOW_URGENCY`
 - `ARCHIVE_CLOSED`
 - `HUMAN_WRITE_AI_PROHIBITED`
+- `RESOLVE_MUTUALLY_EXCLUSIVE_ACCEPTANCE`
+- `COMMIT_NO_ACTIVE_PORTFOLIO_CONFLICT`
 
 A new decision code requires documentation + regression coverage if it changes deterministic behavior.
 
@@ -122,6 +129,10 @@ Pure time pressure. It changes execution order, never thematic fit.
 
 Used only to decide what the system works on next. A high-fit node with unresolved evidence can rank highly for **verification** without being eligible for **submission**.
 
+### Portfolio option cost
+
+Opportunity-date overlap is represented as graph structure, not folded into Fit Score. A long-term ESC may remain highly attractive while carrying many `MUTUALLY_EXCLUSIVE_IF_ACCEPTED` edges. Option cost becomes a hard decision only at commitment time.
+
 ## 6. Wave ownership
 
 ### Wave 2B — Ingestion + dedupe
@@ -153,6 +164,11 @@ Outputs: qualifying reference ledger, methods portfolio, TOY readiness, paid-cal
 Owner: Outcome Analyst.
 
 Outputs: accepted/waitlisted/rejected/no-response events, feedback, source/organisation priors and calibrated scoring.
+
+### Portfolio Guard — post-selection
+Owner: Portfolio Guard + Human owner.
+
+Outputs: overlap edges, provisional conflict debt, acceptance choices and a single coherent set of commitments.
 
 ## 7. Conflict protocol
 
@@ -188,3 +204,18 @@ An application node may enter `READY_TO_SUBMIT` only when:
 - mandatory documents ready;
 - every external claim maps to evidence;
 - human owner has reviewed the final submission.
+
+## 10. Portfolio conflict / commitment protocol
+
+Detailed contract: `docs/PORTFOLIO_CONFLICT_GRAPH.md`.
+
+Rules:
+
+1. Build inclusive date-overlap edges between active opportunity nodes.
+2. The edge type is `MUTUALLY_EXCLUSIVE_IF_ACCEPTED`.
+3. `APPLIED` opportunities may overlap; do not destroy option value by blocking applications too early.
+4. Multiple `ACCEPTED` outcomes may be recorded temporarily so the human owner can choose.
+5. Before any `ACCEPTED -> COMMITTED` transition, run `evaluate_commitment()`.
+6. If another overlapping node is `ACCEPTED` or `COMMITTED`, the only allowed next node is `PORTFOLIO_RESOLUTION`.
+7. Calendar busy data is separate availability evidence. An empty calendar is never interpreted as proof of availability.
+8. Long-term commitments require explicit private availability verification even when calendar data is empty.
