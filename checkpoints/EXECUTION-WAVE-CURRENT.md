@@ -1,13 +1,21 @@
 # Current Execution Wave
 
-Canonical checkpoint: `2026-08-29-v0.8-mass-apply-canonical-release.md`.
+Active plan: `plans/W9_CONTROLLED_SUBMISSION_BASELINE.md`.
 
-Latest live gate audit: `2026-08-29-live-gate-resolution-and-opportunity-audit.md`.
+Stop contract: `configs/w9_stop_contract_2026-08-29.json`.
 
-Policy: `docs/MASS_APPLY_POLICY.md`.
+Plan-lock checkpoint: `checkpoints/2026-08-29-w9-plan-lock.md`.
+
+Canonical mass-apply policy: `docs/MASS_APPLY_POLICY.md`.
 
 Machine state: `goal-state.json`.
 
 Private live authority: Google Drive CRM `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`.
 
-Status: `MASS_APPLY_FACTORY_CANONICAL_WITH_LIVE_GATE_AUDIT`.
+Private implementation plan: Drive document `1uB-ZvK4vu_huHAwvpVKSkzrDnJGUrv74pUwRzfoCx78`.
+
+Todoist control node: `6hPPRQrhG6cmhh3V`.
+
+Status: `W9_CONTROLLED_SUBMISSION_BASELINE_PLANNED`.
+
+First transition: `W9.0_STATE_RECONCILIATION → W9.1_T0_T1_QUEUE_REBUILD → W9.3_EYP_ESC_ACCOUNT`, with YUPI asset completion in parallel.

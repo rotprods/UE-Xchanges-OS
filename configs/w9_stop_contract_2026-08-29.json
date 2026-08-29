@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0.0",
+  "wave_id": "W9_CONTROLLED_SUBMISSION_BASELINE",
+  "created_at": "2026-08-29T19:47:56+02:00",
+  "timebox": {
+    "start": "2026-08-29T20:00:00+02:00",
+    "end": "2026-09-04T22:00:00+02:00"
+  },
+  "north_star": "valid_receipt_backed_applications_per_live_spain_compatible_opportunity",
+  "baseline_source": "private_drive_crm",
+  "baseline_observed": {
+    "opportunity_rows": 164,
+    "mass_apply_queue_rows": 153,
+    "execution_log_events": 38,
+    "submission_receipts": 0,
+    "telegram_unique_unresolved": 60,
+    "public_state_divergence": true
+  },
+  "primary_stop": {
+    "eyp_esc_account": "PASS_PRIVATE",
+    "esc_participant_reference_number": "PASS_PRIVATE",
+    "mysalto_access": "PASS",
+    "t0_t1_state_coverage_percent": 100,
+    "yupi_building_resolved": true,
+    "yupi_behind_resolved": true,
+    "minimum_submission_receipts": 2,
+    "target_submission_receipts": 5,
+    "telegram_unique_resolved_or_explicitly_inaccessible": 60,
+    "unowned_deadlines_inside_72h": 0,
+    "submitted_without_receipt": 0,
+    "known_projection_divergence": 0,
+    "known_hard_slo_violations": 0
+  },
+  "allowed_t0_t1_terminal_states": [
+    "SUBMITTED_WITH_RECEIPT",
+    "TERMINAL_OBJECTIVE",
+    "WAITING_EXTERNAL_EVIDENCE"
+  ],
+  "waiting_external_evidence_requirements": [
+    "query_sent",
+    "source_ref",
+    "owner",
+    "next_follow_up_at"
+  ],
+  "objective_terminal_reasons": [
+    "DEADLINE_PASSED",
+    "SPAIN_NOT_ELIGIBLE",
+    "HARD_REQUIREMENT_FAIL",
+    "CALL_CLOSED",
+    "APPLICATION_ROUTE_INVALID",
+    "DUPLICATE_SUBMISSION"
+  ],
+  "conditional_stop": {
+    "allowed": true,
+    "condition": "fewer_than_two_objectively_viable_submission_routes",
+    "required_evidence": [
+      "per_call_blocker_report",
+      "authoritative_source_or_organiser_evidence",
+      "proof_no_call_was_abandoned_for_low_fit_duration_cost_or_convenience"
+    ]
+  },
+  "no_stop_conditions": [
+    "open_deadline_inside_72h_without_owner_or_next_action",
+    "submission_without_receipt",
+    "wrong_country_or_unauthorised_application_route",
+    "unresolved_duplicate_risk",
+    "final_ai_authored_prose_under_ai_unknown_or_prohibited_policy",
+    "source_backlog_may_hide_current_deadlines",
+    "material_drive_github_todoist_divergence"
+  ],
+  "execution_order": [
+    "W9.0_STATE_RECONCILIATION",
+    "W9.1_T0_T1_QUEUE_REBUILD",
+    "W9.3_EYP_ESC_ACCOUNT",
+    "W9.4_STORE_PRN_PRIVATE",
+    "W9.5_MYSALTO_ACCESS",
+    "W9.6_MASTER_ASSET_PACK",
+    "W9.7_TO_W9.14_YUPI_ASSETS_AND_RECEIPTS",
+    "W9.15_TO_W9.18_T0_T1_BURNDOWN",
+    "W9.19_TO_W9.22_TELEGRAM_RESOLUTION",
+    "W9.23_TRAINER_CALL_SWEEP",
+    "W9.24_QA_AND_CLOSEOUT"
+  ],
+  "todoist": {
+    "parent_task_id": "6hPPRQrhG6cmhh3V",
+    "child_task_count": 25
+  },
+  "drive": {
+    "implementation_plan_document_id": "1uB-ZvK4vu_huHAwvpVKSkzrDnJGUrv74pUwRzfoCx78",
+    "crm_id": "1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU"
+  },
+  "integrity_invariants": [
+    "UNKNOWN_IS_VERIFICATION_DEBT",
+    "PRIORITY_IS_SCHEDULING_ONLY",
+    "HARD_FAIL_IS_CALL_SPECIFIC",
+    "NO_FABRICATED_CLAIMS",
+    "NO_AI_POLICY_BYPASS",
+    "NO_DUPLICATE_SUBMISSION",
+    "NO_SUBMITTED_STATE_WITHOUT_RECEIPT_OR_AUTHORITATIVE_CONFIRMATION",
+    "PRIVATE_APPLICANT_DATA_NEVER_ENTERS_PUBLIC_GITHUB"
+  ]
+}
