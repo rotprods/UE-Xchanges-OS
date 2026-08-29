@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rotprods/UE-Xchanges-OS/schemas/agent-session.schema.json",
+  "title": "UE-Xchanges-OS Agent Session",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "session_id",
+    "agent_id",
+    "platform",
+    "project_id",
+    "context_id",
+    "started_at",
+    "last_heartbeat",
+    "status",
+    "current_wave",
+    "capabilities",
+    "writer_version"
+  ],
+  "properties": {
+    "session_id": {"type": "string", "pattern": "^SES-[A-Z0-9-]+-\\d{8}T\\d{6}-\\d{2}$"},
+    "agent_id": {"type": "string", "pattern": "^AGT-[A-Z0-9-]+$"},
+    "platform": {"type": "string", "minLength": 1},
+    "model": {"type": ["string", "null"]},
+    "project_id": {"type": "string", "minLength": 1},
+    "context_id": {"type": "string", "pattern": "^CTX-[A-Z0-9-]+$"},
+    "parent_session_id": {"type": ["string", "null"]},
+    "started_at": {"type": "string", "format": "date-time"},
+    "last_heartbeat": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["ACTIVE", "IDLE", "HANDOFF_READY", "COMPLETED", "FAILED"]},
+    "current_wave": {"type": "string", "minLength": 1},
+    "current_node": {"type": ["string", "null"]},
+    "lease_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "input_state_ref": {"type": ["string", "null"]},
+    "output_state_ref": {"type": ["string", "null"]},
+    "handoff_summary": {"type": ["string", "null"]},
+    "capabilities": {"type": "object", "additionalProperties": {"type": "boolean"}},
+    "writer_version": {"type": "string", "minLength": 1}
+  }
+}
