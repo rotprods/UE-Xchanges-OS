@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0.0",
+  "definition_of_complete_coverage": "Every active registered source scanned inside SLA; every returned item captured, deduped and resolved to an original source or explicit inaccessible/terminal state; unresolved frontier counted.",
+  "tiers": {
+    "T1": "official provider/employer",
+    "T2": "established network/programme platform",
+    "T3": "aggregator/social/user-supplied discovery"
+  },
+  "priority_lanes": [
+    {
+      "id": "paid-trainer",
+      "owners": ["AGT-TRAINER-CAREER", "AGT-GLOBAL-PAID-SCOUT"],
+      "sources": [
+        "SALTO Calls for Trainers",
+        "Council of Europe Youth",
+        "EU–CoE Youth Partnership",
+        "European Youth Forum",
+        "Anna Lindh Foundation"
+      ],
+      "cadence_hours": 4
+    },
+    {
+      "id": "extra-europe-humanitarian",
+      "owners": ["AGT-HUMANITARIAN-SCOUT"],
+      "sources": [
+        "European Voluntary Humanitarian Aid Corps",
+        "UN Volunteers",
+        "ReliefWeb",
+        "UNICEF",
+        "UNDP",
+        "IOM",
+        "UNESCO",
+        "UNOPS"
+      ],
+      "cadence_hours": 6
+    },
+    {
+      "id": "paid-monitor-camp",
+      "owners": ["AGT-PAID-MONITOR-SCOUT"],
+      "sources": [
+        "EURES",
+        "Camp Leaders",
+        "Camp America",
+        "CCUSA",
+        "EF Careers",
+        "Club Med Jobs",
+        "TUI Careers"
+      ],
+      "cadence_hours": 12
+    },
+    {
+      "id": "professional-mobility",
+      "owners": ["AGT-GLOBAL-PAID-SCOUT"],
+      "sources": ["Eurodyssey", "Eurodesk", "EURES", "ErasmusIntern"],
+      "cadence_hours": 12
+    },
+    {
+      "id": "funded-participant",
+      "owners": ["AGT-EU-MOBILITY-SCOUT"],
+      "sources": [
+        "EYP/ESC",
+        "SALTO ETC",
+        "Eurodesk",
+        "organisation calls",
+        "Telegram archive"
+      ],
+      "cadence_hours": 6
+    }
+  ],
+  "metrics": [
+    "source_freshness_coverage",
+    "discovery_resolution_coverage",
+    "canonical_application_coverage",
+    "paid_economics_coverage"
+  ]
+}

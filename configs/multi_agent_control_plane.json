@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "project_id": "UE-Xchanges-OS",
+  "context_id": "CTX-UEX-GLOBAL-EXPANSION-INCOME-V1",
+  "drive_crm_id": "1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU",
+  "tables": {
+    "contexts": "Context_Registry",
+    "sessions": "Agent_Sessions",
+    "events": "Agent_Event_Bus",
+    "leases": "Work_Leases",
+    "inbox": "Agent_Inbox",
+    "economics": "Opportunity_Economics",
+    "sources": "Source_Coverage",
+    "profile_questions": "Profile_Interview"
+  },
+  "session": {
+    "id_format": "SES-<PROJECT>-<PLATFORM>-<YYYYMMDDTHHMMSS>-<NN>",
+    "heartbeat_minutes": 15,
+    "terminal_states": ["COMPLETED", "FAILED"]
+  },
+  "lease": {
+    "default_ttl_minutes": 120,
+    "minimum_scope": true,
+    "block_unexpired_other_owner": true,
+    "takeover_requires_event": true
+  },
+  "event_bus": {
+    "append_only": true,
+    "idempotency_components": [
+      "project_id",
+      "entity_type",
+      "entity_id",
+      "operation",
+      "authoritative_source_version"
+    ],
+    "mutation_requires_active_lease": true,
+    "read_only_events_require_lease": false
+  },
+  "consistency": {
+    "mode": "READ_BEFORE_WRITE_PLUS_EVENTED_PROJECTIONS",
+    "push_subscription_available": false,
+    "projection_divergence_is_blocking": true
+  },
+  "privacy": {
+    "public_repo_private_values": false,
+    "private_profile_in_drive_only": true
+  }
+}
