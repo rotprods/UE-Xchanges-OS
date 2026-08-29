@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.10.0",
+  "schema_version": "1.10.1",
   "project": "UE-Xchanges-OS",
-  "updated_at": "2026-08-29T20:35:00+02:00",
-  "status": "w9_baseline_reconciled_urgent_queue_live",
+  "updated_at": "2026-08-29T20:55:00+02:00",
+  "status": "w9_baseline_reconciled_urgent_execution_active",
   "north_star": {
     "name": "valid_receipt_backed_applications_per_live_spain_compatible_opportunity",
     "policy": "APPLY_EVERYTHING_VIABLE"
@@ -68,8 +68,8 @@
     "application_nodes": 156,
     "mass_apply_queue_rows": 156,
     "source_inbox_nodes": 96,
-    "organisation_nodes": 20,
-    "execution_log_events": 50,
+    "organisation_nodes": 22,
+    "execution_log_events": 52,
     "outcome_rows": 4,
     "submission_receipts": 0,
     "verified_toy_qualifying_references": 0,
@@ -94,7 +94,7 @@
   },
   "active_wave": {
     "id": "W9_CONTROLLED_SUBMISSION_BASELINE",
-    "status": "W9_0_RECONCILED_W9_1_COMPLETE",
+    "status": "W9_0_RECONCILED_W9_1_COMPLETE_EXTERNAL_VERIFICATION_ACTIVE",
     "start": "2026-08-29T20:00:00+02:00",
     "stop": "2026-09-04T22:00:00+02:00",
     "drive_plan_id": "1uB-ZvK4vu_huHAwvpVKSkzrDnJGUrv74pUwRzfoCx78",
@@ -119,9 +119,9 @@
     "total": 35,
     "classifications": {
       "TERMINAL_OBJECTIVE": 7,
-      "HUMAN_NOW": 4,
-      "WAITING_EXTERNAL": 4,
-      "VERIFY_NOW": 20
+      "HUMAN_NOW": 3,
+      "WAITING_EXTERNAL_OR_EXTERNAL_PLUS_HUMAN": 7,
+      "VERIFY_NOW": 18
     },
     "source": "Drive tab W9_Urgent",
     "rule": "Every row has exactly one owner, next action and follow-up."
@@ -143,8 +143,7 @@
       "participant_gate": "PASS_ORGANISER_CONFIRMED",
       "group_leader_gate": "UNKNOWN_CLARIFICATION_SENT",
       "ai_policy": "QUERY_SENT",
-      "state": "PREPARE_PARTICIPANT_IN_PARALLEL_WAIT_GROUP_LEADER_REPLY",
-      "organiser_signal": "ORGANISER_INVITED_GROUP_LEADER_CONSIDERATION_WITHOUT_YET_RESOLVING_ROLE_REQUIREMENTS"
+      "state": "PREPARE_PARTICIPANT_IN_PARALLEL_WAIT_GROUP_LEADER_REPLY"
     },
     "shift": {
       "country_funding_dates": "OFFICIAL_SOURCE_VERIFIED",
@@ -152,6 +151,20 @@
       "ai_policy": "AI_ASSIST_ONLY_HUMAN_FINAL_FULLY_AI_GENERATED_REJECTED",
       "mysalto_form": "HUMAN_AUTHENTICATED_CAPTURE_PENDING",
       "state": "WAITING_ROLE_REPLY_AND_HUMAN_MYSALTO_CAPTURE"
+    },
+    "next_chapter_5_0": {
+      "canonical_opportunity_id": "eyp-51752",
+      "identity_correction": "PREVIOUS_53751_REFERENCE_REPLACED",
+      "official_baseline": "SPAIN_AGE_RESIDENCE_TRAVEL_PASS",
+      "vacancy_and_late_arrival": "UNKNOWN_HOST_QUERY_SENT",
+      "esc_history_account_and_ai_policy": "PENDING",
+      "state": "WAITING_EXTERNAL_EVIDENCE"
+    },
+    "saber_soilpunk": {
+      "participant_baseline": "PUBLIC_PASS_SPAIN_AGE",
+      "form_and_infopack": "PUBLICLY_LOCATED",
+      "current_places_spanish_route_effective_deadline_support_ai_policy": "UNKNOWN_HOST_QUERY_SENT",
+      "state": "WAITING_EXTERNAL_EVIDENCE"
     },
     "step_into_paralympics": {
       "state": "WAITING_EXTERNAL_SENSITIVE_PROFILE_AND_ROUTE_CLARIFICATION",
@@ -186,7 +199,8 @@
     "Create or verify the European Youth Portal / ESC account and store PRN privately.",
     "Verify MySALTO and capture the exact SHIFT form questions.",
     "Complete and submit Building With Our Hands and Behind the Scenes with receipts before the internal buffer.",
-    "Execute VERIFY_NOW and WAITING_EXTERNAL rows in W9_Urgent by follow-up time.",
+    "Ingest replies from Papaya, Innovative Generation, Synergy Bulgaria, Dupa Gard and other urgent organisers.",
+    "Execute the remaining VERIFY_NOW urgent rows by follow-up time.",
     "Extract the 60 Telegram posts in four batches while promoting any new deadline inside seven days immediately.",
     "Reconcile stale W2-W8 Todoist nodes without deleting historical evidence.",
     "Close W9 only when the stop contract passes or an evidence-based conditional stop is proven."
@@ -196,6 +210,7 @@
     "w9_plan_merge_sha": "2366aacaa2520bd7d65a14f9f2cee303f234b197",
     "w9_plan_exact_head_ci": 33266842718,
     "w9_plan_main_ci": 33266858343,
-    "state_sync": "PENDING_PR_EXACT_HEAD_CI"
+    "state_sync_pr": 20,
+    "state_sync_status": "PENDING_EXACT_HEAD_CI"
   }
 }
