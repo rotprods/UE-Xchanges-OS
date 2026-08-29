@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rotprods/UE-Xchanges-OS/schemas/opportunity-economics.schema.json",
+  "title": "UE-Xchanges-OS Opportunity Economics",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "economics_id",
+    "opportunity_id",
+    "compensation_type",
+    "currency",
+    "status",
+    "verified_at"
+  ],
+  "properties": {
+    "economics_id": {"type": "string", "minLength": 1},
+    "opportunity_id": {"type": "string", "minLength": 1},
+    "compensation_type": {
+      "enum": [
+        "HOURLY_FEE",
+        "DAILY_FEE",
+        "PROJECT_FEE",
+        "MONTHLY_SALARY",
+        "MONTHLY_STIPEND",
+        "ALLOWANCE_NOT_SALARY",
+        "UNPAID_FUNDED",
+        "UNPAID"
+      ]
+    },
+    "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+    "gross_cash": {"type": ["number", "null"], "minimum": 0},
+    "fee_unit": {"type": ["string", "null"]},
+    "work_days": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "work_hours": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "commitment_days": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "travel_days": {"type": ["number", "null"], "minimum": 0},
+    "travel_reimbursement": {"type": ["number", "null"], "minimum": 0},
+    "accommodation_covered": {"type": ["boolean", "null"]},
+    "meals_covered": {"type": ["boolean", "null"]},
+    "other_benefits": {"type": ["string", "null"]},
+    "estimated_tax_fees": {"type": ["number", "null"], "minimum": 0},
+    "estimated_out_of_pocket": {"type": ["number", "null"], "minimum": 0},
+    "net_cash": {"type": ["number", "null"]},
+    "net_cash_per_work_hour": {"type": ["number", "null"]},
+    "net_cash_per_committed_hour": {"type": ["number", "null"]},
+    "total_funded_value": {"type": ["number", "null"], "minimum": 0},
+    "payment_certainty": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "remote_work_compatibility": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "source_ref": {"type": ["string", "null"]},
+    "verified_at": {"type": "string", "format": "date-time"},
+    "status": {
+      "enum": [
+        "VERIFIED",
+        "PARTIAL",
+        "NON_CASH",
+        "VERIFICATION_DEBT",
+        "HISTORICAL_BENCHMARK"
+      ]
+    },
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "notes": {"type": ["string", "null"]}
+  }
+}
