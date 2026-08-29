@@ -8,7 +8,11 @@ Plan-lock checkpoint: `checkpoints/2026-08-29-w9-plan-lock.md`.
 
 Current execution checkpoint: `checkpoints/2026-08-29-w9-baseline-and-urgent-queue.md`.
 
-Control-plane checkpoint: `checkpoints/2026-08-29-multi-agent-control-plane-v1.md`.
+Control-plane implementation: `checkpoints/2026-08-29-multi-agent-control-plane-v1.md`.
+
+Control-plane green release: `checkpoints/2026-08-29-multi-agent-control-plane-v1-release.md`.
+
+Release evidence override: `CONTROL-PLANE-RELEASE.json`.
 
 Multi-agent protocol: `docs/MULTI_AGENT_CONTROL_PLANE.md`.
 
@@ -16,7 +20,7 @@ Global/economic strategy: `docs/GLOBAL_MOBILITY_AND_INCOME_STRATEGY.md`.
 
 Canonical mass-apply policy: `docs/MASS_APPLY_POLICY.md`.
 
-Machine state: `goal-state.json`.
+Machine state: `goal-state.json`, with `CONTROL-PLANE-RELEASE.json` controlling its pending control-plane release fields until the next consolidated state update.
 
 Private live authority: Google Drive CRM `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`.
 
@@ -26,7 +30,7 @@ Canonical context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`.
 
 Todoist control node: `6hPPRQrhG6cmhh3V`.
 
-Status: `W9_URGENT_EXECUTION_AND_MULTI_AGENT_CONTROL_PLANE_V1_ACTIVE`.
+Status: `W9_URGENT_EXECUTION_AND_MULTI_AGENT_CONTROL_PLANE_V1_RELEASED`.
 
 Current human gates: `EYP_ESC_ACCOUNT → PRIVATE_PRN → MYSALTO_ACCESS → PROFILE_INTERVIEW_P0 → HUMAN_FINAL_ASSETS`.
 
