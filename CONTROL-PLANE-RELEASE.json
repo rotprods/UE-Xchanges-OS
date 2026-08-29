@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "created_at": "2026-08-29T21:15:00+02:00",
+  "status": "MULTI_AGENT_CONTROL_PLANE_V1_RELEASED",
+  "scope": "Release evidence that supersedes the pending control_plane_* fields in goal-state.json until the next consolidated state update.",
+  "release": {
+    "pull_request": 21,
+    "exact_head_sha": "72e381dd0287ce28599c3ed70dbe63ff9d63e744",
+    "exact_head_ci_run": 33270228648,
+    "exact_head_ci_conclusion": "success",
+    "merge_sha": "d05bea2f5f50872197901b6b002879052430327f",
+    "main_push_ci_run": 33270343102,
+    "main_push_ci_conclusion": "success",
+    "local_focused_tests": {
+      "count": 24,
+      "conclusion": "success",
+      "scope": "coordination/economics focused unit tests plus Python compilation and JSON parse"
+    }
+  },
+  "private_control_plane": {
+    "context_id": "CTX-UEX-GLOBAL-EXPANSION-INCOME-V1",
+    "first_session_id": "SES-UEX-CHATGPT-20260829T204621-01",
+    "private_spec_drive_id": "11R9uGW7O5YlfgujmbFrK1Kc_IZ4u6V3xUvDqg0r04OI",
+    "crm_id": "1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU"
+  },
+  "read_rule": "When this file conflicts with the pending control-plane release fields in goal-state.json, this file controls until goal-state is next consolidated. Opportunity/application truth remains in the private Drive CRM and current official sources."
+}
