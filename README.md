@@ -1,134 +1,106 @@
 # UE-Xchanges-OS
 
-Evidence-first EU mobility intelligence, application and trainer-progression operating system for Erasmus+ Youth, European Solidarity Corps, youth-worker mobility and paid trainer/facilitator opportunities.
+Evidence-first EU mobility, application-execution and trainer-progression operating system for Erasmus+ Youth, European Solidarity Corps, Eurodesk, non-SALTO participant calls and paid trainer/facilitator opportunities.
+
+## Current operating mode
+
+**APPLY EVERYTHING VIABLE.**
+
+Every live opportunity with a legitimate Spain-compatible route enters the CRM and preparation factory. Priority orders execution; it does not remove a viable opportunity. Selection between accepted options happens after acceptance.
+
+`UNKNOWN` is verification debt. A confirmed objective hard `FAIL` blocks only the affected call.
 
 ## North Star
 
-**Maximise accepted, high-value, funded mobility/trainer opportunities per human application hour — with zero known eligibility false-passes, zero duplicate submissions, zero fabricated claims and zero known application-policy violations.**
+`valid receipt-backed applications / live Spain-compatible opportunities`
 
-## Mandatory operating graph
+Subject to zero known eligibility false-passes, duplicate submissions, fabricated claims, AI-policy violations, invented sensitive attributes and guessed submission/receipt states.
+
+## Canonical pipeline
 
 ```text
 DISCOVERED
 → INGESTED
 → DEDUPED
 → SOURCE_VERIFIED
-→ ELIGIBILITY_EVALUATED
+→ SPAIN_ROUTE_VERIFIED
+→ DEADLINE_VERIFIED
+→ ROLE_PROFILE_EXTRACTED
+→ INFOPACK_CAPTURED
 → INFOPACK_ANALYSED
-→ FIT_SCORED
-→ EXECUTION_PRIORITISED
+→ FORM_CAPTURED
 → APPLICATION_POLICY_RESOLVED
 → EVIDENCE_MAPPED
-→ DOSSIER_READY
-→ HUMAN_REVIEW
+→ ANSWER_DRAFTED
+→ HUMAN_OWNED_FINAL_TEXT
+→ QA
 → SUBMITTED
+→ RECEIPT_STORED
 → OUTCOME_RECORDED
-→ LEARNING_EVENT
+→ ACCEPTANCE_DECISION
 ```
 
-Alternative terminal/routing states include `DUPLICATE_MERGED`, `BLOCKED_INELIGIBLE`, `EXPIRED`, `CLOSED`, `VERIFICATION_DEBT` and `HUMAN_WRITE_REQUIRED`.
+## Canonical state — 2026-08-29T18:30:51+02:00
 
-No score or agent may skip a hard gate.
+Private Drive CRM:
+
+- **159** canonical opportunity rows;
+- **148** application/dossier nodes;
+- **140** non-terminal queue rows;
+- **8** objective terminal rows;
+- **93** Source Inbox nodes;
+- **17** organisation nodes;
+- **24** execution events;
+- **0** submission receipts;
+- **0** verified TOY-qualifying trainer references.
+
+Provider coverage:
+
+- `SALTO_ETC`: 112
+- `EYP_ESC`: 14
+- `ORGANISATION_WATCH`: 8
+- `EXISTING_CRM`: 7
+- `EURODESK`: 6
+- `NON_SALTO_ORG_CALL`: 1
 
 ## Truth topology
 
-- Original official source / infopack / form / organiser confirmation = authority for opportunity facts.
-- GitHub = executable/versioned truth for code, schemas, policies, public knowledge and tests.
-- Google Drive = private operational knowledge, applicant evidence, infopacks, dossiers and CRM.
-- Todoist = execution projection only.
-- `/git.local/UE-Xchanges-OS` = portable cold-start snapshot.
-- Graph projections are rebuildable from evidence + append-only events.
+1. Current official page, original infopack, authorised form, organiser confirmation and submission receipt.
+2. Private Drive CRM and evidence graph.
+3. GitHub versioned code, schemas, policies and aggregate state.
+4. Portable release snapshot.
+5. Todoist/execution projections.
 
-## Safety / integrity locks
+Temporary root overrides are retired in v0.8; `goal-state.json` is the single canonical public state projection.
 
-- Never invent youth-work history, volunteering, trainer experience, fewer-opportunities status, language level, qualifications or availability.
-- `UNKNOWN` is never silently converted to `PASS`.
-- If a call prohibits AI-written final answers, final-text generation is disabled.
-- If AI policy is unknown, final submission text remains blocked until verified.
-- Never score a known-ineligible opportunity as actionable.
-- Never auto-submit a duplicate.
-- Public repository contains no private applicant application text or sensitive profile data.
+## Integrity locks
 
-## Scoring v1.1
-
-Eligibility is separate from desirability.
-
-- **Fit Score** — thematic/contribution/learning/career/funding fit.
-- **Media Value** — legitimate value of professional photography/video/storytelling for the project.
-- **Trainer Leverage** — NFE competence, organiser network, facilitation/reference path.
-- **Deadline Urgency** — time pressure only.
-- **Execution Priority** — decides what the system works on next; it never overrides hard gates.
-
-## Media contribution
-
-Photography/videography is an optional secondary contribution, not an eligibility shortcut. When relevant and approved, the applicant may contribute professional project documentation/dissemination at no charge, subject to organiser approval, consent, privacy and safeguarding.
-
-See `knowledge/MEDIA_CONTRIBUTION.md`.
-
-## Trainer / credential path
-
-Current verified TOY-qualifying references: **0**. Strategy: **BUILD, DO NOT CLAIM**.
-
-```text
-L0 self-description
-→ L1 artifact
-→ L2 delivery proof
-→ L3 outcome/reference
-→ L4 TOY-qualifying reference
-```
-
-See `knowledge/CREDENTIAL_ACQUISITION_GRAPH.md` and `knowledge/TRAINER_PATH.md`.
-
-## Current live checkpoint — 2026-08-27
-
-Private Drive CRM currently tracks:
-
-- **23 canonical opportunity rows**;
-- **21 opportunities** from the supplied opportunity document;
-- **61 raw Telegram references / 60 unique provider keys / 1 exact duplicate**;
-- **7 application nodes**;
-- **9 organisation-intelligence nodes**;
-- active P0/P1 dossiers for `Unleashing Creativity`, `CTRL+REAL`, `Game of Nature` and `Building With Our Hands`;
-- eligibility-gated dossiers for Blue Book and Amani Pamoja.
-
-Strongest current discovery nodes include:
-
-- `Unleashing Creativity: From Lens to Life` — photography/Photovoice; Fit 100 / Media 100 / Trainer Leverage 98; role evidence unresolved.
-- `CTRL+REAL — Manipulated Realities DECODED` — AI/deepfakes/media literacy; Fit 100 / Trainer Leverage 100; role evidence unresolved.
-
-Known false positives have already been blocked rather than pushed into the application queue: country-ineligible, expired, closed and conflicting-date calls remain in history with explicit decision codes.
+- Never invent current youth-work, NFE delivery, trainer/facilitator experience, languages, degree, affiliation, availability, fewer-opportunities status or sensitive attributes.
+- Historical Erasmus+/Youth Staff participation never auto-proves current youth-work context or trainer responsibility.
+- `AI_UNKNOWN` blocks AI-generated final applicant prose, not neutral source extraction or evidence mapping.
+- `AI_FINAL_TEXT_PROHIBITED` requires human-authored final text.
+- Never mark `SUBMITTED` without a receipt or explicit authoritative confirmation tied to the correct call.
+- Public GitHub contains no private applicant answers, identity documents, restricted infopacks or sensitive evidence.
 
 ## Repository map
 
-- `AGENTS.md` — canonical agent contract and resumable state.
-- `goal.md` — `/define-goal` / North Star.
-- `goal-state.json` — machine-readable checkpoint.
-- `ARCHITECTURE.md` — boundaries and data flow.
-- `docs/GRAPH_OPERATING_PROTOCOL.md` — mandatory transition guards / decision codes.
-- `checkpoints/` — immutable wave snapshots.
-- `knowledge/` — programme, selection, media, trainer and credential knowledge.
-- `schemas/` — canonical contracts.
-- `src/uexchanges/` — deterministic decision/discovery/routing core.
+- `goal.md` — current objective and policy.
+- `goal-state.json` — machine-readable canonical checkpoint.
+- `AGENTS.md` — cross-session execution contract.
+- `docs/MASS_APPLY_POLICY.md` — apply-everything rules.
+- `docs/GRAPH_OPERATING_PROTOCOL.md` — transition guards.
+- `docs/DRIVE_MAP.md` — private workspace topology.
+- `checkpoints/EXECUTION-WAVE-CURRENT.md` — current immutable checkpoint.
+- `src/uexchanges/` — deterministic core.
+- `schemas/` — contracts.
 - `tests/` — regressions.
-- `configs/` — source registry and scoring weights.
 
-## Quality truth
-
-Baseline merged PR #1:
-
-- **27 tests passed, 0 failed**;
-- GitHub Actions workflow run `33091677275`: **success**.
-
-Changes added after PR #1 merge (graph protocol, scoring v1.1, workflow router, credential graph):
-
-- **14 focused checks passed, 0 failed**;
-- full remote CI is intentionally marked **pending PR #2** until a workflow run is actually observed.
-
-## Test
+## Quality gate
 
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests -v
-PYTHONPATH=src python -m uexchanges.cli demo
 ```
 
-Read `AGENTS.md` before continuing any execution wave.
+Exact-head GitHub Actions is mandatory before merge. A release does not claim CI until the corresponding workflow run succeeds.
+
+Read `goal-state.json` and `AGENTS.md` before continuing.

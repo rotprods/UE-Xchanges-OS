@@ -1,58 +1,24 @@
 # Mass Apply & Infopack Factory Policy
 
-Status: **ACTIVE operational policy from 2026-08-29**.
+Status: **CANONICAL from v0.8.0 / 2026-08-29**.
 
 This policy changes execution selection, not truth or safety standards.
 
-## 1. Mandate
+## Mandate
 
-Discover, ingest, verify, prepare and submit every live opportunity that has a legitimate route for a person based in Spain, provided that:
+Discover, ingest, verify, prepare and submit every live opportunity with a legitimate Spain-compatible route, provided the deadline is open/rolling, no mandatory requirement has a confirmed `FAIL`, the route is not a duplicate and application/AI policy is respected.
 
-- the deadline has not passed;
-- the call is still open or genuinely rolling;
-- Spain or a Spanish sending/support route is eligible;
-- no mandatory requirement has a confirmed `FAIL`;
-- the application is not a duplicate;
-- the application policy, including AI rules, is respected;
-- the applicant completes the required human-owned review, authentication and consent steps.
+Priority, strategic fit, duration, option cost and overlap order work or inform the later acceptance decision. They do not exclude an application.
 
-Strategic fit, topic, duration, option cost and calendar overlap do **not** exclude an application. They order work or inform the later acceptance decision.
+## North Star
 
-## 2. North Star
+`valid receipt-backed applications / live Spain-compatible opportunities`
 
-`valid receipt-backed applications per live Spain-compatible opportunity`
+## Pipeline
 
-Coverage is maximised subject to zero known false-pass, fabricated claims, duplicate submissions, AI-policy violations and guessed receipt states.
+`DISCOVERED → INGESTED → DEDUPED → SOURCE_VERIFIED → SPAIN_ROUTE_VERIFIED → DEADLINE_VERIFIED → ROLE_PROFILE_EXTRACTED → INFOPACK_CAPTURED → INFOPACK_ANALYSED → FORM_CAPTURED → APPLICATION_POLICY_RESOLVED → EVIDENCE_MAPPED → ANSWER_DRAFTED → HUMAN_OWNED_FINAL_TEXT → QA → SUBMITTED → RECEIPT_STORED → OUTCOME_RECORDED → ACCEPTANCE_DECISION`
 
-## 3. Canonical pipeline
-
-```text
-DISCOVERED
-→ INGESTED
-→ DEDUPED
-→ SOURCE_VERIFIED
-→ SPAIN_ROUTE_VERIFIED
-→ DEADLINE_VERIFIED
-→ ROLE_PROFILE_EXTRACTED
-→ INFOPACK_CAPTURED
-→ INFOPACK_ANALYSED
-→ FORM_CAPTURED
-→ APPLICATION_POLICY_RESOLVED
-→ EVIDENCE_MAPPED
-→ ANSWER_DRAFTED
-→ HUMAN_OWNED_FINAL_TEXT
-→ QA
-→ SUBMITTED
-→ RECEIPT_STORED
-→ OUTCOME_RECORDED
-→ ACCEPTANCE_DECISION
-```
-
-`UNKNOWN` is work to resolve. It is not silently converted to either `PASS` or `FAIL`.
-
-## 4. Terminal exclusion reasons
-
-Only objective terminal states exclude a submission:
+## Objective terminal reasons
 
 - `DEADLINE_PASSED`
 - `SPAIN_NOT_ELIGIBLE`
@@ -61,108 +27,38 @@ Only objective terminal states exclude a submission:
 - `APPLICATION_ROUTE_INVALID`
 - `DUPLICATE_SUBMISSION`
 
-A low score, low thematic fit, long duration, possible calendar conflict or low perceived acceptance probability is not a terminal exclusion reason.
+`UNKNOWN` is a verification task, not a rejection and not a pass.
 
-## 5. Priority semantics
+## Deadline buckets
 
-Priority is a scheduling field only.
+- `T0`: today/tomorrow or deadline-critical.
+- `T1`: 2–3 days / ASAP.
+- `T2`: 4–7 days.
+- `T3`: 8–14 days.
+- `T4`: later, rolling or exact deadline still being verified.
 
-Deadline buckets:
+## Dossier definition
 
-- `T0`: deadline today or tomorrow;
-- `T1`: 2–3 days;
-- `T2`: 4–7 days;
-- `T3`: 8–14 days;
-- `T4`: later, rolling or deadline still being verified.
+Every application node must capture canonical identity, source, deadline/time zone, Spain route, profile, funding, infopack, authorised form, exact questions/limits, required assets, AI policy, gate matrix, evidence mapping, human final assets, QA and receipt.
 
-Inside a bucket, process routes with short verified forms first, then infopack-ready routes, then calls requiring external clarification or complex assets.
+A generated skeleton is not a finished application. `READY_TO_SUBMIT` requires all objective and human gates plus policy resolution.
 
-## 6. Infopack factory contract
+## Integrity
 
-Each opportunity dossier must capture:
+- No fabricated youth-work, NFE, trainer, language, degree, affiliation, availability or sensitive claims.
+- Historical participation does not auto-prove current context or trainer responsibility.
+- `AI_UNKNOWN` blocks final AI prose, not research.
+- Final prohibited-AI answers are human-authored.
+- No `SUBMITTED` state without receipt or explicit authoritative confirmation.
+- Overlaps are resolved after acceptance.
 
-### Identity and timing
+## Current aggregate state
 
-- canonical opportunity ID;
-- title, programme, host and Spanish sending/support route;
-- country, city and exact activity/travel dates;
-- deadline, time and time zone;
-- official source, infopack and authorised form URL.
+- 159 canonical opportunities.
+- 148 application/dossier rows.
+- 140 non-terminal.
+- 8 objective terminal.
+- 0 receipts.
+- 0 TOY-qualifying references.
 
-### Eligibility
-
-- eligible countries/residence/nationality;
-- age;
-- mandatory and preferred profiles;
-- mandatory experience, role, affiliation or organisational mandate;
-- language;
-- prior-participation constraints;
-- ESC/EVS cumulative participation limits where applicable;
-- availability and other private human gates.
-
-### Funding and conditions
-
-- accommodation, meals and pocket money;
-- travel reimbursement/distance band;
-- fee;
-- insurance, visa and accessibility provisions;
-- trainer/facilitator fee, daily rate and invoicing/tax conditions when applicable.
-
-### Programme and outputs
-
-- objectives, topics, methodology and activities;
-- required outputs and dissemination;
-- safeguarding, consent, privacy and media restrictions;
-- conditions for legitimate photo/video/storytelling contribution.
-
-### Application
-
-- exact questions and character limits;
-- required CV, portfolio, video, letter or certificates;
-- application policy and AI classification;
-- authorised channel;
-- expected confirmation or receipt.
-
-## 7. Application dossier contract
-
-Every application node must contain:
-
-1. opportunity brief;
-2. `PASS | FAIL | UNKNOWN` gate matrix;
-3. `criterion → evidence_id → allowed claim` map;
-4. exact question/answer matrix;
-5. adapted contribution module;
-6. credible learning goals;
-7. realistic dissemination plan;
-8. human-owned final assets;
-9. adversarial QA;
-10. submission receipt.
-
-Reusable modules are evidence components, not copy-paste final answers.
-
-## 8. Integrity invariants
-
-- Never fabricate youth-work, NFE, facilitation, trainer, language, degree, student, organisation, availability, accessibility or fewer-opportunities claims.
-- Historical Erasmus+/Youth Staff participation does not automatically prove current youth-work context or trainer responsibility.
-- Do not impersonate an experienced trainer when the supported lane is participant, contributor or emerging facilitator.
-- `AI_UNKNOWN` blocks AI-generated final applicant text, but not source extraction, evidence organisation or neutral form mapping.
-- `AI_FINAL_TEXT_PROHIBITED` requires human-authored final answers.
-- Do not mark `SUBMITTED` without a verifiable receipt or explicit human confirmation tied to the correct call.
-- Do not decide between overlapping opportunities before acceptance. Resolve conflicts at `ACCEPTANCE_DECISION`.
-
-## 9. Source coverage
-
-The complete queue draws from:
-
-- SALTO European Training Calendar;
-- SALTO Calls for Trainers;
-- European Youth Portal / European Solidarity Corps;
-- Eurodesk and Eurodesk Spain;
-- host and sending organisations;
-- official infopacks and forms;
-- verified organiser replies;
-- discovery-only social/Telegram records promoted only after stronger verification.
-
-## 10. Operational projection
-
-Private Drive CRM is authoritative for opportunity/application rows, private gates, evidence, answers and receipts. Todoist is an execution projection. Public GitHub stores this policy, schemas, aggregate checkpoints and executable rules only.
+Private Drive CRM is authoritative for live facts and private content.
