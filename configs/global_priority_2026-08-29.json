@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "effective_at": "2026-08-29T20:46:21+02:00",
+  "policy": "APPLY_EVERYTHING_VIABLE",
+  "portfolio_objective": "GLOBAL_EXPANSION_WITH_REMOTE_WORK_CONTINUITY",
+  "economic_metrics": {
+    "primary": "VERIFIED_NET_CASH_PER_WORK_HOUR",
+    "secondary": "VERIFIED_NET_CASH_PER_COMMITTED_HOUR",
+    "tertiary": "TOTAL_NET_CASH",
+    "non_cash": "TOTAL_FUNDED_VALUE_REPORTED_SEPARATELY"
+  },
+  "execution_order_weights": {
+    "paid_cash_rate": 35,
+    "payment_certainty": 15,
+    "total_net_cash": 10,
+    "trainer_trajectory": 12,
+    "outside_europe": 10,
+    "rarity": 8,
+    "remote_work_compatibility": 5,
+    "experience_network": 5
+  },
+  "role_preference_order": [
+    "TRAINER",
+    "FACILITATOR",
+    "PAID_MONITOR_OR_CAMP_LEADER",
+    "PROJECT_COORDINATOR",
+    "PAID_MEDIA_OR_COMMUNICATIONS",
+    "FUNDED_PARTICIPANT"
+  ],
+  "geography": {
+    "outside_europe_bonus": true,
+    "unusual_destination_bonus": true,
+    "country_exclusions": [],
+    "safety_visa_legal_insurance_gates_mandatory": true
+  },
+  "duration": {
+    "hard_limit": null,
+    "selection_after_acceptance": true,
+    "shorter_only_preferred_when_economic_yield_is_higher": true
+  },
+  "truth": {
+    "unknown_hours_no_hourly_rate": true,
+    "unknown_costs_no_net_cash": true,
+    "allowance_not_salary": true,
+    "accommodation_meals_travel_not_cash": true,
+    "priority_never_overrides_hard_gate": true
+  }
+}
