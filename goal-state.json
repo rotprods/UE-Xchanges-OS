@@ -1,53 +1,31 @@
 {
-  "schema_version": "1.9.0",
+  "schema_version": "1.10.1",
   "project": "UE-Xchanges-OS",
-  "updated_at": "2026-08-29T18:50:00+02:00",
-  "status": "v0_8_1_human_profile_source_audit_live",
+  "updated_at": "2026-08-29T20:55:00+02:00",
+  "status": "w9_baseline_reconciled_urgent_execution_active",
+  "north_star": {
+    "name": "valid_receipt_backed_applications_per_live_spain_compatible_opportunity",
+    "policy": "APPLY_EVERYTHING_VIABLE"
+  },
   "state_precedence": [
     "current_official_source_or_original_infopack_or_authorised_form_or_organiser_confirmation_or_submission_receipt",
     "private_drive_crm_and_evidence_graph",
-    "github_goal_state_and_versioned_policies",
+    "github_versioned_policy_and_aggregate_state",
     "portable_release_snapshot",
     "todoist_execution_projection"
   ],
-  "north_star": {
-    "name": "valid_receipt_backed_applications_per_live_spain_compatible_opportunity",
-    "target_direction": "maximize_coverage_subject_to_hard_slos"
-  },
   "operating_policy": {
-    "id": "APPLY_EVERYTHING_VIABLE",
     "priority_semantics": "scheduling_only",
-    "selection_time": "after_acceptance",
     "unknown_semantics": "verification_debt",
+    "selection_time": "after_acceptance",
     "form_automation_mode": "FACTUAL_PREFILL_AND_ANSWER_PACK_THEN_HUMAN_AUTHENTICATION_SUBMIT",
-    "terminal_exclusion_reasons": [
+    "objective_terminal_reasons": [
       "DEADLINE_PASSED",
       "SPAIN_NOT_ELIGIBLE",
       "HARD_REQUIREMENT_FAIL",
       "CALL_CLOSED",
       "APPLICATION_ROUTE_INVALID",
       "DUPLICATE_SUBMISSION"
-    ],
-    "canonical_pipeline": [
-      "DISCOVERED",
-      "INGESTED",
-      "DEDUPED",
-      "SOURCE_VERIFIED",
-      "SPAIN_ROUTE_VERIFIED",
-      "DEADLINE_VERIFIED",
-      "ROLE_PROFILE_EXTRACTED",
-      "INFOPACK_CAPTURED",
-      "INFOPACK_ANALYSED",
-      "FORM_CAPTURED",
-      "APPLICATION_POLICY_RESOLVED",
-      "EVIDENCE_MAPPED",
-      "ANSWER_DRAFTED",
-      "HUMAN_OWNED_FINAL_TEXT",
-      "QA",
-      "SUBMITTED",
-      "RECEIPT_STORED",
-      "OUTCOME_RECORDED",
-      "ACCEPTANCE_DECISION"
     ]
   },
   "slos": {
@@ -57,17 +35,14 @@
     "known_ai_policy_violations": 0,
     "receipt_state_guesses": 0,
     "invented_sensitive_attributes": 0,
-    "invented_rejection_causes": 0,
-    "invented_waitlist_ranks": 0,
     "platform_gate_bypasses": 0,
-    "temporal_evidence_scope_errors": 0,
-    "known_projection_divergence": 0
+    "temporal_role_scope_errors": 0,
+    "unowned_deadlines_inside_72h_target": 0,
+    "submitted_without_receipt_target": 0
   },
   "runtime": {
-    "drive_workspace": "07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS",
     "drive_root_id": "1_r8dQybkzr28xDlUYin8U9y8Skj9CwNr",
     "crm_id": "1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU",
-    "crm_title": "UE-Xchanges-OS — Opportunity & Application CRM",
     "crm_timezone": "Europe/Madrid",
     "crm_tabs": [
       "Dashboard",
@@ -78,6 +53,8 @@
       "Autofill_Profile",
       "Application_Modules",
       "Source_Audit",
+      "W9_Control",
+      "W9_Urgent",
       "Opportunities",
       "Applications",
       "Organisations",
@@ -87,152 +64,153 @@
       "Outcome_History",
       "Execution_Log"
     ],
-    "canonical_opportunity_rows": 160,
-    "application_dossier_nodes": 148,
-    "mass_apply_queue_rows": 148,
-    "source_inbox_nodes": 93,
-    "organisation_nodes": 17,
-    "execution_log_events": 34,
-    "outcome_history_rows": 4,
-    "submission_receipts_stored": 0,
+    "opportunity_rows": 167,
+    "application_nodes": 156,
+    "mass_apply_queue_rows": 156,
+    "source_inbox_nodes": 96,
+    "organisation_nodes": 22,
+    "execution_log_events": 52,
+    "outcome_rows": 4,
+    "submission_receipts": 0,
     "verified_toy_qualifying_references": 0,
-    "verified_historical_youth_sector_experience": true,
-    "verified_current_youth_work_context": null,
-    "completed_erasmus_youth_staff_mobilities": 2,
-    "completed_erasmus_youth_exchanges": 1
+    "urgent_rows_total": 35,
+    "urgent_rows_classified": 35,
+    "urgent_rows_missing_owner": 0,
+    "urgent_rows_missing_next_action": 0,
+    "telegram_unique_unresolved": 60
   },
   "private_profile_projection": {
     "legal_residence_gate": "PASS_PRIVATE",
     "age_18_30_gate": "PASS_PRIVATE",
     "travel_document_readiness": "PASS_USER_CONFIRMED",
-    "application_contact_route": "PASS_PRIVATE",
     "english": "B1_SELF_ASSESSED_NO_CERTIFICATE",
     "sep_nov_2026_availability": "PASS_USER_CONFIRMED",
-    "travel_cost_advance": "PASS_USER_CONFIRMED",
-    "shared_tent_rural_community_living": "PASS_USER_CONFIRMED",
-    "geographic_exclusions": "NONE_DECLARED",
+    "shared_rural_community_living": "PASS_USER_CONFIRMED",
     "eyp_esc_account": "MISSING_SETUP_REQUIRED",
     "esc_participant_reference_number": "MISSING_SETUP_REQUIRED",
+    "mysalto_access": "UNKNOWN_VERIFY_NOW",
     "current_youth_work_context": "UNKNOWN",
-    "toy_qualifying_references": 0,
-    "privacy_rule": "Values remain in private Drive; public GitHub stores states only."
+    "privacy_rule": "Exact private values stay in Drive."
   },
-  "source_audit": {
-    "supplied_document_1": {
-      "raw_records": 21,
-      "canonical_records": 21,
-      "status": "FULLY_REPRESENTED_IN_CRM",
-      "note": "Representation does not imply open, eligible or application-ready."
-    },
-    "supplied_document_2_telegram": {
-      "raw_urls": 61,
-      "unique_posts": 60,
-      "exact_duplicates": 1,
-      "content_resolved": 0,
-      "content_unresolved": 60,
-      "status": "RAW_INGEST_COMPLETE_EXTRACTION_PENDING"
-    },
-    "salto_spain_future_expansion": 109,
-    "policy": "Execute live T0/T1 opportunities while Telegram extraction runs in parallel."
-  },
-  "current_decisions": {
-    "triglav": {
-      "state": "CLOSED_NOT_SUBMITTED",
-      "human_confirmation": true,
-      "learning_rule": "Not a rejection; no negative application-quality update."
-    },
-    "building_with_our_hands": {
-      "private_gates": "PASS",
-      "ai_policy": "AI_ASSIST_ONLY",
-      "next": "FINALISE_HUMAN_OWNED_ASSETS_AND_SUBMIT"
-    },
-    "behind_the_scenes": {
-      "private_gates": "PASS",
-      "ai_policy": "AI_ASSIST_ONLY_CONSERVATIVE_ORGANISATION_POLICY",
-      "next": "FINALISE_HUMAN_OWNED_ASSETS_AND_SUBMIT"
-    },
-    "yupi_portfolio": {
-      "strategy": "APPLY_TO_BOTH_AS_MUTUALLY_EXCLUSIVE_OPTIONS",
-      "selection_resolution": "AFTER_ACCEPTANCE"
-    },
-    "step_into_paralympics": {
-      "private_logistics_gates": "PASS",
-      "external_target_profile_conflict": "PENDING",
-      "next": "INGEST_DUAL_ROUTE_REPLY_THEN_SUBMIT_IF_OPEN_OR_PREFERENCE_ONLY"
-    },
-    "thrive_and_shine": {
-      "private_logistics_gates": "PASS",
-      "external_deadline_form_ai_policy": "PENDING"
-    },
-    "olive_trees": {
-      "apply_all_intent": true,
-      "default_role": "PARTICIPANT_UNLESS_LEADERSHIP_EVIDENCE_VERIFIED",
-      "current_route_and_dates": "PENDING"
-    }
-  },
-  "application_factory": {
-    "private_autofill_profile": "LIVE",
-    "private_application_modules": 15,
-    "media_value_module": "LIVE_WITH_CONSENT_PRIVACY_SAFEGUARDING_GUARDS",
-    "policy_doc": "docs/AUTOFILL_AND_APPLICATION_MODULE_POLICY.md",
-    "human_only_fields": [
-      "authenticated_login",
-      "captcha_or_provider_challenge",
-      "legally_meaningful_declarations",
-      "sensitive_data_when_required",
-      "applicant_owned_final_wording_when_required",
-      "final_submit_action",
-      "receipt_capture"
+  "active_wave": {
+    "id": "W9_CONTROLLED_SUBMISSION_BASELINE",
+    "status": "W9_0_RECONCILED_W9_1_COMPLETE_EXTERNAL_VERIFICATION_ACTIVE",
+    "start": "2026-08-29T20:00:00+02:00",
+    "stop": "2026-09-04T22:00:00+02:00",
+    "drive_plan_id": "1uB-ZvK4vu_huHAwvpVKSkzrDnJGUrv74pUwRzfoCx78",
+    "todoist_parent_id": "6hPPRQrhG6cmhh3V",
+    "github_plan": "plans/W9_CONTROLLED_SUBMISSION_BASELINE.md",
+    "stop_contract": "configs/w9_stop_contract_2026-08-29.json",
+    "receipt_floor": 2,
+    "receipt_target": 5,
+    "stop_requirements": [
+      "EYP_ESC_ACCOUNT_AND_PRIVATE_PRN_LIVE",
+      "MYSALTO_ACCESS_VERIFIED",
+      "ALL_T0_T1_RESOLVED_OR_WAITING_EXTERNAL_WITH_SLA",
+      "BOTH_YUPI_ROUTES_RESOLVED",
+      "MINIMUM_TWO_RECEIPTS_OR_EVIDENCE_BASED_IMPOSSIBILITY_REPORT",
+      "TELEGRAM_60_OF_60_RESOLVED_OR_EXPLICITLY_INACCESSIBLE",
+      "ZERO_UNOWNED_DEADLINES_INSIDE_72H",
+      "ZERO_KNOWN_HARD_SLO_VIOLATIONS",
+      "ZERO_PROJECTION_DIVERGENCE"
     ]
   },
-  "release": {
-    "version": "v0.8.0",
-    "operational_state_revision": "v0.8.1",
-    "release_kind": "private_profile_gate_resolution_and_source_completeness_audit",
-    "previous_release_pr": 14,
-    "previous_release_merge_sha": "f333684eeca31748ed6759d83c5c9db59b681297",
-    "previous_release_ci": "SUCCESS_EXACT_HEAD_AND_MAIN_PUSH",
-    "state_sync_pr": "PENDING",
-    "rule": "No release CI is claimed without an observed exact-head workflow result."
+  "urgent_queue": {
+    "total": 35,
+    "classifications": {
+      "TERMINAL_OBJECTIVE": 7,
+      "HUMAN_NOW": 3,
+      "WAITING_EXTERNAL_OR_EXTERNAL_PLUS_HUMAN": 7,
+      "VERIFY_NOW": 18
+    },
+    "source": "Drive tab W9_Urgent",
+    "rule": "Every row has exactly one owner, next action and follow-up."
   },
-  "dimensions": {
-    "truth_provenance": {"current": 10, "target": 10},
-    "mass_apply_queue": {"current": 10, "target": 10},
-    "private_autofill_profile": {"current": 9, "target": 10},
-    "application_module_library": {"current": 8, "target": 10},
-    "source_coverage": {"current": 8, "target": 10},
-    "telegram_source_extraction": {"current": 1, "target": 10},
-    "infopack_extraction": {"current": 5, "target": 10},
-    "form_capture": {"current": 4, "target": 10},
-    "ai_policy_resolution": {"current": 2, "target": 10},
-    "application_personalisation": {"current": 8, "target": 10},
-    "submission_execution": {"current": 0, "target": 10},
-    "receipt_integrity": {"current": 10, "target": 10},
-    "drive_handoff": {"current": 10, "target": 10},
-    "github_state_coherence": {"current": 9, "target": 10},
-    "trainer_progression": {"current": 4, "target": 10}
+  "current_decisions": {
+    "building_with_our_hands": {
+      "gates": "PASS_PRIVATE_AND_PUBLIC",
+      "ai_policy": "AI_ASSIST_ONLY",
+      "state": "HUMAN_ASSETS_AND_SUBMISSION_REQUIRED",
+      "deadline": "2026-08-31T23:59:00+02:00"
+    },
+    "behind_the_scenes": {
+      "gates": "PASS_PRIVATE_AND_PUBLIC",
+      "ai_policy": "AI_ASSIST_ONLY",
+      "state": "HUMAN_ASSETS_AND_SUBMISSION_REQUIRED",
+      "deadline": "2026-08-31T23:59:00+02:00"
+    },
+    "game_of_nature": {
+      "participant_gate": "PASS_ORGANISER_CONFIRMED",
+      "group_leader_gate": "UNKNOWN_CLARIFICATION_SENT",
+      "ai_policy": "QUERY_SENT",
+      "state": "PREPARE_PARTICIPANT_IN_PARALLEL_WAIT_GROUP_LEADER_REPLY"
+    },
+    "shift": {
+      "country_funding_dates": "OFFICIAL_SOURCE_VERIFIED",
+      "current_active_youth_work_gate": "UNKNOWN_CLARIFICATION_SENT",
+      "ai_policy": "AI_ASSIST_ONLY_HUMAN_FINAL_FULLY_AI_GENERATED_REJECTED",
+      "mysalto_form": "HUMAN_AUTHENTICATED_CAPTURE_PENDING",
+      "state": "WAITING_ROLE_REPLY_AND_HUMAN_MYSALTO_CAPTURE"
+    },
+    "next_chapter_5_0": {
+      "canonical_opportunity_id": "eyp-51752",
+      "identity_correction": "PREVIOUS_53751_REFERENCE_REPLACED",
+      "official_baseline": "SPAIN_AGE_RESIDENCE_TRAVEL_PASS",
+      "vacancy_and_late_arrival": "UNKNOWN_HOST_QUERY_SENT",
+      "esc_history_account_and_ai_policy": "PENDING",
+      "state": "WAITING_EXTERNAL_EVIDENCE"
+    },
+    "saber_soilpunk": {
+      "participant_baseline": "PUBLIC_PASS_SPAIN_AGE",
+      "form_and_infopack": "PUBLICLY_LOCATED",
+      "current_places_spanish_route_effective_deadline_support_ai_policy": "UNKNOWN_HOST_QUERY_SENT",
+      "state": "WAITING_EXTERNAL_EVIDENCE"
+    },
+    "step_into_paralympics": {
+      "state": "WAITING_EXTERNAL_SENSITIVE_PROFILE_AND_ROUTE_CLARIFICATION",
+      "rule": "Never infer disability or use an unverified country route."
+    },
+    "under_the_hood_ii": {
+      "state": "WAITING_EXTERNAL_DEADLINE_TIMEZONE_VALIDITY_REPLY",
+      "submission": "NOT_SUBMITTED"
+    },
+    "triglav": {
+      "state": "CLOSED_NOT_SUBMITTED",
+      "learning_rule": "Not a rejection."
+    }
   },
-  "human_gate_debt": [
-    "create_european_youth_portal_and_esc_account",
-    "store_esc_participant_reference_number_privately",
-    "portfolio_and_social_links",
-    "passport_expiry_when_requested",
-    "driving_licence_category_when_relevant",
-    "emergency_contact_when_a_form_requires_it",
-    "concrete_task_date_location_for_claimed_practical_experience",
-    "call_specific_language_degree_affiliation_or_role_requirements",
-    "human_owned_final_wording_where_required",
-    "authenticated_submission",
-    "receipt_capture"
+  "source_audit": {
+    "supplied_compilation": "21_OF_21_CANONICALLY_REPRESENTED",
+    "telegram_raw_urls": 61,
+    "telegram_unique_posts": 60,
+    "telegram_exact_duplicates": 1,
+    "telegram_content_resolved": 0,
+    "telegram_content_unresolved": 60,
+    "policy": "Urgent live applications pre-empt backlog batch order."
+  },
+  "human_now": [
+    "CREATE_OR_VERIFY_EYP_ESC_ACCOUNT",
+    "STORE_PRN_PRIVATELY",
+    "VERIFY_MYSALTO_AND_CAPTURE_SHIFT_FORM",
+    "COMPLETE_BUILDING_AND_BEHIND_APPLICANT_OWNED_ASSETS",
+    "CONFIRM_ANY_LONG_TERM_COMMITMENT_BEFORE_ESC_SUBMISSION"
   ],
   "next_mandatory_operations": [
-    "Create a functional European Youth Portal / ESC account and store the Participant Reference Number privately.",
-    "Execute all non-terminal T0 and T1 rows in Mass_Apply_Queue in deadline order.",
-    "Finalise applicant-owned CV, motivation and video assets for both YUPI opportunities and submit with receipts.",
-    "Resolve Step Into Paralympics target-profile conflict before its deadline.",
-    "Extract, canonicalise and verify all 60 unique unresolved Telegram posts without delaying live deadlines.",
-    "For each live row, capture official detail, exact deadline/time zone, Spain route, form questions, infopack and AI policy.",
-    "Continue until every non-terminal row ends in receipt-backed submission, sourced terminal reason or waiting external evidence."
+    "Create or verify the European Youth Portal / ESC account and store PRN privately.",
+    "Verify MySALTO and capture the exact SHIFT form questions.",
+    "Complete and submit Building With Our Hands and Behind the Scenes with receipts before the internal buffer.",
+    "Ingest replies from Papaya, Innovative Generation, Synergy Bulgaria, Dupa Gard and other urgent organisers.",
+    "Execute the remaining VERIFY_NOW urgent rows by follow-up time.",
+    "Extract the 60 Telegram posts in four batches while promoting any new deadline inside seven days immediately.",
+    "Reconcile stale W2-W8 Todoist nodes without deleting historical evidence.",
+    "Close W9 only when the stop contract passes or an evidence-based conditional stop is proven."
   ],
-  "next_checkpoint": "First receipt-backed submissions, EYP/ESC account live, both YUPI applications resolved, and measurable reduction of the 60-post Telegram extraction backlog."
+  "release": {
+    "w9_plan_pr": 19,
+    "w9_plan_merge_sha": "2366aacaa2520bd7d65a14f9f2cee303f234b197",
+    "w9_plan_exact_head_ci": 33266842718,
+    "w9_plan_main_ci": 33266858343,
+    "state_sync_pr": 20,
+    "state_sync_status": "PENDING_EXACT_HEAD_CI"
+  }
 }

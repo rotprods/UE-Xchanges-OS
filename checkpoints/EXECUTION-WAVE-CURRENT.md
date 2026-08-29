@@ -6,6 +6,8 @@ Stop contract: `configs/w9_stop_contract_2026-08-29.json`.
 
 Plan-lock checkpoint: `checkpoints/2026-08-29-w9-plan-lock.md`.
 
+Current execution checkpoint: `checkpoints/2026-08-29-w9-baseline-and-urgent-queue.md`.
+
 Canonical mass-apply policy: `docs/MASS_APPLY_POLICY.md`.
 
 Machine state: `goal-state.json`.
@@ -16,6 +18,8 @@ Private implementation plan: Drive document `1uB-ZvK4vu_huHAwvpVKSkzrDnJGUrv74pU
 
 Todoist control node: `6hPPRQrhG6cmhh3V`.
 
-Status: `W9_CONTROLLED_SUBMISSION_BASELINE_PLANNED`.
+Status: `W9_0_RECONCILED_W9_1_COMPLETE_ACCESS_AND_URGENT_EXECUTION_ACTIVE`.
 
-First transition: `W9.0_STATE_RECONCILIATION → W9.1_T0_T1_QUEUE_REBUILD → W9.3_EYP_ESC_ACCOUNT`, with YUPI asset completion in parallel.
+Current human gate: `EYP_ESC_ACCOUNT → PRIVATE_PRN → MYSALTO_FORM_ACCESS`.
+
+Parallel execution: `YUPI_HUMAN_ASSETS_AND_RECEIPTS + VERIFY_NOW_URGENT_ROWS + WAITING_EXTERNAL_REPLY_INGESTION + TELEGRAM_BATCHES`.
