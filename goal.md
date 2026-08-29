@@ -1,43 +1,91 @@
 # /define-goal — UE-Xchanges-OS
 
-## North Star
+## Portfolio mission
 
-Build a persistent EU mobility and trainer-opportunity operating system that discovers the complete current opportunity space, registers every legitimate Spain-compatible route, converts sources/infopacks/forms into structured evidence, prepares truthful application dossiers and executes every objectively viable application.
+Build a persistent global mobility, paid-role and trainer-opportunity operating system that enables Roberto to expand beyond Murcia while continuing or delegating online work.
 
-**Current objective function**
+The system discovers the complete measurable opportunity space, registers every legitimate Spain-compatible route, converts sources/infopacks/forms into structured evidence, prepares truthful applications and executes every objectively viable application.
 
-`Coverage = ValidReceiptBackedApplications / LiveSpainCompatibleOpportunities`
+## North-Star system
 
-Maximise coverage subject to hard SLOs: zero known eligibility false-passes, duplicate submissions, fabricated claims, AI-policy violations, sensitive-attribute invention and guessed receipt states.
+Coverage objective:
 
-## Operating decision — 2026-08-29
+```text
+Valid receipt-backed applications / live Spain-compatible opportunities
+```
 
-The campaign runs under **APPLY EVERYTHING VIABLE**:
+Economic ordering objective:
 
-- priority and fit only order execution;
-- they never exclude an otherwise viable application;
+```text
+Verified net cash / verified work hour
+→ verified net cash / committed hour
+→ total verified net cash
+```
+
+Portfolio objective:
+
+```text
+Global expansion + remote-work continuity + paid trainer/facilitator progression
+```
+
+These objectives are constrained by zero known eligibility false-passes, duplicate submissions, fabricated claims, AI-policy violations, sensitive-attribute invention, guessed receipt states, conflicting lease writes and unreconciled projections.
+
+## Operating decision
+
+**APPLY EVERYTHING VIABLE.**
+
+- priority orders execution; it does not exclude a viable route;
 - `UNKNOWN` becomes verification debt;
 - a confirmed objective `FAIL` blocks only the affected call;
-- calendar conflicts are preserved as option value and resolved after acceptance;
+- overlaps remain options until acceptance;
 - no submission is claimed without receipt or authoritative confirmation.
 
-## Primary outcomes
+## Strategic order after hard gates
 
-1. Complete discovery across SALTO, EYP/ESC, Eurodesk, non-SALTO organisation calls and paid trainer/facilitator calls.
-2. One canonical opportunity identity and one deduplicated application route.
-3. Source, deadline, Spain route, role, funding, form, infopack and AI-policy extraction.
-4. One dossier and machine-readable application state per non-duplicate queue row.
-5. Human-owned, evidence-backed final assets.
-6. Receipt-backed submissions and structured outcomes.
-7. Deliberate progression from participant/current youth-work evidence to facilitator and paid trainer credentials.
+1. Paid trainer/facilitator/expert work.
+2. Paid monitor, camp/activity leader and project-coordination work.
+3. Paid media, communication, digital and professional-mobility roles.
+4. Extra-European and humanitarian funded opportunities.
+5. Rare/unusual fully funded experience and networking routes.
+6. All other viable funded participant opportunities.
 
-## Canonical pipeline
+The scheduling vector is 35% paid cash-rate potential, 15% payment certainty, 10% total net cash, 12% trainer trajectory, 10% outside-Europe/globality, 8% rarity, 5% remote-work compatibility and 5% experience/network value.
 
-`DISCOVERED → INGESTED → DEDUPED → SOURCE_VERIFIED → SPAIN_ROUTE_VERIFIED → DEADLINE_VERIFIED → ROLE_PROFILE_EXTRACTED → INFOPACK_CAPTURED → INFOPACK_ANALYSED → FORM_CAPTURED → APPLICATION_POLICY_RESOLVED → EVIDENCE_MAPPED → ANSWER_DRAFTED → HUMAN_OWNED_FINAL_TEXT → QA → SUBMITTED → RECEIPT_STORED → OUTCOME_RECORDED → ACCEPTANCE_DECISION`
+Travel, accommodation, meals, insurance and training are non-cash funded value. They are never reported as salary. Unknown work hours or compulsory costs prohibit a net/hour claim.
+
+## Multi-agent control plane
+
+All canonical writers operate through:
+
+```text
+Context_Registry
+Agent_Sessions
+Agent_Event_Bus
+Work_Leases
+Agent_Inbox
+Opportunity_Economics
+Source_Coverage
+Profile_Interview
+```
+
+A chat must register a unique session, read events after the context cursor, acquire the smallest safe lease, emit idempotent events, update projections and release with a handoff. Unregistered sessions are read-only.
+
+This provides near-real-time external alignment through read-before-write. It does not imply magical push synchronization between already-running chats.
+
+## Canonical application pipeline
+
+```text
+DISCOVERED → INGESTED → DEDUPED → SOURCE_VERIFIED
+→ SPAIN_ROUTE_VERIFIED → DEADLINE_VERIFIED → ROLE_PROFILE_EXTRACTED
+→ INFOPACK_CAPTURED → INFOPACK_ANALYSED → FORM_CAPTURED
+→ APPLICATION_POLICY_RESOLVED → EVIDENCE_MAPPED → ANSWER_DRAFTED
+→ HUMAN_OWNED_FINAL_TEXT → QA → SUBMITTED → RECEIPT_STORED
+→ OUTCOME_RECORDED → ACCEPTANCE_DECISION
+```
 
 ## Objective terminal states
 
-Only the following remove a call from submission execution:
+Only:
 
 - `DEADLINE_PASSED`
 - `SPAIN_NOT_ELIGIBLE`
@@ -46,15 +94,29 @@ Only the following remove a call from submission execution:
 - `APPLICATION_ROUTE_INVALID`
 - `DUPLICATE_SUBMISSION`
 
-Low fit, duration, cost of option, possible overlap or low perceived acceptance probability are not terminal reasons.
+Low fit, long duration, cost, overlap, destination or estimated probability are not terminal reasons.
+
+## Complete-coverage semantics
+
+Literal proof that every vacancy on the Internet was found is not available. Operational completion requires:
+
+1. every active registered source scanned inside SLA;
+2. every returned item preserved with provenance;
+3. deterministic dedupe to one canonical opportunity;
+4. every discovered link resolved toward an original source, form and infopack;
+5. inaccessible/stale/unresolved frontier counted;
+6. every viable call routed to receipt-backed submission or an objective sourced block.
 
 ## Current canonical scale
 
-- 159 opportunity rows
-- 148 application/dossier rows
-- 140 non-terminal rows
-- 8 objective terminal rows
-- 0 submission receipts
-- 0 verified TOY-qualifying references
+- 167 opportunity rows;
+- 156 application/dossier and mass-apply rows;
+- 96 source-inbox nodes;
+- 22 organisation nodes;
+- 52 execution-log events;
+- 35 urgent rows classified;
+- 60 unique Telegram posts unresolved;
+- 0 receipt-backed submissions;
+- 0 verified TOY-qualifying references.
 
-The private Drive CRM is authoritative for live rows, private evidence, answers and receipts. GitHub stores policy, code, schemas and aggregate state.
+The private Drive CRM is authoritative for live rows, profile data, answers, events, leases and receipts. GitHub stores policy, code, schemas, tests and aggregate state.
