@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rotprods/UE-Xchanges-OS/schemas/work-lease.schema.json",
+  "title": "UE-Xchanges-OS Work Lease",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lease_id",
+    "project_id",
+    "context_id",
+    "resource_type",
+    "resource_id",
+    "scope",
+    "owner_agent_id",
+    "owner_session_id",
+    "acquired_at",
+    "expires_at",
+    "last_heartbeat",
+    "status",
+    "conflict_policy"
+  ],
+  "properties": {
+    "lease_id": {"type": "string", "pattern": "^LSE-[A-Z0-9-]+$"},
+    "project_id": {"type": "string", "minLength": 1},
+    "context_id": {"type": "string", "pattern": "^CTX-[A-Z0-9-]+$"},
+    "resource_type": {"type": "string", "minLength": 1},
+    "resource_id": {"type": "string", "minLength": 1},
+    "scope": {"type": "string", "minLength": 1},
+    "owner_agent_id": {"type": "string", "pattern": "^AGT-[A-Z0-9-]+$"},
+    "owner_session_id": {"type": "string", "minLength": 1},
+    "acquired_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "last_heartbeat": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["ACTIVE", "RELEASED", "EXPIRED"]},
+    "last_event_id": {"type": ["string", "null"]},
+    "conflict_policy": {"type": "string", "minLength": 1},
+    "handoff_or_release_reason": {"type": ["string", "null"]}
+  }
+}
