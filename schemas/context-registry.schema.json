@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rotprods/UE-Xchanges-OS/schemas/context-registry.schema.json",
+  "title": "UE-Xchanges-OS Context Registry Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "context_id",
+    "project_id",
+    "name",
+    "scope",
+    "canonical_goal",
+    "priority_vector",
+    "hard_constraints",
+    "active_wave",
+    "state_version",
+    "updated_at",
+    "updated_by_session",
+    "status"
+  ],
+  "properties": {
+    "context_id": {"type": "string", "pattern": "^CTX-[A-Z0-9-]+$"},
+    "project_id": {"type": "string", "minLength": 1},
+    "name": {"type": "string", "minLength": 1},
+    "scope": {"type": "string", "minLength": 1},
+    "canonical_goal": {"type": "string", "minLength": 1},
+    "priority_vector": {
+      "type": "object",
+      "additionalProperties": {"type": "number", "minimum": 0},
+      "minProperties": 1
+    },
+    "hard_constraints": {
+      "type": "object",
+      "additionalProperties": {"type": ["boolean", "string", "number", "null"]}
+    },
+    "canonical_refs": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "active_wave": {"type": "string", "minLength": 1},
+    "state_version": {"type": "string", "minLength": 1},
+    "last_event_id": {"type": ["string", "null"]},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "updated_by_session": {"type": "string", "pattern": "^SES-[A-Z0-9-]+$"},
+    "status": {"enum": ["ACTIVE", "PAUSED", "ARCHIVED"]},
+    "notes": {"type": ["string", "null"]}
+  }
+}
