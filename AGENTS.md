@@ -1,65 +1,157 @@
 # UE-Xchanges-OS — AGENTS.md
 
-> Canonical cross-session contract for v0.8.1. Read:
-> `goal.md` → `goal-state.json` → this file → `ARCHITECTURE.md` → `docs/MASS_APPLY_POLICY.md` → `docs/AUTOFILL_AND_APPLICATION_MODULE_POLICY.md` → `docs/GRAPH_OPERATING_PROTOCOL.md` → current checkpoint.
+> Canonical cross-session contract for multi-agent control-plane v1. Read in order:
+> `goal.md` → `goal-state.json` → this file → `ARCHITECTURE.md` → `docs/MULTI_AGENT_CONTROL_PLANE.md` → `docs/GLOBAL_MOBILITY_AND_INCOME_STRATEGY.md` → `docs/MASS_APPLY_POLICY.md` → `docs/GRAPH_OPERATING_PROTOCOL.md` → current checkpoint → private Drive context/events/leases.
 
 ## 1. Mission lock
 
-Discover, register, verify, prepare and execute **every live Spain-compatible opportunity** across Erasmus+ Youth Exchanges, ESC, Eurodesk, non-SALTO participant routes, SALTO training and paid trainer/facilitator calls.
+Discover, register, verify, prepare and execute **every legitimate live Spain-compatible opportunity** across:
 
-**North Star:** valid receipt-backed applications per live Spain-compatible opportunity, subject to zero known hard-SLO violations.
+- Erasmus+ Youth Exchanges and organisation calls;
+- European Solidarity Corps and Humanitarian Aid Volunteering;
+- Eurodesk and Eurodyssey/professional mobility;
+- SALTO training and paid trainer/facilitator/expert calls;
+- paid monitor, camp/activity leader and project roles;
+- international communication/media/digital roles;
+- reputable global humanitarian, youth and adjacent professional sources.
 
-Priority, fit and thematic value are scheduling fields. They do not exclude a viable application.
+Portfolio objective: enable Roberto to expand globally beyond Murcia while maintaining or delegating online work.
 
-## 2. Truth hierarchy
+`APPLY EVERYTHING VIABLE` remains mandatory. Priority orders execution only.
 
-1. Current official page / original infopack / authorised form / organiser confirmation / submission receipt.
-2. Private Drive CRM and evidence graph.
-3. Canonical GitHub state, policies, schemas and deterministic rules.
-4. LLM extraction with provenance.
-5. Heuristic ranking and execution projection.
+## 2. North-star hierarchy
 
-`UNKNOWN` is first-class verification debt. Never silently coerce it to `PASS` or `FAIL`.
+Coverage:
 
-## 3. Source topology and privacy
+`receipt-backed applications / live Spain-compatible opportunities`
 
-- GitHub is public and stores code, schemas, public facts, aggregate state and tests.
-- Drive stores applicant identity/evidence, private emails, original/restricted infopacks, autofill values, answers, final assets and receipts.
+Economic ordering:
+
+`verified net cash / verified work hour → verified net cash / committed hour → total net cash`
+
+Career:
+
+`subject expertise → current youth-facing delivery → co-facilitation → references → paid international trainer/facilitator work`
+
+All are constrained by zero known hard-SLO violations.
+
+## 3. Strategic scheduling
+
+After all hard gates, use the versioned priority vector:
+
+- paid cash-rate potential: 35%;
+- payment and contract certainty: 15%;
+- total net cash: 10%;
+- trainer/facilitator trajectory: 12%;
+- outside-Europe/globality: 10%;
+- rarity/scarcity: 8%;
+- remote-work compatibility: 5%;
+- exceptional experience/network value: 5%.
+
+Preferred roles: `TRAINER → FACILITATOR → PAID_MONITOR/CAMP_LEADER → PROJECT_COORDINATOR → PAID_MEDIA/COMMUNICATIONS → FUNDED_PARTICIPANT`.
+
+This order never fabricates role eligibility. Duration has no global hard ceiling. Shorter work is preferred only when verified yield is better.
+
+## 4. Truth hierarchy
+
+1. Current original official page, infopack, authorised form, organiser confirmation, contract or receipt.
+2. Private Drive CRM event bus and evidence graph.
+3. GitHub versioned policy, schemas, code and aggregate state.
+4. Portable snapshots.
+5. Todoist/interface projections.
+
+`UNKNOWN` is first-class verification debt. The latest edit is not automatically authoritative.
+
+## 5. Source topology and privacy
+
+- GitHub is public: code, schemas, public policies/facts, tests and aggregate state only.
+- Drive is private: applicant data/evidence, answers, sessions, events, leases, forms, restricted infopacks, dossiers and receipts.
+- Gmail/provider portals are communication/submission evidence channels.
 - Todoist is an execution projection only.
-- No private applicant text or sensitive value enters public GitHub.
 
-Private root: `07_PERSONAL_TRAVEL/01_TRAVEL/UE_XCHANGES_OS/`.
+Never place phone, DOB, addresses, identity numbers, health data, emergency contacts, private references, applicant answers or restricted files in public GitHub.
 
-## 4. Apply-everything contract
+## 6. Mandatory multi-agent cold start
 
-Every non-duplicate call enters CRM when Spain is listed, a Spanish route exists, or that route remains plausibly verifiable and the deadline has not been proven closed.
+Before any canonical write, every chat/agent must:
+
+1. read the current GitHub contract and checkpoint;
+2. read private `Context_Registry`;
+3. inspect `Agent_Sessions` and unexpired `Work_Leases`;
+4. read `Agent_Event_Bus` after the context cursor;
+5. reconcile the target projection;
+6. register a unique Session ID;
+7. emit `SESSION_STARTED`;
+8. acquire the smallest safe lease;
+9. execute only transitions within that lease.
+
+Unregistered sessions are read-only.
+
+Current context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`.
+
+## 7. Sessions, leases and events
+
+Session IDs follow:
+
+`SES-<PROJECT>-<PLATFORM>-<YYYYMMDDTHHMMSS>-<NN>`
+
+Stable Agent IDs identify roles, not conversations.
+
+Default lease TTL is 120 minutes. Target heartbeat is 15 minutes while writing. Another session's unexpired lease blocks mutation. Expired/released takeover requires an event.
+
+Every material mutation emits an append-only event containing project/context/session/agent/entity identity, state before/after, source, causal parent, correlation, lease, writer version and idempotency key.
+
+Idempotency:
+
+`SHA-256(project_id | entity_type | entity_id | operation | authoritative_source_version)`
+
+Same operation + same source version = no-op replay.
+
+## 8. Consistency limitations
+
+The current Drive-based bus provides near-real-time shared state through mandatory read-before-write. It is not a push broker: an already-running chat does not receive updates automatically. Every material operation must refresh events and leases immediately before mutation.
+
+A projection changed without an event, or an event missing from required projections, creates `PROJECTION_DIVERGENCE` and blocks wave closure.
+
+## 9. Apply-everything contract
+
+Every non-duplicate call enters CRM when Spain is listed, a Spanish route exists, or that route remains plausibly verifiable and the deadline is not proven closed.
 
 Only objective terminal reasons remove a call:
 
 `DEADLINE_PASSED · SPAIN_NOT_ELIGIBLE · HARD_REQUIREMENT_FAIL · CALL_CLOSED · APPLICATION_ROUTE_INVALID · DUPLICATE_SUBMISSION`
 
-Low fit, duration, cost, potential overlap, topic or predicted acceptance are not terminal reasons. Conflicts are resolved after acceptance.
+Low score, duration, cost, overlap, destination or predicted acceptance never terminate a viable application.
 
-## 5. Mandatory graph
+## 10. Mandatory graph
 
 `DISCOVERED → INGESTED → DEDUPED → SOURCE_VERIFIED → SPAIN_ROUTE_VERIFIED → DEADLINE_VERIFIED → ROLE_PROFILE_EXTRACTED → INFOPACK_CAPTURED → INFOPACK_ANALYSED → FORM_CAPTURED → APPLICATION_POLICY_RESOLVED → EVIDENCE_MAPPED → ANSWER_DRAFTED → HUMAN_OWNED_FINAL_TEXT → QA → SUBMITTED → RECEIPT_STORED → OUTCOME_RECORDED → ACCEPTANCE_DECISION`
 
-No agent chooses an arbitrary next state or skips a gate.
+No arbitrary next state and no skipped gate.
 
-## 6. Gates
+## 11. Hard gates
 
 Gate output: `PASS | FAIL | UNKNOWN`.
 
-Mandatory checks include source/current status, deadline/time zone, Spain/residence/nationality, age, dates/availability, role/profile, language, degree, affiliation, previous participation, ESC/EVS limits, sending/support organisation, form/channel, duplicate state and AI/application policy.
+Mandatory checks include:
 
-- `FAIL` is call-specific terminal.
-- `UNKNOWN` creates a task with owner and deadline.
-- Urgency accelerates verification; it never bypasses it.
-- A broad private gate may pass once, but must be rechecked if call dates or conditions materially change.
+- source/current status and deadline/time zone;
+- Spain/residence/nationality and age;
+- exact dates/availability and travel feasibility;
+- role/profile, language, degree, licence or certification;
+- affiliation/mandate/team composition;
+- previous participation and ESC/EVS limits;
+- sending/support organisation;
+- safety, visa, insurance, legal/tax and remote-work restrictions when relevant;
+- authorised form/channel and duplicate state;
+- AI/application policy;
+- final human declarations and receipt path.
 
-## 7. Temporal and role evidence
+Urgency accelerates verification; it never bypasses it.
 
-Historical youth-sector experience, current youth-work context, delivery/facilitation responsibility and trainer qualification are separate facts.
+## 12. Temporal and role evidence
+
+Historical youth-sector experience, current youth-work context, delivered facilitation and trainer qualification are separate facts.
 
 Verified private aggregate context:
 
@@ -68,195 +160,188 @@ Verified private aggregate context:
 - current youth-work context: `UNKNOWN`;
 - TOY-qualifying trainer references: `0`.
 
-Attendance never implies facilitator or trainer responsibility. Never claim first-time Erasmus participation.
+Attendance never implies group leadership, facilitation or trainer responsibility. Exact roles remain in the private `Profile_Interview` queue until evidenced.
 
-## 8. AI/application policy
+## 13. Ask-once profile contract
 
-Classify each route as:
+`Autofill_Profile` stores verified reusable facts. `Profile_Interview` stores unresolved questions.
+
+Agents must:
+
+- search both before asking Roberto anything;
+- ask only unresolved and call-relevant questions;
+- update the canonical question immediately after an answer;
+- record evidence strength and external-use rule;
+- collect minimum necessary sensitive data;
+- never infer degree, CEFR, youth work, certifications, residence duration, emergency/health facts or commercial authority.
+
+## 14. AI/application policy
+
+Classify each route:
 
 `AI_ALLOWED | AI_ASSIST_ONLY | AI_FINAL_TEXT_PROHIBITED | AI_UNKNOWN`
 
-- `AI_UNKNOWN`: source extraction and evidence mapping may continue; final AI-generated prose stays blocked unless the applicant independently authors it.
-- `AI_ASSIST_ONLY`: evidence, structure, gap analysis and QA are allowed; final wording follows organiser guidance and remains applicant-owned.
-- `AI_FINAL_TEXT_PROHIBITED`: no final-answer drafting or rewriting; provide facts/outline only.
-- Absence of a visible prohibition is not proof of permission.
+- `AI_UNKNOWN`: source extraction/evidence mapping may continue; final AI prose is blocked unless independently authored by the applicant.
+- `AI_ASSIST_ONLY`: structure, evidence, gap analysis and QA are allowed; final wording follows organiser guidance and remains applicant-owned.
+- `AI_FINAL_TEXT_PROHIBITED`: facts/outline only; no final-answer drafting or rewriting.
+- Absence of a visible prohibition is not permission.
 
-Maximum application volume never overrides a call-specific policy.
+## 15. Infopack and form factory
 
-## 9. Autofill profile contract
+For each canonical opportunity:
 
-The private Drive CRM tab `Autofill_Profile` is the reusable factual profile.
+1. preserve original source/infopack;
+2. extract eligibility, role, dates, location, funding, accommodation, travel, fees, language and conditions;
+3. capture exact current form, questions and character limits;
+4. resolve AI policy;
+5. map questions to private evidence;
+6. create a project-specific answer pack;
+7. create/update required CV, letter, portfolio, video script or attachments;
+8. route missing facts to `Profile_Interview`;
+9. obtain human-owned final wording and declarations;
+10. submit through the authorised route;
+11. store a durable receipt.
 
-Every field has a canonical private value, verification strength, allowed external use and an explicit next gate if incomplete. Blank means unknown.
+Infopacks are analysed; forms and attached templates are completed.
 
-The system may reuse verified factual fields, but must not infer or publicly expose phone, date of birth, identity-document details, emergency contacts, health/accessibility data or private addresses.
+## 16. Personalisation and claims
 
-Current aggregate private-gate state is recorded in `goal-state.json`; exact values remain in Drive.
+Every external claim follows:
 
-## 10. Application module contract
+`criterion → verified evidence → allowed claim → specific contribution → credible learning → proportionate multiplier`
 
-The private Drive CRM tab `Application_Modules` contains reusable evidence-backed building blocks. Modules are not final generic templates.
+Never fabricate current youth work, NFE delivery, trainer experience, degree, CEFR, student status, organisation mandate, availability, disability, fewer-opportunities status, safeguarding, practical experience or other sensitive circumstances.
 
-Every answer follows:
+## 17. Media contribution
 
-`call criterion → verified evidence → project-specific contribution → credible learning goal → proportionate multiplier`
+Photography/video/content may be offered only when relevant and subject to organiser approval, consent, privacy, safeguarding, local law and full participation. Never promise recording involving minors, vulnerable groups, detainees or sensitive settings without explicit authorisation.
 
-A module must be adapted to the exact question, character limit, target group, project activities and AI policy.
+## 18. Opportunity economics
 
-## 11. Dossier contract
+Cash and non-cash funded value are separate.
 
-Every application row has:
+Net cash requires verified gross compensation and every compulsory cost. Net/hour additionally requires verified actual working hours. Unknown inputs remain `ECONOMICS_VERIFICATION_DEBT`.
 
-1. canonical identity and source;
-2. deadline and Spain route;
-3. eligibility/funding/conditions extraction;
-4. gate matrix;
-5. infopack and form state;
-6. exact questions/character limits when captured;
-7. criterion → evidence_id → allowed claim map;
-8. adapted contribution/learning/dissemination modules;
-9. human-owned final assets;
-10. QA and receipt block.
+Do not call pocket money, accommodation, meals, travel reimbursement, insurance or training a salary.
 
-A skeleton is labelled as such. It is never described as a completed personalised application.
+For paid roles capture:
 
-## 12. Personalisation and claims
+- currency, amount and fee unit;
+- working days/hours and preparation;
+- total commitment/travel days;
+- payment schedule and legal payer;
+- fee inclusions/exclusions;
+- programme, visa, insurance, travel and tax costs;
+- cancellation/payment-risk terms;
+- remote-work compatibility.
 
-Externally used claims follow:
+Economic scores order execution; they never determine eligibility.
 
-`criterion → private evidence → allowed factual claim → specific contribution → credible learning → dissemination`
+## 19. Global source coverage
 
-Never fabricate current youth-work, NFE, trainer/facilitator history, degree, CEFR, student status, organisation mandate, availability, residence, disability, fewer opportunities, practical experience or any sensitive circumstance.
+Use source tiers:
 
-A self-reported skill without task/date/location evidence may support willingness but not a concrete experience claim.
+- T1: original official provider/employer;
+- T2: established network/programme platform;
+- T3: aggregator/social/user-supplied discovery.
 
-## 13. Media contribution rule
+T3 may discover but does not authorise when an original source exists.
 
-Photography/videography/content creation is a reusable **project-specific value proposition**, not automatic eligibility.
+Operational coverage requires every active source scanned inside SLA, every item captured, deterministic dedupe, recursive original-source resolution, and explicit unresolved/inaccessible frontier counts.
 
-Use it when the call benefits from documentation, communication or dissemination:
+Never call a zero-result or blocked scraper complete.
 
-- organiser approval;
-- informed consent and privacy;
-- safeguarding for minors or vulnerable/sensitive contexts;
-- local law and explicit permission for drone use;
-- full programme participation remains primary;
-- no fixed deliverable quantities before agreement.
+## 20. Trainer progression
 
-The applicant may offer useful visual assets free to participating organisations, but never as a substitute for the actual project duties.
+`L0 self-description → L1 verified affiliation → L2 delivered youth activity → L3 external reference/repeated delivery → L4 qualifying international trainer reference`
 
-## 14. Submission integrity and automation boundary
+Build, do not claim. Historical participation supports programme literacy only.
 
-`SUBMITTED` requires the correct authorised channel plus:
+## 21. Submission boundary
 
+`SUBMITTED` requires:
+
+- correct authorised channel;
+- all public/private/policy gates pass;
 - human review/ownership;
 - legitimate authentication;
-- submission timestamp;
-- receipt/capture or explicit authoritative confirmation;
-- CRM and Execution_Log update.
+- timestamp;
+- receipt/capture or authoritative confirmation;
+- CRM/event/log update.
 
-Current connectors support factual prefill packets, evidence mapping, drafts where allowed, QA and operational emails. They do **not** provide general-purpose typing/submission for arbitrary authenticated forms, CAPTCHA or legally meaningful declarations.
+Connectors may discover, read, prepare, prefill facts, create documents, draft/send authorised email routes and update systems. Arbitrary authenticated forms, CAPTCHA, MySALTO/EYP/Eurodyssey declarations require Roberto's legitimate final interaction unless an explicit connected action supports submission.
 
-The human owner performs authentication, applicant-owned wording when required, final declarations, submit and receipt capture.
+The handoff must be `READY_FOR_HUMAN_SUBMIT` with exact fields/assets, not “write this yourself”.
 
-Missing receipt is not proof of submission and not proof of non-submission.
+## 22. Todoist
 
-## 15. Provider access
+Every active task must map to a graph transition and include entity ID, state, next transition, deadline/time zone, owner, Drive/form ref, blockers and receipt condition.
 
-- SALTO calendar: public listing/detail and legitimate MySALTO routes.
-- SALTO trainer calls: public calls only; never bypass login/access controls.
-- EYP/ESC and Eurodesk: supported public/search/browser/API routes.
-- Social/Telegram: discovery only until corroborated.
-- Organisation calls: verify current source, country route, deadline and authorised form.
+Completing a Todoist task without an event and canonical transition is invalid.
 
-A zero-result scraper is not successful coverage.
+## 23. Dedupe and conflicts
 
-## 16. Source completeness semantics
-
-Use four separate states:
-
-- `CAPTURED`: raw link/text preserved with provenance.
-- `CANONICAL`: deduplicated into one opportunity.
-- `VERIFIED`: authoritative facts checked.
-- `APPLICATION_READY`: public/private/policy gates pass and assets are ready.
-
-Never describe captured Telegram URLs as fully processed opportunities.
-
-Current supplied-source audit:
-
-- project compilation: 21/21 represented canonically;
-- Telegram document: 61 raw links, 60 unique, one duplicate, 60 content-unresolved.
-
-Live T0/T1 applications continue while Telegram extraction runs in parallel.
-
-## 17. Dedupe
-
-Prefer:
+Identity order:
 
 1. provider/call ID;
 2. provider post ID;
-3. canonical source/application URL;
+3. canonical application URL;
 4. `(host, normalised title, start date, country)`.
 
-Raw duplicates remain provenance nodes; only one canonical application is submitted.
+Raw duplicates remain provenance. Conflicting authoritative facts are preserved and routed to verification; never majority-vote them.
 
-## 18. Current canonical checkpoint
+## 24. Handoff and release
 
-Reconciled after the 2026-08-29 private-gate intake:
+Before ending a session:
 
-- opportunities: **160**;
-- application/dossier rows: **148**;
-- Source Inbox nodes: **93**;
-- organisations: **17**;
-- execution events: **34**;
-- outcomes: **4**;
-- receipts: **0**;
-- TOY references: **0**;
-- private `Autofill_Profile`: live;
-- private application modules: **15**.
+1. refresh target/events;
+2. emit final domain events;
+3. reconcile Drive/GitHub/Todoist projections;
+4. record tests and CI actually observed;
+5. set exactly one next transition per active node;
+6. update session output/handoff;
+7. emit `HANDOFF_READY` and `SESSION_COMPLETED`;
+8. release every lease.
 
-Private broad gates now pass for Spain residence, current 18–30 age, September–November availability, travel-cost advance and broad accommodation/logistics tolerance. Exact values stay private.
+Historical sessions are backfilled only from evidence. Unknown identity stays unknown.
 
-`Guardians of Triglav` is `CLOSED_NOT_SUBMITTED` by direct human confirmation, not rejection.
+## 25. Current checkpoint
 
-Both YUPI calls have private gates passed and are prepared as mutually exclusive options. Final applicant-owned assets, submission and receipts remain.
+W9 baseline remains:
 
-## 19. Current bottlenecks
+- 167 opportunities;
+- 156 application/dossier and mass-apply rows;
+- 96 Source Inbox nodes;
+- 22 organisations;
+- 52 execution-log events;
+- 35 urgent rows classified;
+- 60 unique Telegram posts unresolved;
+- 0 receipts;
+- 0 TOY references.
 
-1. Create a functional European Youth Portal / ESC account and store the Participant Reference Number privately.
-2. Execute live T0/T1 rows in deadline order.
-3. Finalise and submit both YUPI applications.
-4. Resolve Step Into Paralympics external target-profile conflict.
-5. Extract and verify all 60 unique unresolved Telegram posts.
-6. Capture forms, infopacks and AI policies for the remaining mass queue.
-7. Store the first receipt-backed submissions.
+Control-plane v1 adds eight private tables, one canonical global context and the first registered session without changing the application baseline or claiming submissions.
 
-## 20. Execution order
+## 26. Immediate bottlenecks
 
-`T0 today/tomorrow → T1 2–3 days/ASAP → T2 4–7 days → T3 8–14 days → T4 later/rolling`.
+1. Functional EYP/ESC account and private PRN.
+2. MySALTO access/form capture.
+3. Applicant-owned YUPI assets and receipt-backed submissions.
+4. P0 profile intake: exact Erasmus roles/activities, delivered youth work, education, professional timeline, portfolio links, invoicing and remote-work constraints.
+5. Economics verification for live paid roles.
+6. T1 scans for paid trainers, humanitarian/outside-EU, paid monitors/camps and professional mobility.
+7. Resolve all 60 Telegram posts.
+8. Keep every writer sessioned, leased, idempotent and reconciled.
 
-Inside each bucket:
+## 27. Release protocol
 
-1. verified short form;
-2. infopack-ready route;
-3. source/form extraction;
-4. external clarification;
-5. complex assets.
+Before merge/release:
 
-Continue until each non-terminal row ends in receipt-backed submission, a sourced objective terminal state or explicit waiting external evidence.
-
-## 21. Release protocol
-
-Before closing a wave:
-
-1. reconcile Drive CRM counts;
-2. update `goal-state.json`, README, AGENTS and checkpoint;
-3. retire obsolete overrides;
-4. run local tests when the repo is available;
-5. open PR;
-6. observe exact-head CI;
-7. merge only after green;
-8. persist Drive release bundle and handoff;
-9. record GitHub/Drive IDs in CRM Execution_Log.
-
-Do not claim any step that did not occur.
+1. re-read main and active leases;
+2. update policy/state/checkpoint;
+3. run focused local tests when possible;
+4. open PR;
+5. observe exact-head CI;
+6. merge only green;
+7. observe main push CI;
+8. update private event/session/lease state and Todoist;
+9. never claim an operation that did not occur.
