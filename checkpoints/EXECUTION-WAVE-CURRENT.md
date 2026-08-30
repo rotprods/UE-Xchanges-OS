@@ -8,6 +8,8 @@ Plan-lock checkpoint: `checkpoints/2026-08-29-w9-plan-lock.md`.
 
 Current execution checkpoint: `checkpoints/2026-08-29-w9-baseline-and-urgent-queue.md`.
 
+Latest material opportunity update: `checkpoints/2026-08-30-strive-greece-october-final-call.md`.
+
 Control-plane implementation: `checkpoints/2026-08-29-multi-agent-control-plane-v1.md`.
 
 Control-plane green release: `checkpoints/2026-08-29-multi-agent-control-plane-v1-release.md`.
