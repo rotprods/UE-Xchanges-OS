@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.11.0",
+  "schema_version": "1.12.0",
   "project": "UE-Xchanges-OS",
-  "updated_at": "2026-08-29T21:02:00+02:00",
-  "status": "w9_urgent_execution_with_multi_agent_control_plane_v1",
+  "updated_at": "2026-08-31T19:50:00+02:00",
+  "status": "cp7_live_recovery_email_ingestion_w9_urgent_execution",
   "north_star": {
     "coverage": "valid_receipt_backed_applications_per_live_spain_compatible_opportunity",
     "economic_ordering": "verified_net_cash_per_work_hour_then_committed_hour",
@@ -30,64 +30,36 @@
       "DUPLICATE_SUBMISSION"
     ]
   },
-  "global_expansion_strategy": {
-    "objective": "Expand globally beyond Murcia while preserving online-work continuity.",
-    "paid_first": true,
-    "role_order": [
-      "TRAINER",
-      "FACILITATOR",
-      "PAID_MONITOR_OR_CAMP_LEADER",
-      "PROJECT_COORDINATOR",
-      "PAID_MEDIA_OR_COMMUNICATIONS",
-      "FUNDED_PARTICIPANT"
-    ],
-    "outside_europe_priority": true,
-    "rarity_priority": true,
-    "duration_hard_limit": null,
-    "fully_funded_non_cash_experiences_remain_viable": true,
-    "priority_weights": {
-      "paid_cash_rate": 35,
-      "payment_certainty": 15,
-      "total_net_cash": 10,
-      "trainer_trajectory": 12,
-      "outside_europe": 10,
-      "rarity": 8,
-      "remote_work_compatibility": 5,
-      "experience_network": 5
-    },
-    "cash_truth_rule": "Travel, accommodation, meals, insurance and training are non-cash funded value, not salary.",
-    "unknown_economics_rule": "Unknown hours or compulsory costs block net/hour calculations."
-  },
   "coordination": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "context_id": "CTX-UEX-GLOBAL-EXPANSION-INCOME-V1",
-    "private_spec_drive_id": "11R9uGW7O5YlfgujmbFrK1Kc_IZ4u6V3xUvDqg0r04OI",
     "mode": "READ_BEFORE_WRITE_EVENT_SOURCED_EXCLUSIVE_LEASES",
-    "push_subscription_available": false,
-    "required_tables": [
-      "Context_Registry",
-      "Agent_Sessions",
-      "Agent_Event_Bus",
-      "Work_Leases",
-      "Agent_Inbox",
-      "Opportunity_Economics",
-      "Source_Coverage",
-      "Profile_Interview"
-    ],
     "session_registration_required": true,
     "unregistered_sessions": "READ_ONLY",
-    "default_lease_ttl_minutes": 120,
-    "heartbeat_target_minutes": 15,
     "mutation_requires_active_owned_lease": true,
-    "idempotency_components": [
-      "project_id",
-      "entity_type",
-      "entity_id",
-      "operation",
-      "authoritative_source_version"
+    "current_recovery_session": "SES-UEX-CHATGPT-20260831T191400-08",
+    "current_recovery_agent": "AGT-CP7-EMAIL-RECONCILER",
+    "current_correlation": "CORR-20260831-CP7-EMAIL-WAVE",
+    "private_event_watermark_at_reconciliation": "EVT-20260831T194500-EMAIL-009",
+    "active_leases_at_reconciliation": [
+      "LSE-UEX-CP7-20260831T191400-08",
+      "LSE-UEX-EMAIL-20260831T191400-08"
     ],
-    "projection_divergence_blocks_wave_close": true,
-    "first_registered_session": "SES-UEX-CHATGPT-20260829T204621-01"
+    "stale_session_recovered": {
+      "session_id": "SES-UEX-GPT56PRO-20260830T120306-05",
+      "lease_id": "LSE-UEX-ARCH-V2-20260830T120306-05",
+      "lease_expired_at": "2026-08-30T16:07:11+02:00",
+      "resolution": "FAILED_STALE_LEASE_EXPIRED",
+      "authority_rule": "Expired lease and unmerged sandbox artifacts confer no current architecture authority."
+    },
+    "projection_divergence_blocks_wave_close": true
+  },
+  "architecture_recovery": {
+    "previous_v2_final_claim": "INVALIDATED_AS_RELEASE_CLAIM",
+    "reason": "Current GitHub main contains no merged V2 architecture/kernel release and the prior V2 writer session expired without terminal handoff.",
+    "current_main_before_cp7_state_pr": "dec379a1033ee135f7d37895cacbfe09bc37f7e8",
+    "candidate_artifacts_rule": "Treat previous V2 local/sandbox artifacts as non-authoritative candidate evidence only.",
+    "next": "Recompile any justified V2 changes later from current main under a fresh session/claim/lease after deadline-critical W9 execution."
   },
   "slos": {
     "eligibility_false_pass_known_rules": 0,
@@ -98,7 +70,6 @@
     "invented_sensitive_attributes": 0,
     "platform_gate_bypasses": 0,
     "temporal_role_scope_errors": 0,
-    "unowned_deadlines_inside_72h_target": 0,
     "submitted_without_receipt_target": 0,
     "conflicting_unexpired_lease_writes_target": 0,
     "duplicate_event_applications_target": 0,
@@ -108,159 +79,114 @@
     "drive_root_id": "1_r8dQybkzr28xDlUYin8U9y8Skj9CwNr",
     "crm_id": "1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU",
     "crm_timezone": "Europe/Madrid",
-    "crm_tabs": [
-      "Dashboard",
-      "Decision_Queue",
-      "Mass_Apply_Queue",
-      "Execution_Campaign",
-      "Human_Gates",
-      "Autofill_Profile",
-      "Application_Modules",
-      "Source_Audit",
-      "W9_Control",
-      "W9_Urgent",
-      "Opportunities",
-      "Applications",
-      "Organisations",
-      "Trainer_References",
-      "Sources",
-      "Source_Inbox",
-      "Outcome_History",
-      "Execution_Log",
-      "Context_Registry",
-      "Agent_Sessions",
-      "Agent_Event_Bus",
-      "Work_Leases",
-      "Opportunity_Economics",
-      "Source_Coverage",
-      "Profile_Interview",
-      "Agent_Inbox"
-    ],
-    "opportunity_rows": 167,
-    "application_nodes": 156,
-    "mass_apply_queue_rows": 156,
-    "source_inbox_nodes": 96,
-    "organisation_nodes": 22,
-    "execution_log_events": 52,
-    "outcome_rows": 4,
+    "opportunity_rows": 168,
+    "application_nodes": 157,
+    "mass_apply_queue_rows": 157,
+    "source_inbox_nodes": 97,
+    "organisation_nodes": 26,
+    "execution_log_events": 77,
+    "outcome_rows": 5,
     "submission_receipts": 0,
     "verified_toy_qualifying_references": 0,
-    "urgent_rows_total": 35,
-    "urgent_rows_classified": 35,
-    "urgent_rows_missing_owner": 0,
-    "urgent_rows_missing_next_action": 0,
     "telegram_unique_unresolved": 60,
-    "control_plane_contexts": 1,
-    "registered_agent_sessions": 1,
-    "control_plane_events_at_activation": 2,
-    "active_control_plane_leases_at_activation": 1
+    "registered_agent_sessions": 8,
+    "email_wave_material_inbound_ingested": 7,
+    "email_wave_outbound_sent": 2
   },
   "private_profile_projection": {
     "legal_residence_gate": "PASS_PRIVATE",
     "age_18_30_gate": "PASS_PRIVATE",
     "travel_document_readiness": "PASS_USER_CONFIRMED",
     "english": "B1_SELF_ASSESSED_NO_CERTIFICATE",
-    "sep_nov_2026_availability": "PASS_USER_CONFIRMED",
-    "shared_rural_community_living": "PASS_USER_CONFIRMED",
-    "eyp_esc_account": "MISSING_SETUP_REQUIRED",
-    "esc_participant_reference_number": "MISSING_SETUP_REQUIRED",
-    "mysalto_access": "UNKNOWN_VERIFY_NOW",
-    "current_youth_work_context": "UNKNOWN",
-    "exact_erasmus_metadata_and_roles": "PROFILE_INTERVIEW_P0",
-    "formal_education": "PROFILE_INTERVIEW_P0",
-    "approved_portfolio_links": "PROFILE_INTERVIEW_P0",
-    "international_invoicing_details": "PROFILE_INTERVIEW_P0",
-    "remote_work_weekly_constraints": "PROFILE_INTERVIEW_P0",
-    "humanitarian_training_commitment": "PROFILE_INTERVIEW_P0",
+    "sep_nov_2026_availability": "PASS_USER_CONFIRMED_RECHECK_PER_CALL",
+    "eyp_esc_account": "MISSING_SETUP_REQUIRED_HUMAN_NOW",
+    "esc_participant_reference_number": "MISSING_SETUP_REQUIRED_AFTER_ACCOUNT",
+    "mysalto_access": "UNKNOWN_VERIFY",
+    "current_youth_work_context": "UNKNOWN_GLOBAL; CALL_SPECIFIC_ORGANISER_EXCEPTIONS_MAY_PASS",
     "privacy_rule": "Exact private values stay in Drive."
   },
   "active_wave": {
     "id": "W9_CONTROLLED_SUBMISSION_BASELINE",
-    "status": "W9_URGENT_EXECUTION_AND_CONTROL_PLANE_V1_ACTIVE",
-    "start": "2026-08-29T20:00:00+02:00",
+    "status": "DEADLINE_CRITICAL_EXECUTION_WITH_CP7_RECOVERY",
     "stop": "2026-09-04T22:00:00+02:00",
-    "drive_plan_id": "1uB-ZvK4vu_huHAwvpVKSkzrDnJGUrv74pUwRzfoCx78",
     "todoist_parent_id": "6hPPRQrhG6cmhh3V",
-    "github_plan": "plans/W9_CONTROLLED_SUBMISSION_BASELINE.md",
-    "stop_contract": "configs/w9_stop_contract_2026-08-29.json",
     "receipt_floor": 2,
     "receipt_target": 5,
-    "stop_requirements": [
-      "EYP_ESC_ACCOUNT_AND_PRIVATE_PRN_LIVE",
-      "MYSALTO_ACCESS_VERIFIED",
-      "ALL_T0_T1_RESOLVED_OR_WAITING_EXTERNAL_WITH_SLA",
-      "BOTH_YUPI_ROUTES_RESOLVED",
-      "MINIMUM_TWO_RECEIPTS_OR_EVIDENCE_BASED_IMPOSSIBILITY_REPORT",
-      "TELEGRAM_60_OF_60_RESOLVED_OR_EXPLICITLY_INACCESSIBLE",
-      "ZERO_UNOWNED_DEADLINES_INSIDE_72H",
-      "ZERO_KNOWN_HARD_SLO_VIOLATIONS",
-      "ZERO_PROJECTION_DIVERGENCE",
-      "ALL_CANONICAL_WRITERS_REGISTERED_OR_READ_ONLY",
-      "NO_CONFLICTING_UNEXPIRED_LEASE_WRITES"
-    ]
+    "receipts_current": 0,
+    "stop_contract_still_active": true
   },
-  "urgent_queue": {
-    "total": 35,
-    "classifications": {
-      "TERMINAL_OBJECTIVE": 7,
-      "HUMAN_NOW": 3,
-      "WAITING_EXTERNAL_OR_EXTERNAL_PLUS_HUMAN": 7,
-      "VERIFY_NOW": 18
+  "email_reconciliation_2026_08_31": {
+    "window": "2026-08-27/2026-08-31",
+    "gmail_label_replied_ingested": "UEX/Reply Ingested",
+    "material_findings": {
+      "civis_lab": "SPANISH_PARTNER_ELIGIBILITY_PASS_PAYMENT_GATE",
+      "saber_soilpunk": "HOST_AUTHORISED_LATE_APPLICATION_AFTER_SPANISH_CANCELLATION",
+      "next_chapter_5_0": "CLOSED_NOT_SUBMITTED_HOST_FULL_GROUP",
+      "sapounofouska_six_workshops": "ORGANISER_PROFILE_PASS_AI_ALLOWED_MULTIPLE_APPLICATIONS",
+      "behind_the_scenes": "CURRENT_EYP_53846_VERIFIED_STALE_50317_CONFLICT_CLARIFICATION_SENT",
+      "informajoven_murcia": "WARM_INTERNAL_REFERRAL_TO_EUROPEAN_PROJECTS",
+      "game_of_nature": "PARTICIPANT_PASS_GROUP_LEADER_CLARIFICATION_PENDING"
     },
-    "source": "Drive tab W9_Urgent",
-    "rule": "Every row has exactly one owner, next action and follow-up."
+    "outbound": [
+      "CIVIS_PAYMENT_TERMS_REQUESTED",
+      "YUPI_BEHIND_CURRENT_ROUTE_CLARIFICATION_SENT"
+    ],
+    "submission_receipt_delta": 0
   },
   "current_decisions": {
     "building_with_our_hands": {
       "gates": "PASS_PRIVATE_AND_PUBLIC",
-      "ai_policy": "AI_ASSIST_ONLY",
+      "ai_policy": "AI_ASSIST_ONLY_AUTHENTIC_APPLICANT_OWNED_FINAL",
       "state": "HUMAN_ASSETS_AND_SUBMISSION_REQUIRED",
-      "deadline": "2026-08-31T23:59:00+02:00"
+      "deadline": "2026-08-31",
+      "route": "YUPI_EMAIL_PACKAGE"
     },
     "behind_the_scenes": {
-      "gates": "PASS_PRIVATE_AND_PUBLIC",
-      "ai_policy": "AI_ASSIST_ONLY",
-      "state": "HUMAN_ASSETS_AND_SUBMISSION_REQUIRED",
-      "deadline": "2026-08-31T23:59:00+02:00"
+      "canonical_opportunity_id": "eyp-53846",
+      "official_deadline": "2026-08-31T23:59:00+02:00",
+      "state": "HUMAN_NOW_CURRENT_EYP_OPEN_ROUTE_CLARIFICATION_SENT",
+      "source_conflict": "YUPI_EMAIL_REFERENCED_STALE_50317; CURRENT_EYP_53846_CONTROLS",
+      "next": "CREATE_EYP_ESC_ACCESS_OPEN_53846_FINALISE_ASSETS_INGEST_ROUTE_REPLY_SUBMIT_CURRENT_AUTHORISED_ROUTE"
     },
-    "game_of_nature": {
-      "participant_gate": "PASS_ORGANISER_CONFIRMED",
-      "group_leader_gate": "UNKNOWN_CLARIFICATION_SENT",
-      "ai_policy": "QUERY_SENT",
-      "state": "PREPARE_PARTICIPANT_IN_PARALLEL_WAIT_GROUP_LEADER_REPLY"
+    "civis_lab": {
+      "eligibility": "PASS_SPANISH_PARTNER_CONFIRMED_CURRENT_YOUTH_WORK_NOT_MANDATORY",
+      "route": "NO_PUBLIC_FORM_REQUIRED_BY_EUROACTIVA_T",
+      "funding": "ALL_PROJECT_COSTS_COVERED_EXCEPT_50_EUR_MANAGEMENT_AND_CIVIL_LIABILITY_INSURANCE",
+      "travel_condition": "MUST_TRAVEL_FROM_SPAIN",
+      "state": "WAITING_PAYMENT_DETAILS_HUMAN_PAYMENT_DECISION",
+      "payment_executed": false
     },
-    "shift": {
-      "country_funding_dates": "OFFICIAL_SOURCE_VERIFIED",
-      "current_active_youth_work_gate": "UNKNOWN_CLARIFICATION_SENT",
-      "ai_policy": "AI_ASSIST_ONLY_HUMAN_FINAL_FULLY_AI_GENERATED_REJECTED",
-      "mysalto_form": "HUMAN_AUTHENTICATED_CAPTURE_PENDING",
-      "state": "WAITING_ROLE_REPLY_AND_HUMAN_MYSALTO_CAPTURE"
+    "saber_soilpunk": {
+      "deadline": "FORMAL_DEADLINE_PASSED",
+      "late_route": "HOST_EXPLICITLY_AUTHORISED_AFTER_SPANISH_CANCELLATION",
+      "ai_policy": "AI_ALLOWED_HOST_CONFIRMED",
+      "state": "HUMAN_NOW_FORM_COMPLETION_AND_RECEIPT"
+    },
+    "sapounofouska_workshops": {
+      "count": 6,
+      "eligibility": "PASS_DIRECT_ORGANISER_EDUCATOR_AI_CREATIVE_PROFILE",
+      "current_youth_work": "PREFERRED_NOT_MANDATORY_CALL_SPECIFIC",
+      "ai_policy": "AI_ALLOWED_FOR_ASSISTANCE_FINAL_AUTHENTIC_PERSONAL",
+      "multiple_applications": "ALLOWED_BY_ORGANISER",
+      "deadline": "2026-08-31T24:00:00Z",
+      "routes_captured": 5,
+      "vr_ar_route": "CAPTURE_PENDING",
+      "state": "HUMAN_NOW"
     },
     "next_chapter_5_0": {
       "canonical_opportunity_id": "eyp-51752",
-      "identity_correction": "PREVIOUS_53751_REFERENCE_REPLACED",
-      "official_baseline": "SPAIN_AGE_RESIDENCE_TRAVEL_PASS",
-      "vacancy_and_late_arrival": "UNKNOWN_HOST_QUERY_SENT",
-      "esc_history_account_and_ai_policy": "PENDING",
-      "state": "WAITING_EXTERNAL_EVIDENCE"
+      "state": "CLOSED_NOT_SUBMITTED_HOST_FULL_GROUP",
+      "learning_rule": "Not a rejection; no negative application-quality update."
     },
-    "saber_soilpunk": {
-      "participant_baseline": "PUBLIC_PASS_SPAIN_AGE",
-      "form_and_infopack": "PUBLICLY_LOCATED",
-      "current_places_spanish_route_effective_deadline_support_ai_policy": "UNKNOWN_HOST_QUERY_SENT",
-      "state": "WAITING_EXTERNAL_EVIDENCE"
+    "game_of_nature": {
+      "participant_gate": "PASS_ORGANISER_CONFIRMED",
+      "group_leader_gate": "UNKNOWN_CLARIFICATION_PENDING",
+      "state": "PREPARE_PARTICIPANT_GL_SEPARATE"
     },
-    "step_into_paralympics": {
-      "state": "WAITING_EXTERNAL_SENSITIVE_PROFILE_AND_ROUTE_CLARIFICATION",
-      "rule": "Never infer disability or use an unverified country route."
-    },
-    "under_the_hood_ii": {
-      "state": "WAITING_EXTERNAL_DEADLINE_TIMEZONE_VALIDITY_REPLY",
-      "submission": "NOT_SUBMITTED"
-    },
-    "triglav": {
-      "state": "CLOSED_NOT_SUBMITTED",
-      "learning_rule": "Not a rejection."
+    "informajoven_murcia": {
+      "organisation_id": "org-informajoven-murcia",
+      "state": "WARM_INTERNAL_REFERRAL_TO_EUROPEAN_PROJECTS",
+      "credential_rule": "Not yet a confirmed youth-work activity, facilitation role or trainer reference."
     }
   },
   "source_audit": {
@@ -270,38 +196,29 @@
     "telegram_exact_duplicates": 1,
     "telegram_content_resolved": 0,
     "telegram_content_unresolved": 60,
-    "global_source_registry": "SEE_PRIVATE_SOURCE_COVERAGE",
-    "policy": "Urgent live applications pre-empt backlog batch order; paid/global source scans run in parallel under leases."
+    "policy": "Urgent live applications and organiser replies pre-empt backlog batch order."
   },
   "human_now": [
-    "CREATE_OR_VERIFY_EYP_ESC_ACCOUNT",
-    "STORE_PRN_PRIVATELY",
-    "VERIFY_MYSALTO_AND_CAPTURE_SHIFT_FORM",
-    "COMPLETE_BUILDING_AND_BEHIND_APPLICANT_OWNED_ASSETS",
-    "ANSWER_PROFILE_INTERVIEW_P0_ONLY_ONCE",
-    "CONFIRM_ANY_LONG_TERM_COMMITMENT_BEFORE_ESC_SUBMISSION"
+    "CREATE_OR_VERIFY_EYP_ESC_ACCOUNT_AND_OPEN_BEHIND_53846",
+    "FINALISE_AND_SEND_BUILDING_PACKAGE_WITH_RECEIPT",
+    "FINALISE_BEHIND_ASSETS_AND_SUBMIT_ONLY_CURRENT_AUTHORISED_ROUTE_WITH_RECEIPT",
+    "SUBMIT_SABER_HOST_AUTHORISED_LATE_FORM_WITH_TRUTHFUL_PERSONAL_FINAL",
+    "SUBMIT_FIVE_CAPTURED_SAPOUNOFOUSKA_WORKSHOP_FORMS_AND_CAPTURE_VR_AR_ROUTE",
+    "REVIEW_CIVIS_PAYMENT_TERMS_WHEN_RECEIVED_BEFORE_ANY_TRANSFER"
   ],
   "next_mandatory_operations": [
-    "Require every new agent/chat to register a unique session, read the context cursor, acquire a lease and emit a final handoff.",
-    "Create or verify the European Youth Portal / ESC account and store PRN privately.",
-    "Verify MySALTO and capture the exact SHIFT form questions.",
-    "Complete and submit Building With Our Hands and Behind the Scenes with receipts before the internal buffer.",
-    "Ingest replies from Papaya, Innovative Generation, Synergy Bulgaria, Dupa Gard and other urgent organisers.",
-    "Complete the P0 Profile_Interview gaps: exact Erasmus metadata/roles, delivered youth activities, education, professional timeline, approved portfolio links, invoicing and remote-work constraints.",
-    "Verify economics for every live paid opportunity before assigning net/hour values.",
-    "Scan T1 paid trainer/facilitator, humanitarian/outside-EU, paid monitor/camp and professional-mobility source lanes under independent leases.",
-    "Extract the 60 Telegram posts in four batches while promoting any new deadline inside seven days immediately.",
-    "Reconcile stale W2-W8 Todoist nodes without deleting historical evidence.",
-    "Close W9 only when the stop contract and coordination invariants pass or an evidence-based conditional stop is proven."
+    "Finish deadline-critical 31 August human submissions before any architecture redesign.",
+    "Continue full-thread Gmail ingestion and recompute gates on each organiser reply.",
+    "Store one receipt per real submission and never infer a submission from preparation or sent outreach.",
+    "Resolve EYP/ESC access because Behind 53846 and future ESC routes depend on it.",
+    "Run Telegram extraction and remaining T1 burn-down after tonight's live forms.",
+    "Recompile V2 only from current main under a fresh claim/lease after W9 urgent work is protected."
   ],
   "release": {
-    "w9_plan_pr": 19,
-    "w9_plan_merge_sha": "2366aacaa2520bd7d65a14f9f2cee303f234b197",
-    "w9_plan_exact_head_ci": 33266842718,
-    "w9_plan_main_ci": 33266858343,
-    "state_sync_pr": 20,
-    "state_sync_merge_sha": "4a1c7bec223d2260295bd352d4659359812dda9f",
-    "control_plane_pr": "PENDING",
-    "control_plane_status": "BRANCH_IMPLEMENTED_LOCAL_FOCUSED_TESTS_PENDING_REMOTE_CI"
+    "current_main_before_cp7_state_sync": "dec379a1033ee135f7d37895cacbfe09bc37f7e8",
+    "current_main_checkpoint": "PR_24_STRIVE_GREECE_OCTOBER_FINAL_CALL",
+    "control_plane_v1_release_evidence": "PR_21_AND_PR_22_HISTORICAL_VALID",
+    "previous_v2_release_claim": "NOT_ON_MAIN_INVALID_AS_CURRENT_AUTHORITY",
+    "cp7_state_sync": "PENDING_EXACT_HEAD_CI"
   }
 }
