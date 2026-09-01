@@ -26,6 +26,8 @@ from uexchanges.models import AIPolicy
 NOW = datetime(2026, 9, 1, 16, 30, tzinfo=timezone.utc)
 SECRET = b"a" * 32
 OTHER_SECRET = b"b" * 32
+VALIDATION_V1 = "sha256:" + "1" * 64
+VALIDATION_V2 = "sha256:" + "2" * 64
 
 
 def make_field(*, answer="Roberto", evidence_ids=("ev-name",)) -> FormField:
@@ -51,6 +53,7 @@ def make_plan(**overrides) -> FormExecutionPlan:
         canonical_form_url="https://forms.example.org/apply",
         provider="generic_html",
         form_fingerprint="sha256:form-v1",
+        validation_signature=VALIDATION_V1,
         fields=(make_field(),),
         ai_policy=AIPolicy.ASSIST_ONLY,
         auth_requirement=AuthRequirement.EXISTING_SESSION,
@@ -80,13 +83,14 @@ def issue(plan: FormExecutionPlan, **overrides) -> str:
 
 
 class FormApprovalTests(unittest.TestCase):
-    def test_valid_token_is_bound_to_exact_plan(self):
+    def test_valid_token_is_bound_to_exact_plan_and_validation(self):
         plan = make_plan()
         token = issue(plan)
         result = verify_approval_token(token=token, plan=plan, secret=SECRET, now=NOW + timedelta(seconds=1))
         self.assertTrue(result.valid)
         self.assertIs(result.status, ApprovalStatus.VALID)
         self.assertEqual(result.claims.application_id, "app-1")
+        self.assertEqual(result.claims.validation_signature, VALIDATION_V1)
 
     def test_token_expires_and_cannot_be_reused(self):
         plan = make_plan()
@@ -128,6 +132,13 @@ class FormApprovalTests(unittest.TestCase):
         result = verify_approval_token(token=token, plan=changed, secret=SECRET, now=NOW + timedelta(seconds=1))
         self.assertIs(result.status, ApprovalStatus.BINDING_MISMATCH)
 
+    def test_validation_rule_change_invalidates_approval(self):
+        plan = make_plan()
+        token = issue(plan)
+        changed = replace(plan, validation_signature=VALIDATION_V2)
+        result = verify_approval_token(token=token, plan=changed, secret=SECRET, now=NOW + timedelta(seconds=1))
+        self.assertIs(result.status, ApprovalStatus.BINDING_MISMATCH)
+
     def test_audit_plan_change_invalidates_even_if_payload_same(self):
         plan = make_plan()
         token = issue(plan)
@@ -146,11 +157,13 @@ class FormApprovalTests(unittest.TestCase):
         authority_result = verify_approval_token(token=token, plan=authority_changed, secret=SECRET, now=NOW + timedelta(seconds=1))
         self.assertIs(authority_result.status, ApprovalStatus.BINDING_MISMATCH)
 
-    def test_issue_requires_human_approved_agent_authority(self):
+    def test_issue_requires_human_approved_agent_authority_and_validation_binding(self):
         with self.assertRaisesRegex(ValueError, "HUMAN_APPROVED"):
             issue(make_plan(state=FormExecutionState.VALIDATION_PASS))
         with self.assertRaisesRegex(ValueError, "AGENT_AFTER_APPROVAL"):
             issue(make_plan(submit_authority=SubmitAuthority.HUMAN_ONLY))
+        with self.assertRaisesRegex(ValueError, "validation-bound"):
+            issue(make_plan(validation_signature=None))
 
     def test_issue_rejects_weak_secret_and_excessive_ttl(self):
         with self.assertRaisesRegex(ValueError, "at least 32"):
