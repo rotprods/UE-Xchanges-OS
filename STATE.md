@@ -1,6 +1,6 @@
 # UE-Xchanges-OS — STATE
 
-Updated: 2026-09-01 18:11 Europe/Madrid
+Updated: 2026-09-02 00:22 Europe/Madrid
 
 ## Authority
 
@@ -10,7 +10,7 @@ RuntimeGraph is **not** a second source of opportunity truth. It is the current 
 
 ## Live canonical scale
 
-- Opportunities: **175**
+- Opportunities: **176**
 - Application nodes / Mass Apply rows: **164**
 - Organisations: **30**
 - Current-wave receipt-backed submissions: **0**
@@ -20,6 +20,8 @@ RuntimeGraph is **not** a second source of opportunity truth. It is the current 
 - Active program: **W9 — Controlled Submission Baseline**, stop 2026-09-04 22:00 Europe/Madrid
 
 Private canonical CRM: `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`.
+
+The 176th opportunity is `non_salto-convivial-foodscapes-2026`. It is P1 and canonical but intentionally not an application/Mass Apply node while its AI-policy and full-November-availability hard gates remain unresolved.
 
 ## RuntimeGraph v1
 
@@ -75,12 +77,13 @@ Domain truth still comes from Drive/Gmail, not from this summary. Material curre
 - **SABER** — host-authorised late route; runtime preserves late-route override rather than treating the old deadline as terminal.
 - **I-PLAY** — open places confirmed; route/detail evidence still requires reconciliation.
 - **Game of Nature** — participant route pass; group-leader status remains separate/unproven.
+- **CONVIVIAL FOODSCAPES** — P1 visual-artist residency, Branca (Portugal), 1–30 Nov 2026, deadline 15 Sep. Spain passes. Official call funding captured in CRM: flights + accommodation; meals excluded; €1,000 support; up to €150 materials reimbursement; possible later artwork transport/insurance support up to €1,250 if selected for the 2027 exhibition. Hard gates remain `AI_POLICY_UNKNOWN` and `FULL_NOVEMBER_AVAILABILITY_UNCONFIRMED`. Next gate is `VERIFY_AI_POLICY_AND_NOVEMBER_AVAILABILITY_THEN_PREPARE`. No submit recommendation and no Mass Apply enqueue before both resolve. See `checkpoints/2026-09-02-convivial-foodscapes-p1-handoff.md`.
 - Professional lanes such as UNICEF/European Youth Forum remain hard-gate verification work, not automatic applications.
 
 ## Projections
 
 - RuntimeGraph: private derived execution read model.
-- Notion: one-way human cockpit; write-back prohibited.
+- Notion: one-way human cockpit; write-back prohibited. Last reconciled opportunity count was 175, so treat it as stale by one until refreshed from Drive.
 - Todoist: human/control action queue only; current application `runtimegraph` label points at READY human actions.
 - HubSpot: organisation/contact/paid-relationship graph only; participant mobility applications are never Deals.
 - TickTick: daily-focus mirror only while timezone control remains applicable.
@@ -88,6 +91,7 @@ Domain truth still comes from Drive/Gmail, not from this summary. Material curre
 ## Source state
 
 - SALTO paid trainer/facilitator watch remains active.
+- No newly verified open trajectory-changing paid call crossed the alert threshold in the scan that discovered CONVIVIAL. The announced September facilitator wave (2 plenary + 5 co-creation-lab facilitators) remains watch-only until actual call, fee and eligibility evidence exists.
 - Telegram 60/60 remains unresolved because source bodies are unavailable to the current tool stack; do not mark processed.
 - New provider/email evidence must update Drive gates first, then RuntimeGraph is recompiled/recomputed.
 
@@ -97,6 +101,8 @@ Read `HANDOFF.md`, `docs/RUNTIMEGRAPH_V1.md`, `RUNBOOKS/RUNTIMEGRAPH_RECOVERY.md
 
 Private zero-context pack: Drive `19tM23N37cqweaWPSoVMxEECZhfOSrEJPGj_nRJB71q4`.
 
+Latest continuity correlation: `CORR-20260902-CONVIVIAL-HANDOFF`; canonical verification event `EVT-20260902T002200-HOFF-002`.
+
 ## Non-claims
 
-No payment or authenticated external application submit was executed by the RuntimeGraph implementation wave. Current-wave receipt-backed submissions remain **0**. Never infer sensitive attributes, youth-worker/trainer status, education, work rights, safeguarding or experience when evidence is absent.
+No payment or authenticated external application submit was executed by this continuity handoff. Current-wave receipt-backed submissions remain **0**. Never infer sensitive attributes, youth-worker/trainer status, education, work rights, safeguarding or experience when evidence is absent.
