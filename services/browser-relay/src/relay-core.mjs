@@ -1,12 +1,12 @@
 import { canonicalBodyHash, verifyRelayCapability } from './capability.mjs';
-import { assertLoopbackWorkerUrl } from './worker-client.mjs';
+import { assertLoopbackWorkerUrl, normalizedHostname } from './worker-client.mjs';
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '::1']);
 
 function assertLoopbackTarget(value) {
   if (typeof value !== 'string') throw new Error('RELAY_TARGET_URL_INVALID');
   const parsed = new URL(value);
-  if (!['http:', 'https:'].includes(parsed.protocol) || !LOOPBACK_HOSTS.has(parsed.hostname) || parsed.username || parsed.password) {
+  if (!['http:', 'https:'].includes(parsed.protocol) || !LOOPBACK_HOSTS.has(normalizedHostname(parsed)) || parsed.username || parsed.password) {
     throw new Error('RELAY_TARGET_NOT_LOOPBACK');
   }
   return value;
@@ -34,11 +34,7 @@ export class BrowserRelayCore {
     return {
       relay_version: '0.1.0',
       transport: 'mcp_stdio_to_loopback_worker',
-      worker: {
-        reachable: true,
-        descriptor: this.workerClient.safeDescriptor(),
-        status: worker,
-      },
+      worker: { reachable: true, descriptor: this.workerClient.safeDescriptor(), status: worker },
       capabilities: {
         status: true,
         inspect_local: true,
@@ -67,13 +63,7 @@ export class BrowserRelayCore {
   prefillLocal({ requestId, plan, capability }) {
     assertPlainPlan(plan);
     const bodyHash = canonicalBodyHash({ plan });
-    const verification = verifyRelayCapability({
-      token: capability,
-      operation: 'prefill-local',
-      requestId,
-      bodyHash,
-      secret: this.capabilitySecret,
-    });
+    const verification = verifyRelayCapability({ token: capability, operation: 'prefill-local', requestId, bodyHash, secret: this.capabilitySecret });
     if (!verification.valid) throw new Error(verification.code);
     return this.workerClient.prefillLocal({ requestId, plan });
   }
