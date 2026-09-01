@@ -12,6 +12,7 @@
   "submit_certified": false,
   "certified_executor_versions": ["0.4.0"],
   "certified_playwright_versions": ["1.62.1"],
+  "certified_browser_channels": ["chromium"],
   "evidence_refs": [
     "github:actions:33540725242",
     "github:actions:33541620797"
