@@ -1,0 +1,50 @@
+name: form-executor
+
+on:
+  pull_request:
+    paths:
+      - 'tools/form-executor/**'
+      - 'tests/test_form_executor_package.py'
+      - 'docs/FORM_BROWSER_EXECUTOR.md'
+      - '.github/workflows/form-executor.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/form-executor/**'
+      - 'tests/test_form_executor_package.py'
+      - 'docs/FORM_BROWSER_EXECUTOR.md'
+      - '.github/workflows/form-executor.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: tools/form-executor
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install pinned Node dependency
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+
+      - name: Install Playwright Chromium runtime
+        run: npx playwright install --with-deps chromium
+
+      - name: Unit security guards
+        run: npm test
+
+      - name: Network-isolated runtime doctor
+        run: npm run doctor -- --channel chromium
+
+      - name: Live local-form inspect smoke
+        run: npm run browser-smoke
