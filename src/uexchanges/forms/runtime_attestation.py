@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
+from urllib.parse import urlsplit
 
 from .fingerprint import canonicalize_form_url
 
@@ -47,7 +48,7 @@ class RuntimeDoctorEvidence:
             raise ValueError("runtime doctor status must be ok")
         if not isinstance(self.node_major, int) or isinstance(self.node_major, bool) or self.node_major < 20:
             raise ValueError("runtime doctor requires Node major >= 20")
-        if not self.playwright_version.strip():
+        if not isinstance(self.playwright_version, str) or not self.playwright_version.strip():
             raise ValueError("runtime doctor playwright_version must be non-empty")
         if self.browser_channel not in _ALLOWED_BROWSER_CHANNELS:
             raise ValueError("runtime doctor browser_channel is unsupported")
@@ -123,6 +124,17 @@ def _require_sha256(value: str, name: str) -> str:
     return value
 
 
+def _require_bool(value: Any, name: str) -> bool:
+    if type(value) is not bool:
+        raise ValueError(f"{name} must be boolean")
+    return value
+
+
+def _require_datetime_string(value: Any, name: str) -> datetime:
+    raw = _require_nonempty(value, name)
+    return _require_aware(datetime.fromisoformat(raw), name)
+
+
 def _b64encode(raw: bytes) -> str:
     return base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
 
@@ -192,6 +204,8 @@ def issue_runtime_attestation(
     profile_mode = _require_nonempty(profile_mode, "profile_mode")
     if profile_mode != "dedicated_persistent":
         raise ValueError("runtime attestation requires dedicated_persistent profile_mode")
+    if not isinstance(doctor_evidence, RuntimeDoctorEvidence):
+        raise ValueError("doctor_evidence must be RuntimeDoctorEvidence")
     doctor_hash = runtime_doctor_evidence_hash(doctor_evidence)
     doctor_passed_at = _require_aware(doctor_passed_at, "doctor_passed_at")
     issued_at = _require_aware(issued_at, "issued_at")
@@ -222,17 +236,17 @@ def issue_runtime_attestation(
 def _parse_runtime(payload: bytes) -> RuntimeAttestationClaims:
     raw = json.loads(payload.decode("utf-8"))
     claims = RuntimeAttestationClaims(
-        attestation_id=_require_nonempty(str(raw["attestation_id"]), "attestation_id"),
-        runtime_ref=_require_nonempty(str(raw["runtime_ref"]), "runtime_ref"),
-        executor_version=_require_nonempty(str(raw["executor_version"]), "executor_version"),
-        playwright_version=_require_nonempty(str(raw["playwright_version"]), "playwright_version"),
-        browser_channel=_require_nonempty(str(raw["browser_channel"]), "browser_channel"),
-        profile_mode=_require_nonempty(str(raw["profile_mode"]), "profile_mode"),
-        doctor_evidence_hash=_require_sha256(str(raw["doctor_evidence_hash"]), "doctor_evidence_hash"),
-        doctor_passed_at=_require_aware(datetime.fromisoformat(str(raw["doctor_passed_at"])), "doctor_passed_at"),
-        issued_at=_require_aware(datetime.fromisoformat(str(raw["issued_at"])), "issued_at"),
-        expires_at=_require_aware(datetime.fromisoformat(str(raw["expires_at"])), "expires_at"),
-        nonce=_require_nonempty(str(raw["nonce"]), "nonce"),
+        attestation_id=_require_nonempty(raw["attestation_id"], "attestation_id"),
+        runtime_ref=_require_nonempty(raw["runtime_ref"], "runtime_ref"),
+        executor_version=_require_nonempty(raw["executor_version"], "executor_version"),
+        playwright_version=_require_nonempty(raw["playwright_version"], "playwright_version"),
+        browser_channel=_require_nonempty(raw["browser_channel"], "browser_channel"),
+        profile_mode=_require_nonempty(raw["profile_mode"], "profile_mode"),
+        doctor_evidence_hash=_require_sha256(raw["doctor_evidence_hash"], "doctor_evidence_hash"),
+        doctor_passed_at=_require_datetime_string(raw["doctor_passed_at"], "doctor_passed_at"),
+        issued_at=_require_datetime_string(raw["issued_at"], "issued_at"),
+        expires_at=_require_datetime_string(raw["expires_at"], "expires_at"),
+        nonce=_require_nonempty(raw["nonce"], "nonce"),
     )
     if claims.browser_channel not in _ALLOWED_BROWSER_CHANNELS:
         raise ValueError("runtime attestation browser channel is unsupported")
@@ -283,9 +297,13 @@ def issue_authenticated_inspect_evidence(
         raise ValueError("authenticated inspect evidence requires a valid runtime attestation")
     _require_secret(evidence_secret)
     provider_id = _require_nonempty(provider_id, "provider_id")
+    parts = urlsplit(canonical_form_url)
+    if parts.username or parts.password:
+        raise ValueError("canonical_form_url must not contain embedded credentials")
     canonical = canonicalize_form_url(canonical_form_url)
     _require_sha256(form_fingerprint, "form_fingerprint")
     _require_sha256(validation_signature, "validation_signature")
+    authenticated = _require_bool(authenticated, "authenticated")
     inspected_at = _require_aware(inspected_at, "inspected_at")
     now = _require_aware(now, "now")
     if inspected_at > now:
@@ -324,21 +342,25 @@ def issue_authenticated_inspect_evidence(
 def _parse_inspect(payload: bytes) -> AuthenticatedInspectClaims:
     raw = json.loads(payload.decode("utf-8"))
     human_login_ref = raw.get("human_login_ref")
+    canonical_url = _require_nonempty(raw["canonical_form_url"], "canonical_form_url")
+    parts = urlsplit(canonical_url)
+    if parts.username or parts.password:
+        raise ValueError("inspect canonical_form_url contains embedded credentials")
     claims = AuthenticatedInspectClaims(
-        evidence_id=_require_nonempty(str(raw["evidence_id"]), "evidence_id"),
-        runtime_attestation_id=_require_nonempty(str(raw["runtime_attestation_id"]), "runtime_attestation_id"),
-        provider_id=_require_nonempty(str(raw["provider_id"]), "provider_id"),
-        canonical_form_url=canonicalize_form_url(str(raw["canonical_form_url"])),
-        form_fingerprint=_require_sha256(str(raw["form_fingerprint"]), "form_fingerprint"),
-        validation_signature=_require_sha256(str(raw["validation_signature"]), "validation_signature"),
-        authenticated=bool(raw["authenticated"]),
-        human_login_ref=None if human_login_ref is None else _require_nonempty(str(human_login_ref), "human_login_ref"),
-        inspected_at=_require_aware(datetime.fromisoformat(str(raw["inspected_at"])), "inspected_at"),
-        expires_at=_require_aware(datetime.fromisoformat(str(raw["expires_at"])), "expires_at"),
-        form_values_read=bool(raw["form_values_read"]),
-        cookies_read=bool(raw["cookies_read"]),
-        storage_state_exported=bool(raw["storage_state_exported"]),
-        nonce=_require_nonempty(str(raw["nonce"]), "nonce"),
+        evidence_id=_require_nonempty(raw["evidence_id"], "evidence_id"),
+        runtime_attestation_id=_require_nonempty(raw["runtime_attestation_id"], "runtime_attestation_id"),
+        provider_id=_require_nonempty(raw["provider_id"], "provider_id"),
+        canonical_form_url=canonicalize_form_url(canonical_url),
+        form_fingerprint=_require_sha256(raw["form_fingerprint"], "form_fingerprint"),
+        validation_signature=_require_sha256(raw["validation_signature"], "validation_signature"),
+        authenticated=_require_bool(raw["authenticated"], "authenticated"),
+        human_login_ref=None if human_login_ref is None else _require_nonempty(human_login_ref, "human_login_ref"),
+        inspected_at=_require_datetime_string(raw["inspected_at"], "inspected_at"),
+        expires_at=_require_datetime_string(raw["expires_at"], "expires_at"),
+        form_values_read=_require_bool(raw["form_values_read"], "form_values_read"),
+        cookies_read=_require_bool(raw["cookies_read"], "cookies_read"),
+        storage_state_exported=_require_bool(raw["storage_state_exported"], "storage_state_exported"),
+        nonce=_require_nonempty(raw["nonce"], "nonce"),
     )
     if claims.authenticated != (claims.human_login_ref is not None):
         raise ValueError("authenticated/human_login_ref claims disagree")
