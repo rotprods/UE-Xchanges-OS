@@ -212,6 +212,24 @@ Every external claim follows:
 
 Never fabricate current youth work, NFE delivery, trainer experience, degree, CEFR, student status, organisation mandate, availability, disability, fewer-opportunities status, safeguarding, practical experience or other sensitive circumstances.
 
+## Mandatory outreach email identity
+
+Every email sent for Erasmus+, ESC, SALTO, Eurodesk, Eurodyssey, trainer or facilitator work, youth projects, organisers, partners, or global-mobility outreach and prospecting **MUST** include the canonical Erasmus+ signature from:
+
+`docs/application-assets/email-signature.html`
+
+Rules:
+
+- Use only the HTML inside `#signature`; never include the preview toolbar, copy button, page shell, or script.
+- Preserve the table structure, inline styles, portrait, icons, verified contact details, and canonical links.
+- Do not replace it with plain text unless the sending channel technically cannot send HTML. Record that fallback and retain the same verified name, role, email, and phone.
+- Do not rewrite URLs, add tracking parameters, substitute another profile, or use the Swiss professional signature.
+- Before sending, verify the rendered MIME contains `Roberto Gil Ortega`, the canonical LinkedIn profile, and no broken image.
+- After sending, retain the provider message receipt in the private operational ledger.
+- Non-email channels such as forms, portals, LinkedIn messages, or WhatsApp use their native identity format; never paste the HTML block into an unsupported field.
+
+This applies to agents, automations, and human-assisted sends. A qualifying outbound email without this signature is `OUTREACH_SIGNATURE_GATE_FAIL` and **must not be sent**.
+
 ## 17. Media contribution
 
 Photography/video/content may be offered only when relevant and subject to organiser approval, consent, privacy, safeguarding, local law and full participation. Never promise recording involving minors, vulnerable groups, detainees or sensitive settings without explicit authorisation.
