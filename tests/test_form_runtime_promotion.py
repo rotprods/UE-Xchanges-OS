@@ -14,6 +14,7 @@ from uexchanges.forms import (
     FormField,
     FormFieldType,
     ProviderCapabilityManifest,
+    RuntimeDoctorEvidence,
     SubmitAuthority,
     evaluate_prefill_promotion,
     issue_authenticated_inspect_evidence,
@@ -67,19 +68,26 @@ def make_plan(**overrides) -> FormExecutionPlan:
     return FormExecutionPlan(**base)
 
 
-def make_runtime(*, executor_version="0.4.0", ttl_seconds=3600, issued_at=None) -> str:
+def make_runtime(*, executor_version="0.4.0", browser_channel="chromium", ttl_seconds=3600, issued_at=None) -> str:
     issued = issued_at or (NOW - timedelta(minutes=1))
+    doctor = RuntimeDoctorEvidence(
+        status="ok",
+        node_major=22,
+        playwright_version="1.62.1",
+        browser_channel=browser_channel,
+        launch="ok",
+        network="blocked",
+        profile="ephemeral",
+    )
     return issue_runtime_attestation(
         runtime_ref="runtime:uex-test",
         executor_version=executor_version,
-        playwright_version="1.62.1",
-        browser_channel="chromium",
-        doctor_evidence_hash="sha256:" + "d" * 64,
+        doctor_evidence=doctor,
         doctor_passed_at=issued - timedelta(minutes=1),
         issued_at=issued,
         secret=RUNTIME_SECRET,
         ttl_seconds=ttl_seconds,
-        nonce=f"runtime-{executor_version}-{ttl_seconds}-{issued.isoformat()}",
+        nonce=f"runtime-{executor_version}-{browser_channel}-{ttl_seconds}-{issued.isoformat()}",
     )
 
 
@@ -184,7 +192,7 @@ class RuntimePrefillPromotionTests(unittest.TestCase):
         )
         self.assertIn("plan_not_prefill_ready", result.reasons)
 
-    def test_runtime_version_and_expiry_are_enforced(self):
+    def test_runtime_version_channel_and_expiry_are_enforced(self):
         plan = make_plan()
         wrong_runtime = make_runtime(executor_version="0.3.0")
         inspect = make_inspect(wrong_runtime, plan)
@@ -198,6 +206,19 @@ class RuntimePrefillPromotionTests(unittest.TestCase):
             now=NOW + timedelta(seconds=1),
         )
         self.assertIn("executor_version_not_certified", result.reasons)
+
+        wrong_channel = make_runtime(browser_channel="chrome")
+        inspect = make_inspect(wrong_channel, plan)
+        result = evaluate_prefill_promotion(
+            plan=plan,
+            runtime_token=wrong_channel,
+            runtime_secret=RUNTIME_SECRET,
+            inspect_token=inspect,
+            inspect_secret=INSPECT_SECRET,
+            manifest=local_manifest(),
+            now=NOW + timedelta(seconds=1),
+        )
+        self.assertIn("browser_channel_not_certified", result.reasons)
 
         short_runtime = make_runtime(ttl_seconds=30, issued_at=NOW)
         short_inspect = make_inspect(short_runtime, plan, ttl_seconds=20)
@@ -228,6 +249,7 @@ class RuntimePrefillPromotionTests(unittest.TestCase):
             submit_certified=False,
             certified_executor_versions=("0.4.0",),
             certified_playwright_versions=("1.62.1",),
+            certified_browser_channels=("chromium",),
             evidence_refs=(),
             local_fixture_only=False,
         )
