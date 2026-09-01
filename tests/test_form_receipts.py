@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from uexchanges.forms import (
     AuthRequirement,
@@ -29,11 +29,11 @@ from uexchanges.models import AIPolicy
 NOW = datetime(2026, 9, 1, 16, 15, tzinfo=timezone.utc)
 
 
-def make_field(*, answer="Roberto", evidence_ids=("ev-name",)) -> FormField:
+def make_field(*, answer="Roberto", evidence_ids=("ev-name",), field_type=FormFieldType.TEXT) -> FormField:
     return FormField(
         field_key="name",
         label="Name",
-        field_type=FormFieldType.TEXT,
+        field_type=field_type,
         required=True,
         answer=answer,
         answer_source="profile:name",
@@ -108,6 +108,11 @@ class FormReceiptTests(unittest.TestCase):
         changed_evidence = make_plan(fields=(make_field(evidence_ids=("ev-name-new",)),))
         self.assertEqual(submission_key(first), submission_key(changed_evidence))
         self.assertNotEqual(execution_plan_hash(first), execution_plan_hash(changed_evidence))
+
+    def test_date_answer_hashes_deterministically(self):
+        dated = make_plan(fields=(make_field(answer=date(2026, 10, 20), field_type=FormFieldType.DATE),))
+        self.assertTrue(answer_pack_hash(dated).startswith("sha256:"))
+        self.assertTrue(submission_key(dated).startswith("sha256:"))
 
     def test_confirmed_matching_receipt_blocks_duplicate(self):
         plan = make_plan()
