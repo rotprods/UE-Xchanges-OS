@@ -27,8 +27,9 @@ class CompilationResult:
         return not self.issues and self.plan.ready_for_prefill
 
 
-def _plan_id(application_id: str, fingerprint: str, source_version: str) -> str:
-    raw = f"{application_id}|{fingerprint}|{source_version}".encode("utf-8")
+def _plan_id(application_id: str, fingerprint: str, validation_signature: str | None, source_version: str) -> str:
+    validation_identity = validation_signature or "validation:unbound"
+    raw = f"{application_id}|{fingerprint}|{validation_identity}|{source_version}".encode("utf-8")
     return f"formplan:{hashlib.sha256(raw).hexdigest()}"
 
 
@@ -47,12 +48,14 @@ def compile_execution_plan(
     created_at: datetime,
     expires_at: datetime,
     source_version: str,
+    validation_signature: str | None = None,
     attachments: tuple[str, ...] = (),
 ) -> CompilationResult:
     """Compile captured form structure + evidence-backed answers into a safe plan.
 
-    This function never infers unknown facts or application policy. Blocking
-    issues remain explicit and the returned plan stays below PREFILL_READY.
+    The validation signature is optional for research/capture compatibility, but
+    downstream ApprovalToken issuance requires it before any agent submit can be
+    authorized.
     """
     if not captured_fields:
         raise ValueError("captured_fields must not be empty")
@@ -115,7 +118,7 @@ def compile_execution_plan(
     )
     state = FormExecutionState.ANSWER_PACK_RESOLVED if not issues else FormExecutionState.FORM_SCHEMA_VERIFIED
     plan = FormExecutionPlan(
-        plan_id=_plan_id(application_id, fingerprint, source_version),
+        plan_id=_plan_id(application_id, fingerprint, validation_signature, source_version),
         application_id=application_id,
         opportunity_id=opportunity_id,
         canonical_form_url=canonical_form_url,
@@ -129,6 +132,7 @@ def compile_execution_plan(
         created_at=created_at,
         expires_at=expires_at,
         source_version=source_version,
+        validation_signature=validation_signature,
         attachments=attachments,
         state=state,
     )
