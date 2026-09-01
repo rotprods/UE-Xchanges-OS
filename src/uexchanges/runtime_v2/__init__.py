@@ -10,6 +10,31 @@ from .models import (
     RuntimeEventKind,
     TemporalScope,
 )
+from .projection_health import (
+    ObservedTodoistTask,
+    ProjectionHealth,
+    ProjectionHealthStatus,
+    ProjectionRepair,
+    ProjectionRepairAction,
+    ProjectionRepairPlan,
+    TodoistRepair,
+    TodoistRepairAction,
+    build_projection_repair_plan,
+    build_todoist_repair_plan,
+)
+from .projections import (
+    ProjectedTodoistTask,
+    ProjectionDocument,
+    build_projection_documents,
+    expected_todoist_tasks,
+)
+from .source_adapters import (
+    FormGatewayAdapter,
+    GmailSourceAdapter,
+    OfficialSourceAdapter,
+    ReceiptSourceAdapter,
+    flatten_ingresses,
+)
 
 __all__ = [
     "ClaimDecision",
@@ -19,10 +44,29 @@ __all__ = [
     "ClosedLoopState",
     "EvidenceClaimRegistry",
     "EvidenceRecord",
+    "FormGatewayAdapter",
+    "GmailSourceAdapter",
     "IncrementalRuntimeReducer",
+    "ObservedTodoistTask",
+    "OfficialSourceAdapter",
+    "ProjectedTodoistTask",
+    "ProjectionDocument",
+    "ProjectionHealth",
+    "ProjectionHealthStatus",
+    "ProjectionRepair",
+    "ProjectionRepairAction",
+    "ProjectionRepairPlan",
+    "ReceiptSourceAdapter",
     "RuntimeDelta",
     "RuntimeDomainEvent",
     "RuntimeEventKind",
     "TemporalScope",
+    "TodoistRepair",
+    "TodoistRepairAction",
+    "build_projection_documents",
+    "build_projection_repair_plan",
+    "build_todoist_repair_plan",
+    "expected_todoist_tasks",
+    "flatten_ingresses",
     "form_plan_runtime_events",
 ]

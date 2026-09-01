@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UE-Xchanges RuntimeGraph V2.2 Adapter Ingress",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source",
+    "source_id",
+    "source_item_id",
+    "source_version",
+    "observed_at",
+    "kind",
+    "authority",
+    "payload"
+  ],
+  "properties": {
+    "source": {
+      "enum": ["gmail", "form", "receipt", "official_source", "organiser", "human", "system"]
+    },
+    "source_id": {"type": "string", "minLength": 1, "maxLength": 256},
+    "source_item_id": {"type": "string", "minLength": 1, "maxLength": 256},
+    "source_version": {"type": "string", "minLength": 1, "maxLength": 512},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "kind": {
+      "enum": ["evidence_added", "gate_resolved", "deadline_updated", "receipt_confirmed", "outcome_recorded"]
+    },
+    "application_id": {"type": ["string", "null"], "minLength": 1},
+    "opportunity_id": {"type": ["string", "null"], "minLength": 1},
+    "authority": {"type": "string", "minLength": 1, "maxLength": 128},
+    "sequence": {"type": ["integer", "null"], "minimum": 0},
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gate_name": {"type": "string", "minLength": 1, "maxLength": 128},
+        "result": {"enum": ["pass", "fail", "unknown"]},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 240, "pattern": "^[^\\r\\n]+$"},
+        "evidence_ref": {"type": "string", "minLength": 1, "maxLength": 512},
+        "evidence_code": {"type": "string", "minLength": 1, "maxLength": 240, "pattern": "^[^\\r\\n]+$"},
+        "deadline": {"type": "string", "format": "date-time"},
+        "receipt_ref": {"type": "string", "minLength": 1, "maxLength": 512},
+        "submission_identity_bound": {"type": "boolean"},
+        "provider": {"type": "string", "maxLength": 128},
+        "form_fingerprint": {"type": "string", "maxLength": 256},
+        "state": {"type": "string", "maxLength": 128}
+      }
+    }
+  },
+  "anyOf": [
+    {"required": ["application_id"]},
+    {"required": ["opportunity_id"]}
+  ],
+  "allOf": [
+    {
+      "if": {"properties": {"kind": {"const": "receipt_confirmed"}}},
+      "then": {
+        "properties": {
+          "authority": {
+            "enum": ["provider_confirmation", "email_receipt", "captured_confirmation", "organiser_submission_confirmation"]
+          },
+          "payload": {
+            "required": ["receipt_ref", "submission_identity_bound"],
+            "properties": {"submission_identity_bound": {"const": true}}
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UE-Xchanges RuntimeGraph V2.2 Projection Repair",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "surface",
+    "action",
+    "expected_fingerprint",
+    "expected_row_count",
+    "source_revision",
+    "watermark"
+  ],
+  "properties": {
+    "surface": {
+      "enum": [
+        "Command_Center",
+        "Human_Now",
+        "Agent_Next",
+        "Claim_Registry",
+        "Dispatcher_State",
+        "Source_Cursors",
+        "Dead_Letters"
+      ]
+    },
+    "action": {"enum": ["create_derived_surface", "replace_derived_rows"]},
+    "expected_fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "expected_row_count": {"type": "integer", "minimum": 1},
+    "source_revision": {"type": "string", "minLength": 1},
+    "watermark": {"type": "string", "minLength": 1}
+  }
+}
