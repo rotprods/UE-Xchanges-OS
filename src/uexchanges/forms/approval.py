@@ -36,6 +36,7 @@ class ApprovalClaims:
     token_id: str
     application_id: str
     form_fingerprint: str
+    validation_signature: str
     submission_key: str
     plan_hash: str
     approved_by_ref: str
@@ -78,6 +79,7 @@ def _claims_payload(claims: ApprovalClaims) -> dict[str, Any]:
         "token_id": claims.token_id,
         "application_id": claims.application_id,
         "form_fingerprint": claims.form_fingerprint,
+        "validation_signature": claims.validation_signature,
         "submission_key": claims.submission_key,
         "plan_hash": claims.plan_hash,
         "approved_by_ref": claims.approved_by_ref,
@@ -105,11 +107,7 @@ def issue_approval_token(
     ttl_seconds: int = MAX_APPROVAL_TTL_SECONDS,
     nonce: str | None = None,
 ) -> str:
-    """Issue a short-lived capability for one exact, human-approved submit plan.
-
-    The HMAC secret belongs to a trusted local runtime boundary and must never be
-    exposed to the model, browser page, GitHub, Drive or logs.
-    """
+    """Issue a short-lived capability for one exact, validation-bound submit plan."""
     _require_secret(secret)
     approved_at = _require_aware(approved_at, "approved_at")
     if not approved_by_ref.strip():
@@ -124,6 +122,8 @@ def issue_approval_token(
         raise ValueError("approval token is only valid for AGENT_AFTER_APPROVAL submit authority")
     if plan.unresolved_fields:
         raise ValueError("cannot approve a plan with unresolved fields")
+    if not plan.validation_signature:
+        raise ValueError("approval token requires a validation-bound execution plan")
 
     expires_at = approved_at + timedelta(seconds=ttl_seconds)
     if expires_at > plan.expires_at:
@@ -136,6 +136,7 @@ def issue_approval_token(
         token_id=f"approval:{hashlib.sha256(f'{plan.plan_id}|{approved_at.isoformat()}|{token_nonce}'.encode()).hexdigest()}",
         application_id=plan.application_id,
         form_fingerprint=plan.form_fingerprint,
+        validation_signature=plan.validation_signature,
         submission_key=submission_key(plan),
         plan_hash=execution_plan_hash(plan),
         approved_by_ref=approved_by_ref,
@@ -154,6 +155,7 @@ def _parse_claims(payload: bytes) -> ApprovalClaims:
         token_id=str(raw["token_id"]),
         application_id=str(raw["application_id"]),
         form_fingerprint=str(raw["form_fingerprint"]),
+        validation_signature=str(raw["validation_signature"]),
         submission_key=str(raw["submission_key"]),
         plan_hash=str(raw["plan_hash"]),
         approved_by_ref=str(raw["approved_by_ref"]),
@@ -171,7 +173,7 @@ def verify_approval_token(
     secret: bytes,
     now: datetime,
 ) -> ApprovalVerification:
-    """Verify signature, lifetime and exact binding to the current execution plan."""
+    """Verify signature, lifetime and exact structure/validation/payload binding."""
     _require_secret(secret)
     now = _require_aware(now, "now")
     try:
@@ -199,10 +201,13 @@ def verify_approval_token(
         return ApprovalVerification(ApprovalStatus.BINDING_MISMATCH, False, "Current plan is no longer HUMAN_APPROVED.", claims)
     if plan.submit_authority is not SubmitAuthority.AGENT_AFTER_APPROVAL:
         return ApprovalVerification(ApprovalStatus.BINDING_MISMATCH, False, "Current plan no longer permits agent submit after approval.", claims)
+    if not plan.validation_signature:
+        return ApprovalVerification(ApprovalStatus.BINDING_MISMATCH, False, "Current plan is no longer validation-bound.", claims)
 
     expected_binding = (
         plan.application_id,
         plan.form_fingerprint,
+        plan.validation_signature,
         submission_key(plan),
         execution_plan_hash(plan),
         ApprovalAction.SUBMIT,
@@ -210,6 +215,7 @@ def verify_approval_token(
     actual_binding = (
         claims.application_id,
         claims.form_fingerprint,
+        claims.validation_signature,
         claims.submission_key,
         claims.plan_hash,
         claims.action,
@@ -218,8 +224,8 @@ def verify_approval_token(
         return ApprovalVerification(
             ApprovalStatus.BINDING_MISMATCH,
             False,
-            "Approval no longer matches the current application/form/payload/plan.",
+            "Approval no longer matches the current application/form/validation/payload/plan.",
             claims,
         )
 
-    return ApprovalVerification(ApprovalStatus.VALID, True, "Approval token is valid for this exact submit plan.", claims)
+    return ApprovalVerification(ApprovalStatus.VALID, True, "Approval token is valid for this exact validation-bound submit plan.", claims)
