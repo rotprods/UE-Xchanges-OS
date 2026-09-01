@@ -13,6 +13,7 @@ from .models import (
     SubmissionAttemptStatus,
     SubmissionReceipt,
 )
+from .normalization import normalize_answer
 
 
 class DuplicateDisposition(str, Enum):
@@ -56,12 +57,12 @@ def _sha256_json(payload: dict[str, Any]) -> str:
 
 
 def answer_pack_hash(plan: FormExecutionPlan) -> str:
-    """Hash only the payload that materially changes what would be submitted."""
+    """Hash the canonical semantic payload, never representation noise."""
     payload = {
         "fields": [
             {
                 "field_key": field.field_key,
-                "answer": field.answer,
+                "answer": normalize_answer(field),
             }
             for field in plan.fields
         ],
@@ -71,8 +72,11 @@ def answer_pack_hash(plan: FormExecutionPlan) -> str:
 
 
 def submission_key(plan: FormExecutionPlan) -> str:
-    """Stable idempotency key for one application + form version + final payload."""
-    raw = f"{plan.application_id}|{plan.form_fingerprint}|{answer_pack_hash(plan)}".encode("utf-8")
+    """Stable idempotency key for application + structure + validation + payload."""
+    validation_identity = plan.validation_signature or "validation:unbound"
+    raw = (
+        f"{plan.application_id}|{plan.form_fingerprint}|{validation_identity}|{answer_pack_hash(plan)}"
+    ).encode("utf-8")
     return f"sha256:{hashlib.sha256(raw).hexdigest()}"
 
 
@@ -85,6 +89,7 @@ def execution_plan_hash(plan: FormExecutionPlan) -> str:
         "canonical_form_url": plan.canonical_form_url,
         "provider": plan.provider,
         "form_fingerprint": plan.form_fingerprint,
+        "validation_signature": plan.validation_signature,
         "ai_policy": plan.ai_policy,
         "auth_requirement": plan.auth_requirement,
         "submit_authority": plan.submit_authority,
@@ -99,7 +104,7 @@ def execution_plan_hash(plan: FormExecutionPlan) -> str:
                 "field_key": field.field_key,
                 "field_type": field.field_type,
                 "required": field.required,
-                "answer": field.answer,
+                "answer": normalize_answer(field),
                 "answer_source": field.answer_source,
                 "evidence_ids": field.evidence_ids,
                 "ownership": field.ownership,
@@ -136,7 +141,7 @@ def evaluate_duplicate_guard(
             return DuplicateDecision(
                 DuplicateDisposition.BLOCK_CONFIRMED_DUPLICATE,
                 key,
-                "A receipt already confirms this exact application/form/payload submission.",
+                "A receipt already confirms this exact application/form/validation/payload submission.",
                 receipt_id=receipt.receipt_id,
             )
 
@@ -158,7 +163,7 @@ def evaluate_duplicate_guard(
     return DuplicateDecision(
         DuplicateDisposition.SAFE_TO_ATTEMPT,
         key,
-        "No confirmed or unresolved prior attempt exists for this exact submission payload.",
+        "No confirmed or unresolved prior attempt exists for this exact submission identity.",
     )
 
 
