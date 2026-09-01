@@ -8,7 +8,7 @@ import {
   normalizeAllowedOrigins,
   normalizeOrigin,
 } from '../../../tools/form-executor/src/guard.mjs';
-import { validateLocalPrefillPlan } from '../../../tools/form-executor/src/prefill-policy.mjs';
+import { assertLoopbackUrl, validateLocalPrefillPlan } from '../../../tools/form-executor/src/prefill-policy.mjs';
 import {
   createValidationExpectation,
   extractValidationSnapshot,
@@ -28,10 +28,6 @@ const SUBMIT_BLOCK_INIT_SCRIPT = `(() => {
     HTMLFormElement.prototype.requestSubmit = function () { throw new Error('UEX_WORKER_SUBMIT_BLOCKED'); };
   }
 })();`;
-
-function clean(value) {
-  return String(value || '').replace(/\s+/g, ' ').trim();
-}
 
 async function applyPrefillWrites(page, writes) {
   return page.evaluate((requestedWrites) => {
@@ -123,9 +119,7 @@ async function applyPrefillWrites(page, writes) {
 
       touched.push(write.field_key);
       const validityTargets = Array.isArray(target) ? target : [target];
-      if (!validityTargets.some((el) => typeof el.checkValidity !== 'function' || el.checkValidity())) {
-        invalid.push(write.field_key);
-      }
+      if (!validityTargets.some((el) => typeof el.checkValidity !== 'function' || el.checkValidity())) invalid.push(write.field_key);
     }
     return { touched, invalid };
   }, writes);
@@ -138,7 +132,7 @@ export class BrowserWorkerSession {
     this.headless = headless;
     this.context = null;
     this.page = null;
-    this.policy = { mode: 'locked', allowedOrigins: [], sameOriginOnly: false };
+    this.policy = { mode: 'locked', allowedOrigins: [], sameOriginOnly: true };
     this.current = null;
   }
 
@@ -150,7 +144,12 @@ export class BrowserWorkerSession {
     this.context = await chromium.launchPersistentContext(this.profileDir, launchOptions);
     await this.context.addInitScript({ content: SUBMIT_BLOCK_INIT_SCRIPT });
     this.page = this.context.pages()[0] || (await this.context.newPage());
-    await this.page.route('**/*', async (route) => {
+    this.context.on('page', async (candidate) => {
+      if (this.page && candidate !== this.page) {
+        try { await candidate.close(); } catch {}
+      }
+    });
+    await this.context.route('**/*', async (route) => {
       const request = route.request();
       let decision = { action: 'abort', reason: 'worker_locked' };
       try {
@@ -159,7 +158,8 @@ export class BrowserWorkerSession {
           if (this.policy.sameOriginOnly && requestOrigin !== this.policy.allowedOrigins[0]) {
             decision = { action: 'abort', reason: 'cross_origin_request_blocked' };
           } else {
-            const isTopLevelNavigation = request.isNavigationRequest() && request.frame() === this.page.mainFrame();
+            const frame = request.frame();
+            const isTopLevelNavigation = request.isNavigationRequest() && frame === frame.page().mainFrame();
             decision = networkDecision({
               method: request.method(),
               url: request.url(),
@@ -193,6 +193,8 @@ export class BrowserWorkerSession {
           }
         : null,
       safety: {
+        target_scope: 'loopback_only_v1',
+        cross_origin_requests_allowed: false,
         submit_api_present: false,
         cookies_exported: false,
         storage_state_exported: false,
@@ -202,11 +204,14 @@ export class BrowserWorkerSession {
 
   async inspect({ provider, url, allowedOrigins }) {
     await this.start();
-    const normalizedOrigins = normalizeAllowedOrigins([normalizeOrigin(url), ...allowedOrigins]);
-    this.policy = { mode: 'inspect', allowedOrigins: normalizedOrigins, sameOriginOnly: false };
+    const target = assertLoopbackUrl(url);
+    const targetOrigin = target.origin;
+    const normalizedOrigins = normalizeAllowedOrigins([targetOrigin, ...allowedOrigins]);
+    if (normalizedOrigins.some((origin) => origin !== targetOrigin)) throw new Error('WORKER_INSPECT_CROSS_ORIGIN_NOT_CERTIFIED');
+    this.policy = { mode: 'inspect', allowedOrigins: [targetOrigin], sameOriginOnly: true };
     try {
       await this.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20_000 });
-      if (!normalizedOrigins.includes(normalizeOrigin(this.page.url()))) throw new Error('WORKER_FINAL_ORIGIN_NOT_ALLOWED');
+      if (normalizeOrigin(this.page.url()) !== targetOrigin) throw new Error('WORKER_FINAL_ORIGIN_NOT_ALLOWED');
       const structural = await extractNativeFormSchema(this.page);
       const validationFields = await extractValidationSnapshot(this.page);
       const formFingerprint = formSchemaFingerprint({ provider, canonicalFormUrl: url, fields: structural.fields });
@@ -223,7 +228,7 @@ export class BrowserWorkerSession {
         applicationId: null,
       };
       return {
-        mode: 'INSPECT_ONLY',
+        mode: 'INSPECT_LOCAL_ONLY',
         provider,
         page: structural.page,
         forms: structural.forms,
@@ -233,6 +238,8 @@ export class BrowserWorkerSession {
         form_fingerprint: formFingerprint,
         validation_signature: validationSig,
         safety: {
+          target_scope: 'loopback_only_v1',
+          cross_origin_requests_allowed: false,
           form_values_read: false,
           url_query_material_exported: false,
           cookies_read: false,
@@ -242,15 +249,13 @@ export class BrowserWorkerSession {
         },
       };
     } finally {
-      this.policy = { mode: 'locked', allowedOrigins: [], sameOriginOnly: false };
+      this.policy = { mode: 'locked', allowedOrigins: [], sameOriginOnly: true };
     }
   }
 
   assertCurrentPlan(plan) {
     if (!this.current) throw new Error('WORKER_INSPECT_REQUIRED');
-    if (canonicalizeFormUrl(plan.canonical_form_url) !== canonicalizeFormUrl(this.current.canonicalFormUrl)) {
-      throw new Error('WORKER_PLAN_URL_MISMATCH');
-    }
+    if (canonicalizeFormUrl(plan.canonical_form_url) !== canonicalizeFormUrl(this.current.canonicalFormUrl)) throw new Error('WORKER_PLAN_URL_MISMATCH');
     if (plan.provider !== this.current.provider) throw new Error('WORKER_PLAN_PROVIDER_MISMATCH');
     if (plan.form_fingerprint !== this.current.formFingerprint) throw new Error('WORKER_PLAN_FINGERPRINT_MISMATCH');
     if (plan.validation_signature !== this.current.validationSignature) throw new Error('WORKER_PLAN_VALIDATION_MISMATCH');
@@ -294,7 +299,7 @@ export class BrowserWorkerSession {
         },
       };
     } finally {
-      this.policy = { mode: 'locked', allowedOrigins: [], sameOriginOnly: false };
+      this.policy = { mode: 'locked', allowedOrigins: [], sameOriginOnly: true };
     }
   }
 
@@ -302,18 +307,11 @@ export class BrowserWorkerSession {
     await this.start();
     this.assertCurrentPlan(plan);
     if (!this.current.expectation) throw new Error('WORKER_VALIDATION_EXPECTATION_MISSING');
-    const report = await validatePageAgainstExpectation({
-      page: this.page,
-      plan,
-      expectation: this.current.expectation,
-    });
+    const report = await validatePageAgainstExpectation({ page: this.page, plan, expectation: this.current.expectation });
     return {
       ...report,
       mode: 'VALIDATE_LOCAL_ONLY',
-      safety: {
-        ...report.safety,
-        submit_blocked: true,
-      },
+      safety: { ...report.safety, submit_blocked: true },
     };
   }
 
@@ -322,6 +320,6 @@ export class BrowserWorkerSession {
     this.context = null;
     this.page = null;
     this.current = null;
-    this.policy = { mode: 'locked', allowedOrigins: [], sameOriginOnly: false };
+    this.policy = { mode: 'locked', allowedOrigins: [], sameOriginOnly: true };
   }
 }
