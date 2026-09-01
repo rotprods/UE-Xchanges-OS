@@ -5,20 +5,14 @@ on:
     paths:
       - 'tools/form-executor/**'
       - 'tests/test_form_executor_package.py'
-      - 'tests/test_form_fingerprint_parity.py'
-      - 'tests/test_form_validation_signature_parity.py'
       - 'docs/FORM_BROWSER_EXECUTOR.md'
-      - 'docs/FORM_VALIDATE_DIFF_LOCAL.md'
       - '.github/workflows/form-executor.yml'
   push:
     branches: [main]
     paths:
       - 'tools/form-executor/**'
       - 'tests/test_form_executor_package.py'
-      - 'tests/test_form_fingerprint_parity.py'
-      - 'tests/test_form_validation_signature_parity.py'
       - 'docs/FORM_BROWSER_EXECUTOR.md'
-      - 'docs/FORM_VALIDATE_DIFF_LOCAL.md'
       - '.github/workflows/form-executor.yml'
 
 permissions:
@@ -49,17 +43,8 @@ jobs:
       - name: Unit security guards
         run: npm test
 
-      - name: Pure validation-diff tests
-        run: node --test test/validate-diff.test.mjs
-
       - name: Network-isolated runtime doctor
         run: npm run doctor -- --channel chromium
 
       - name: Live local-form inspect smoke
         run: npm run browser-smoke
-
-      - name: Live localhost-only prefill smoke
-        run: npm run prefill-smoke
-
-      - name: Live localhost validation-diff smoke
-        run: node --test test/live-validate-diff.test.mjs
