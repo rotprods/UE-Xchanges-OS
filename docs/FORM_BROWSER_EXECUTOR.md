@@ -49,6 +49,50 @@ npm install
 
 The dependency is pinned exactly in `package.json`. A generated lockfile should be committed from the target Mac runtime once dependency installation is performed there and verified; the repository must not pretend an ungenerated lock exists.
 
+## Runtime verification gate
+
+Before using the browser executor on a real opportunity, the target machine must pass:
+
+```bash
+npm run doctor -- --channel chrome
+```
+
+The doctor:
+
+- uses an ephemeral temporary profile, never the persistent authenticated UEX profile;
+- runs headless only for launch verification;
+- blocks all network requests;
+- visits only `about:blank`;
+- returns the Node major, pinned Playwright version, selected browser channel and launch status;
+- deletes the temporary profile;
+- never reads cookies, browser storage or page data.
+
+Expected shape:
+
+```json
+{
+  "status": "ok",
+  "node_major": 22,
+  "playwright_version": "1.62.1",
+  "browser_channel": "chrome",
+  "launch": "ok",
+  "network": "blocked",
+  "profile": "ephemeral"
+}
+```
+
+GitHub also runs a dedicated `form-executor` workflow. It installs the pinned package and Playwright Chromium runtime, runs the unit security guards, runs the network-isolated doctor, then launches a **real Chromium browser** against a form served only on `127.0.0.1`.
+
+The live fixture deliberately contains query tokens, populated private values, a password, an OTP, an attempted POST telemetry call and a scripted `requestSubmit()`. CI must prove that:
+
+- structural fields are extracted correctly;
+- query/field/password/OTP values are not exported;
+- no mutating request reaches the fixture server;
+- scripted submission remains blocked;
+- form action/query output is redacted.
+
+That CI workflow has `contents: read`, uses no repository secrets and never contacts a real application form.
+
 # INSPECT_ONLY
 
 ## Public-form inspection
@@ -197,7 +241,8 @@ Custom React/ARIA/contenteditable controls are counted as unsupported custom con
 
 ```text
 INSPECT_ONLY
-→ target-runtime install + live public fixture smoke
+→ browser CI live local-form smoke GREEN
+→ target-Mac doctor GREEN
 → HUMAN_LOGIN_TAKEOVER
 → authenticated inspect smoke
 → PREFILL_ONLY
