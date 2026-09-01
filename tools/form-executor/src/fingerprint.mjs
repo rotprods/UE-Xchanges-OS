@@ -1,14 +1,14 @@
 import crypto from 'node:crypto';
 
 export function canonicalizeFormUrl(value) {
-  const parsed = new URL(value);
-  if (!['http:', 'https:'].includes(parsed.protocol)) {
-    throw new Error('form URL must be absolute HTTP(S)');
-  }
-  parsed.hash = '';
-  parsed.username = '';
-  parsed.password = '';
-  return parsed.href;
+  if (typeof value !== 'string') throw new Error('form URL must be a string');
+  const match = value.match(/^(https?):\/\/([^/?#]+)([^?#]*)(\?[^#]*)?(?:#.*)?$/i);
+  if (!match) throw new Error('form URL must be absolute HTTP(S)');
+  const scheme = match[1].toLowerCase();
+  const netloc = match[2].toLowerCase();
+  const path = match[3] || '/';
+  const query = match[4] || '';
+  return `${scheme}://${netloc}${path}${query}`;
 }
 
 function stableJson(value) {
