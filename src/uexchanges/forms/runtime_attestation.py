@@ -20,6 +20,7 @@ MAX_INSPECT_TTL_SECONDS = 3_600
 _SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 _RUNTIME_DOMAIN = b"UEX_RUNTIME_ATTESTATION_V1\x00"
 _INSPECT_DOMAIN = b"UEX_AUTH_INSPECT_V1\x00"
+_ALLOWED_BROWSER_CHANNELS = {"chrome", "chromium", "msedge"}
 
 
 class AttestationStatus(str, Enum):
@@ -29,6 +30,33 @@ class AttestationStatus(str, Enum):
     NOT_YET_VALID = "not_yet_valid"
     BINDING_MISMATCH = "binding_mismatch"
     MALFORMED = "malformed"
+
+
+@dataclass(frozen=True)
+class RuntimeDoctorEvidence:
+    status: str
+    node_major: int
+    playwright_version: str
+    browser_channel: str
+    launch: str
+    network: str
+    profile: str
+
+    def __post_init__(self) -> None:
+        if self.status != "ok":
+            raise ValueError("runtime doctor status must be ok")
+        if not isinstance(self.node_major, int) or isinstance(self.node_major, bool) or self.node_major < 20:
+            raise ValueError("runtime doctor requires Node major >= 20")
+        if not self.playwright_version.strip():
+            raise ValueError("runtime doctor playwright_version must be non-empty")
+        if self.browser_channel not in _ALLOWED_BROWSER_CHANNELS:
+            raise ValueError("runtime doctor browser_channel is unsupported")
+        if self.launch != "ok":
+            raise ValueError("runtime doctor launch must be ok")
+        if self.network != "blocked":
+            raise ValueError("runtime doctor network must be blocked")
+        if self.profile != "ephemeral":
+            raise ValueError("runtime doctor profile must be ephemeral")
 
 
 @dataclass(frozen=True)
@@ -108,6 +136,19 @@ def _encode(payload: dict[str, Any]) -> bytes:
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
+def runtime_doctor_evidence_hash(evidence: RuntimeDoctorEvidence) -> str:
+    payload = {
+        "status": evidence.status,
+        "node_major": evidence.node_major,
+        "playwright_version": evidence.playwright_version,
+        "browser_channel": evidence.browser_channel,
+        "launch": evidence.launch,
+        "network": evidence.network,
+        "profile": evidence.profile,
+    }
+    return f"sha256:{hashlib.sha256(_encode(payload)).hexdigest()}"
+
+
 def _sign(domain: bytes, payload: bytes, secret: bytes) -> str:
     return hmac.new(secret, domain + payload, hashlib.sha256).hexdigest()
 
@@ -131,9 +172,7 @@ def issue_runtime_attestation(
     *,
     runtime_ref: str,
     executor_version: str,
-    playwright_version: str,
-    browser_channel: str,
-    doctor_evidence_hash: str,
+    doctor_evidence: RuntimeDoctorEvidence,
     doctor_passed_at: datetime,
     issued_at: datetime,
     secret: bytes,
@@ -144,17 +183,16 @@ def issue_runtime_attestation(
     """Issue local proof that a restricted browser runtime passed its doctor.
 
     `runtime_ref` is deliberately opaque and must not contain a hardware serial,
-    password, cookie or other secret.
+    password, cookie or other secret. The attestation can only be issued from a
+    structurally valid, network-isolated doctor result.
     """
     _require_secret(secret)
     runtime_ref = _require_nonempty(runtime_ref, "runtime_ref")
     executor_version = _require_nonempty(executor_version, "executor_version")
-    playwright_version = _require_nonempty(playwright_version, "playwright_version")
-    browser_channel = _require_nonempty(browser_channel, "browser_channel")
     profile_mode = _require_nonempty(profile_mode, "profile_mode")
     if profile_mode != "dedicated_persistent":
         raise ValueError("runtime attestation requires dedicated_persistent profile_mode")
-    _require_sha256(doctor_evidence_hash, "doctor_evidence_hash")
+    doctor_hash = runtime_doctor_evidence_hash(doctor_evidence)
     doctor_passed_at = _require_aware(doctor_passed_at, "doctor_passed_at")
     issued_at = _require_aware(issued_at, "issued_at")
     if doctor_passed_at > issued_at:
@@ -164,15 +202,15 @@ def issue_runtime_attestation(
     token_nonce = nonce or secrets.token_urlsafe(18)
     _require_nonempty(token_nonce, "nonce")
     expires_at = issued_at + timedelta(seconds=ttl_seconds)
-    attestation_id = f"runtime:{hashlib.sha256(f'{runtime_ref}|{doctor_evidence_hash}|{issued_at.isoformat()}|{token_nonce}'.encode()).hexdigest()}"
+    attestation_id = f"runtime:{hashlib.sha256(f'{runtime_ref}|{doctor_hash}|{issued_at.isoformat()}|{token_nonce}'.encode()).hexdigest()}"
     payload = {
         "attestation_id": attestation_id,
         "runtime_ref": runtime_ref,
         "executor_version": executor_version,
-        "playwright_version": playwright_version,
-        "browser_channel": browser_channel,
+        "playwright_version": doctor_evidence.playwright_version,
+        "browser_channel": doctor_evidence.browser_channel,
         "profile_mode": profile_mode,
-        "doctor_evidence_hash": doctor_evidence_hash,
+        "doctor_evidence_hash": doctor_hash,
         "doctor_passed_at": doctor_passed_at.isoformat(),
         "issued_at": issued_at.isoformat(),
         "expires_at": expires_at.isoformat(),
@@ -196,6 +234,8 @@ def _parse_runtime(payload: bytes) -> RuntimeAttestationClaims:
         expires_at=_require_aware(datetime.fromisoformat(str(raw["expires_at"])), "expires_at"),
         nonce=_require_nonempty(str(raw["nonce"]), "nonce"),
     )
+    if claims.browser_channel not in _ALLOWED_BROWSER_CHANNELS:
+        raise ValueError("runtime attestation browser channel is unsupported")
     if claims.profile_mode != "dedicated_persistent" or claims.doctor_passed_at > claims.issued_at or claims.expires_at <= claims.issued_at:
         raise ValueError("runtime attestation claims violate invariants")
     return claims
