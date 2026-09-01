@@ -4,11 +4,13 @@
 
 ## Current recovery watermark
 
-- Snapshot time: **2026-09-02 00:22 Europe/Madrid**
-- GitHub `main`: **`d1d82b0dbb8d5712888cef7d247b2487f9fd7514`**
+- Snapshot started: **2026-09-02 00:22 Europe/Madrid**
+- Refreshed: **2026-09-02 00:29 Europe/Madrid**
+- Current GitHub `main`: **`d72369366396e97cf532f9c7a462df3cfdc9b79e`**
+- Browser Stack release ancestor: `d1d82b0dbb8d5712888cef7d247b2487f9fd7514`
 - Current agent-context session: `SES-UEX-CHATGPT-20260902T002200-31`
 - Lease: `LSE-UEX-AGENT-CONTEXT-20260902T002200-31`
-- Latest domain continuity event observed: `EVT-20260902T002200-HOFF-002`
+- Latest completed continuity event observed: `EVT-20260902T002700-HOFF-003`
 
 ## Recent durable checkpoints
 
@@ -42,20 +44,22 @@ Main CI: `33565691506` SUCCESS and `33565691512` SUCCESS.
 One stdio MCP command supervises Relay + ephemeral-token Worker. External targets and Submit remain absent.
 
 ### CONVIVIAL FOODSCAPES continuity
-Event: `EVT-20260902T002200-HOFF-002`
-Canonical opportunity row already exists; P1; deadline 2026-09-15; `AI_UNKNOWN`; full-November availability unresolved; not Mass-Apply-enqueued. Canonical opportunity count becomes 176.
+Events: `EVT-20260902T002200-HOFF-002` → `EVT-20260902T002700-HOFF-003`.
+Canonical opportunity row exists; P1; deadline 2026-09-15; `AI_UNKNOWN`; full-November availability unresolved; not Mass-Apply-enqueued. Canonical opportunity count is 176. Root continuity files were updated and `main` advanced to `d7236936…`.
 
-## Active snapshot writers
+## Active writers at refresh
 
 - RG2.2 adapters/self-heal: `SES-UEX-CHATGPT-20260902T001630-27` / `LSE-UEX-RUNTIMEGRAPH-ADAPTERS-20260902T001630-27`.
-- Root continuity sealer: `SES-UEX-CHATGPT-20260902T002030-30` / `LSE-UEX-HANDOFF-20260902T002030-30`.
+- RG2.1 recovery/handoff sealer: `SES-UEX-CHATGPT-20260902T002900-32` (recovery scope only).
 - Agent-context pack: `SES-UEX-CHATGPT-20260902T002200-31` / `LSE-UEX-AGENT-CONTEXT-20260902T002200-31`.
+
+Prior continuity sealer `SES-UEX-CHATGPT-20260902T002030-30` is COMPLETED/RELEASED.
 
 ## Known stale/contradictory checkpoint signals
 
-- Dashboard still says 175 opportunities and old GitHub main; latest event says 176 and current main is `d1d82b0d…`.
-- Root `STATE.md/HANDOFF.md` were last observed at 18:11 and do not yet contain Browser Worker/Relay/Stack V1; an active sealer owns their refresh.
-- Browser Stack session is COMPLETED but its Work_Lease row was last observed ACTIVE. Reconcile before overlapping Browser Stack writes.
+- Dashboard was last read at 175 opportunities while current canonical continuity says 176.
+- Dashboard GitHub main metadata is stale relative to `d7236936…`.
+- Browser Stack session is COMPLETED but its Work_Lease row had previously remained ACTIVE. Reconcile before overlapping Browser Stack writes.
 
 ## Cold-start checkpoint rule
 
