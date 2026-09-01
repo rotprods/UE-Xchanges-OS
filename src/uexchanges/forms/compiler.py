@@ -51,7 +51,7 @@ def compile_execution_plan(
 ) -> CompilationResult:
     """Compile captured form structure + evidence-backed answers into a safe plan.
 
-    This function never infers unknown facts or application policy.  Blocking
+    This function never infers unknown facts or application policy. Blocking
     issues remain explicit and the returned plan stays below PREFILL_READY.
     """
     if not captured_fields:
@@ -74,6 +74,7 @@ def compile_execution_plan(
         if field.ownership is FieldOwnership.BLACK:
             if candidate is not None:
                 issues.append(PolicyIssue("black_field_answer_forbidden", field.field_key, "BLACK/secret fields cannot receive model-visible answer candidates."))
+            issues.append(PolicyIssue("black_field_human_interaction_required", field.field_key, "BLACK/secret field requires human interaction outside the model-visible answer plan."))
             compiled_fields.append(field)
             continue
 
