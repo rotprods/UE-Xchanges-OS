@@ -67,18 +67,19 @@ def make_plan(**overrides) -> FormExecutionPlan:
     return FormExecutionPlan(**base)
 
 
-def make_runtime(*, executor_version="0.4.0", ttl_seconds=3600) -> str:
+def make_runtime(*, executor_version="0.4.0", ttl_seconds=3600, issued_at=None) -> str:
+    issued = issued_at or (NOW - timedelta(minutes=1))
     return issue_runtime_attestation(
         runtime_ref="runtime:uex-test",
         executor_version=executor_version,
         playwright_version="1.62.1",
         browser_channel="chromium",
         doctor_evidence_hash="sha256:" + "d" * 64,
-        doctor_passed_at=NOW - timedelta(minutes=2),
-        issued_at=NOW - timedelta(minutes=1),
+        doctor_passed_at=issued - timedelta(minutes=1),
+        issued_at=issued,
         secret=RUNTIME_SECRET,
         ttl_seconds=ttl_seconds,
-        nonce=f"runtime-{executor_version}-{ttl_seconds}",
+        nonce=f"runtime-{executor_version}-{ttl_seconds}-{issued.isoformat()}",
     )
 
 
@@ -158,7 +159,6 @@ class RuntimePrefillPromotionTests(unittest.TestCase):
     def test_unbound_or_unready_plan_denies(self):
         plan = make_plan(validation_signature=None)
         runtime = make_runtime()
-        # inspect evidence cannot be issued without validation signature, so use evidence from bound plan.
         bound = make_plan()
         inspect = make_inspect(runtime, bound)
         result = evaluate_prefill_promotion(
@@ -199,7 +199,7 @@ class RuntimePrefillPromotionTests(unittest.TestCase):
         )
         self.assertIn("executor_version_not_certified", result.reasons)
 
-        short_runtime = make_runtime(ttl_seconds=30)
+        short_runtime = make_runtime(ttl_seconds=30, issued_at=NOW)
         short_inspect = make_inspect(short_runtime, plan, ttl_seconds=20)
         result = evaluate_prefill_promotion(
             plan=plan,
