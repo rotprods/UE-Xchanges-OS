@@ -61,6 +61,8 @@ test('responsive screenshots have no page overflow', async ({ page }, testInfo) 
     await expect(page.locator('#signature')).toBeVisible();
     const bodyFits = await page.evaluate(() => document.body.scrollWidth <= document.documentElement.clientWidth);
     expect(bodyFits, `body overflow at ${width}px`).toBe(true);
+    const canvasFits = await page.locator('.canvas').evaluate(node => node.scrollWidth <= node.clientWidth);
+    expect(canvasFits, `signature canvas overflow at ${width}px`).toBe(true);
     await page.screenshot({
       path: testInfo.outputPath(`screenshots/signature-${width}px.png`),
       fullPage: true

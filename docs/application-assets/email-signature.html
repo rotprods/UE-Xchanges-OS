@@ -11,7 +11,17 @@
     .hint{font-size:13px;line-height:1.45;color:#655d82}
     button{border:0;border-radius:999px;background:#c73c18;color:#fff;padding:11px 17px;font-weight:700;cursor:pointer}
     .canvas{max-width:660px;margin:auto;background:#fff;padding:28px;border-radius:16px;box-shadow:0 12px 36px rgba(38,20,105,.09)}
-    @media(max-width:640px){body{padding:12px}.toolbar{align-items:flex-start;flex-direction:column}.canvas{padding:16px;overflow-x:auto}#signature{min-width:590px}}
+    @media(max-width:640px){
+      body{padding:12px}
+      .toolbar{align-items:flex-start;flex-direction:column}
+      .canvas{padding:16px;overflow:hidden}
+      #signature>table>tbody>tr>td{display:block!important;width:auto!important}
+      #signature>table>tbody>tr>td:first-child{padding:0 0 12px!important}
+      #signature>table>tbody>tr>td:nth-child(2){height:3px!important}
+      #signature>table>tbody>tr>td:nth-child(3){padding:14px 0 0!important}
+      #signature>table>tbody>tr>td:nth-child(3)>table{width:100%!important;table-layout:fixed}
+      #signature>table>tbody>tr>td:nth-child(3)>table td{padding-right:4px!important}
+    }
   </style>
 </head>
 <body>
