@@ -2,9 +2,9 @@
   "schema_version": "1.1.0",
   "project": "UE-Xchanges-OS",
   "status": "ACTIVE",
-  "generated_at": "2026-09-01T16:36:00+02:00",
+  "generated_at": "2026-09-02T00:22:00+02:00",
   "expires_at": "2026-09-04T22:00:00+02:00",
-  "reason": "goal-state.json remains a 2026-08-31 release snapshot. The private Drive CRM and evidence graph have advanced through CGEV2 source/bootstrap and recovery work, so the repository's existing execution-state precedence requires this active override to control current aggregate state.",
+  "reason": "goal-state.json remains a 2026-08-31 release snapshot. The private Drive CRM and evidence graph have advanced through CGEV2 source/bootstrap, runtime work and a new canonical P1 discovery, so the repository's existing execution-state precedence requires this active override to control current aggregate state.",
   "base_goal_state": {
     "commit": "419452755e33503ce20959e3267e91411bfc2e46",
     "schema_version": "1.12.0",
@@ -20,13 +20,13 @@
     ],
     "private_crm_id": "1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU",
     "crm_timezone": "Europe/Madrid",
-    "session_id": "SES-UEX-CHATGPT-20260901T144200-11",
-    "agent_id": "AGT-DOMAIN-RECONCILER-BACKFILL",
-    "event_watermark": "EVT-20260901T163600-CGEV2-001",
+    "session_id": "SES-UEX-CHATGPT-20260902T002030-30",
+    "agent_id": "AGT-CONTINUITY-HANDOFF-SEALER",
+    "event_watermark": "EVT-20260902T002200-HOFF-002",
     "private_recovery_pack_id": "19tM23N37cqweaWPSoVMxEECZhfOSrEJPGj_nRJB71q4"
   },
   "runtime": {
-    "opportunity_nodes": 175,
+    "opportunity_nodes": 176,
     "application_nodes": 164,
     "mass_apply_queue_rows": 164,
     "organisation_nodes": 30,
@@ -40,8 +40,8 @@
   },
   "projection_state": {
     "notion": {
-      "status": "CURRENT_ONE_WAY_READ_MODEL",
-      "opportunities": "175/175 intended canonical IDs",
+      "status": "STALE_BY_ONE_OPPORTUNITY_UNTIL_REFRESH",
+      "opportunities": "175/176 canonical IDs projected at last reconciliation",
       "applications": "164/164 intended application IDs",
       "organisations": "30/30 intended canonical organisations",
       "writeback": "PROHIBITED"
@@ -130,9 +130,25 @@
       "state": "ROLLING_PREP_HARD_GATES"
     }
   },
+  "new_p1_non_salto": {
+    "convivial_foodscapes": {
+      "opportunity_id": "non_salto-convivial-foodscapes-2026",
+      "role": "visual_artist",
+      "location": "Branca, Portugal",
+      "dates": "2026-11-01/2026-11-30",
+      "deadline": "2026-09-15",
+      "state": "POLICY_GATE_PENDING",
+      "spain_gate": "PASS",
+      "ai_policy": "AI_UNKNOWN",
+      "availability": "FULL_NOVEMBER_AVAILABILITY_UNCONFIRMED",
+      "next_gate": "VERIFY_AI_POLICY_AND_NOVEMBER_AVAILABILITY_THEN_PREPARE",
+      "mass_apply_enqueued": false,
+      "source": "https://quintadasrelvas.pt/convivialfoodscapes/"
+    }
+  },
   "source_watch": {
     "salto_calls_for_trainers": {
-      "last_scan": "2026-09-01T15:35:16+02:00",
+      "last_scan": "2026-09-01T23:40:00+02:00",
       "result": "NO_NEW_OPEN_TRAJECTORY_CHANGING_PAID_CALL",
       "watch": "Inspirational Event still announces future September calls for 2 plenary facilitators and 5 co-creation-lab facilitators; not yet open."
     },
@@ -153,6 +169,7 @@
     "state_file": "STATE.md",
     "handoff_file": "HANDOFF.md",
     "changelog_file": "CHANGELOG.md",
+    "latest_checkpoint": "checkpoints/2026-09-02-convivial-foodscapes-p1-handoff.md",
     "private_pack_id": "19tM23N37cqweaWPSoVMxEECZhfOSrEJPGj_nRJB71q4",
     "cold_start": "Read goal.md -> LIVE-STATE-OVERRIDE.json -> STATE.md -> AGENTS.md -> HANDOFF.md -> newest checkpoint -> private Drive control-plane tail."
   },
@@ -163,7 +180,8 @@
     "PAYMENT_REQUIRED_FOR_PLACE != CONFIRMED",
     "No new APPLICATION_SUBMITTED state without evidence",
     "No private payment coordinates or sensitive applicant attributes in public state",
-    "Notion/Todoist/HubSpot are projections, never submission evidence"
+    "Notion/Todoist/HubSpot are projections, never submission evidence",
+    "Do not enqueue or recommend CONVIVIAL submission while AI policy or full-November availability is unresolved"
   ],
   "integration_exit": "Retire this override only after equivalent evidence-backed state is integrated into goal-state.json and exact-head/main CI succeeds."
 }
