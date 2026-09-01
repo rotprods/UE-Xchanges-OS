@@ -96,13 +96,7 @@ test('worker keeps one live Chromium DOM across INSPECT -> PREFILL_LOCAL -> VALI
   const fixture = await startFixture();
   const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'uex-browser-worker-'));
   const session = new BrowserWorkerSession({ profileDir, channel: 'chromium', headless: true });
-  const worker = createBrowserWorkerServer({
-    session,
-    token: TOKEN,
-    host: '127.0.0.1',
-    port: 0,
-    allowLocalPrefill: true,
-  });
+  const worker = createBrowserWorkerServer({ session, token: TOKEN, host: '127.0.0.1', port: 0, allowLocalPrefill: true });
   const address = await worker.listen();
   const base = `http://127.0.0.1:${address.port}`;
   const url = `${fixture.origin}/form?private=QUERY-SECRET#fragment`;
@@ -114,7 +108,8 @@ test('worker keeps one live Chromium DOM across INSPECT -> PREFILL_LOCAL -> VALI
     }));
     assert.equal(inspectedResponse.status, 200);
     const inspect = inspectedResponse.body.result;
-    assert.equal(inspect.mode, 'INSPECT_ONLY');
+    assert.equal(inspect.mode, 'INSPECT_LOCAL_ONLY');
+    assert.equal(inspect.safety.cross_origin_requests_allowed, false);
     assert.match(inspect.form_fingerprint, /^sha256:[0-9a-f]{64}$/);
     assert.match(inspect.validation_signature, /^sha256:[0-9a-f]{64}$/);
     assert.equal(inspect.page.url, `${fixture.origin}/form`);
@@ -144,12 +139,11 @@ test('worker keeps one live Chromium DOM across INSPECT -> PREFILL_LOCAL -> VALI
     assert.equal(validation.validation_signature_match, true);
     assert.equal(fixture.mutationCount(), 0);
 
-    const status = await json(await fetch(`${base}/v1/status`, {
-      headers: { authorization: `Bearer ${TOKEN}` },
-    }));
+    const status = await json(await fetch(`${base}/v1/status`, { headers: { authorization: `Bearer ${TOKEN}` } }));
     assert.equal(status.status, 200);
     assert.equal(status.body.result.current.application_id, 'app-live-worker');
     assert.equal(status.body.result.transport.submit_endpoint_present, false);
+    assert.equal(status.body.result.safety.target_scope, 'loopback_only_v1');
 
     const serialized = JSON.stringify({ inspect, prefill: prefilledResponse.body.result, validation });
     for (const secret of ['QUERY-SECRET', 'SECRET-DEFAULT', 'PRIVATE-DEFAULT', 'candidate@example.com', 'A genuine motivation answer']) {
