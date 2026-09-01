@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Mapping
 from urllib.parse import urlparse
 
 from .fingerprint import canonicalize_form_url
@@ -17,6 +18,20 @@ from .runtime_attestation import (
 
 
 _LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
+_MANIFEST_KEYS = {
+    "provider_id",
+    "manifest_version",
+    "allowed_origins",
+    "inspect_allowed",
+    "human_login_allowed",
+    "requires_human_login",
+    "prefill_certified",
+    "submit_certified",
+    "certified_executor_versions",
+    "certified_playwright_versions",
+    "evidence_refs",
+    "local_fixture_only",
+}
 
 
 @dataclass(frozen=True)
@@ -66,6 +81,50 @@ class PrefillPromotionDecision:
     capability_binding_hash: str | None = None
     runtime_attestation_id: str | None = None
     inspect_evidence_id: str | None = None
+
+
+def provider_manifest_from_mapping(raw: Mapping[str, Any]) -> ProviderCapabilityManifest:
+    if not isinstance(raw, Mapping):
+        raise ValueError("provider manifest must be an object")
+    actual = set(raw)
+    missing = _MANIFEST_KEYS - actual
+    unknown = actual - _MANIFEST_KEYS
+    if missing:
+        raise ValueError(f"provider manifest missing keys: {','.join(sorted(missing))}")
+    if unknown:
+        raise ValueError(f"provider manifest has unknown keys: {','.join(sorted(unknown))}")
+    for key in (
+        "inspect_allowed",
+        "human_login_allowed",
+        "requires_human_login",
+        "prefill_certified",
+        "submit_certified",
+        "local_fixture_only",
+    ):
+        if not isinstance(raw[key], bool):
+            raise ValueError(f"provider manifest {key} must be boolean")
+    for key in (
+        "allowed_origins",
+        "certified_executor_versions",
+        "certified_playwright_versions",
+        "evidence_refs",
+    ):
+        if not isinstance(raw[key], list) or any(not isinstance(item, str) for item in raw[key]):
+            raise ValueError(f"provider manifest {key} must be an array of strings")
+    return ProviderCapabilityManifest(
+        provider_id=str(raw["provider_id"]),
+        manifest_version=str(raw["manifest_version"]),
+        allowed_origins=tuple(raw["allowed_origins"]),
+        inspect_allowed=raw["inspect_allowed"],
+        human_login_allowed=raw["human_login_allowed"],
+        requires_human_login=raw["requires_human_login"],
+        prefill_certified=raw["prefill_certified"],
+        submit_certified=raw["submit_certified"],
+        certified_executor_versions=tuple(raw["certified_executor_versions"]),
+        certified_playwright_versions=tuple(raw["certified_playwright_versions"]),
+        evidence_refs=tuple(raw["evidence_refs"]),
+        local_fixture_only=raw["local_fixture_only"],
+    )
 
 
 def _origin(url: str) -> str:
