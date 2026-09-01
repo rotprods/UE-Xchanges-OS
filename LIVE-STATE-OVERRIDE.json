@@ -2,9 +2,9 @@
   "schema_version": "1.1.0",
   "project": "UE-Xchanges-OS",
   "status": "ACTIVE",
-  "generated_at": "2026-09-02T00:22:00+02:00",
+  "generated_at": "2026-09-02T00:30:00+02:00",
   "expires_at": "2026-09-04T22:00:00+02:00",
-  "reason": "goal-state.json remains a 2026-08-31 release snapshot. The private Drive CRM and evidence graph have advanced through CGEV2 source/bootstrap, runtime work and a new canonical P1 discovery, so the repository's existing execution-state precedence requires this active override to control current aggregate state.",
+  "reason": "goal-state.json remains a 2026-08-31 release snapshot. Private Drive canonical evidence has advanced through CGEV2, RuntimeGraph V2.1 dispatch, form-runtime releases and the CONVIVIAL P1 discovery, so this bounded override carries the recoverable aggregate state while Drive remains authoritative.",
   "base_goal_state": {
     "commit": "419452755e33503ce20959e3267e91411bfc2e46",
     "schema_version": "1.12.0",
@@ -20,9 +20,13 @@
     ],
     "private_crm_id": "1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU",
     "crm_timezone": "Europe/Madrid",
-    "session_id": "SES-UEX-CHATGPT-20260902T002030-30",
-    "agent_id": "AGT-CONTINUITY-HANDOFF-SEALER",
-    "event_watermark": "EVT-20260902T002200-HOFF-002",
+    "session_id": "SES-UEX-CHATGPT-20260902T002900-32",
+    "agent_id": "AGT-RUNTIMEGRAPH-HANDOFF-SEALER",
+    "event_watermark": "EVT-20260902T002900-RGHS-002",
+    "domain_event_watermarks": {
+      "runtimegraph_dispatch_cycle": "EVT-20260901T234155-DSPC-008",
+      "convivial_continuity": "EVT-20260902T002700-HOFF-003"
+    },
     "private_recovery_pack_id": "19tM23N37cqweaWPSoVMxEECZhfOSrEJPGj_nRJB71q4"
   },
   "runtime": {
@@ -37,6 +41,63 @@
     "open_paid_trainer_calls_crossing_alert_threshold": 0,
     "telegram_unique_unresolved": 60,
     "telegram_state": "SOURCE_ACCESS_BLOCKED_NOT_PROCESSED"
+  },
+  "runtimegraph_v2_1": {
+    "status": "LIVE_DERIVED_PROJECTION",
+    "dispatcher_release_sha": "6c23c9b6a70f33a7cb1eb780c54e49ebf5cf0d16",
+    "command_center_id": "1OtSLFI4VHW6aSne1YjtRykRsN4j4G4OcEGSCXVDLwbM",
+    "delivery_semantics": "AT_LEAST_ONCE_PLUS_DETERMINISTIC_IDEMPOTENCY",
+    "same_strategy_retry_budget": 3,
+    "completed_cycle_session": "SES-UEX-AUTO-20260901T233539-28",
+    "completed_cycle_event": "EVT-20260901T234155-DSPC-008",
+    "human_frontier_count": 4,
+    "confirmed_receipts": 0,
+    "dead_letters": 0,
+    "human_frontier": [
+      "app-step-paralympics-v1",
+      "app-compass-bregal-2026-v1",
+      "app-salto-listing-2026-08-31-civis-lab-v1",
+      "app-non_salto-saber-2026-v1"
+    ],
+    "source_cursors": {
+      "gmail:organiser-replies": {
+        "state": "ACTIVE",
+        "last_item": "1a05eb5b1861284d",
+        "last_observed": "2026-09-01T22:42:26+02:00",
+        "revision": 1
+      },
+      "receipt:reconciler": {
+        "state": "BOOTSTRAP",
+        "last_item": "none",
+        "confirmed_receipts": 0
+      },
+      "form:gateway": {
+        "state": "BOOTSTRAP",
+        "last_item": "none",
+        "external_prefill_submit_certified": false
+      },
+      "source:official": {
+        "state": "ACTIVE",
+        "last_item": "step-form-live-20260901",
+        "last_observed": "2026-09-01T23:35:39+02:00",
+        "revision": 1
+      }
+    },
+    "projection_incident": {
+      "event": "EVT-20260901T233800-DSPC-004",
+      "state": "CORRECTED",
+      "domain_submission_payment_receipt_changed": false
+    }
+  },
+  "legacy_runtimegraph_v1": {
+    "compiler_sha": "80d31479d2bb8572623d9b4a385e457d49761c11",
+    "applications": 164,
+    "actions": 177,
+    "gates": 656,
+    "edges": 1211,
+    "frontier_status": "HISTORICAL_DO_NOT_OVERRIDE_V2_1",
+    "read_model_id": "16QcHOWoBD1ixstPkhivftuyqmQdhtZj6",
+    "snapshot_id": "1iVyNAZWmURTdK8wZyYjYxyYDh9Djik3P"
   },
   "projection_state": {
     "notion": {
@@ -66,24 +127,36 @@
     "policy": "APPLY_EVERYTHING_VIABLE"
   },
   "p0_frontier": {
+    "step_into_paralympics": {
+      "application_id": "app-step-paralympics-v1",
+      "opportunity_id": "doc1-step-paralympics",
+      "state": "FORM_LIVE_ON_ORGANISER_EXTENDED_DEADLINE_DATE_HUMAN_READY",
+      "form_live_observed_at": "2026-09-01T23:35:39+02:00",
+      "organiser_extension_date": "2026-09-01",
+      "exact_close_time_known": false,
+      "transport_year_conflict_present": true,
+      "transport_clarification_received": false,
+      "submission_confirmed": false,
+      "receipt_confirmed": false,
+      "next_gate": "HUMAN_PRIVATE_FIELDS_APPLICANT_TEXT_SUBMIT_AND_CAPTURE_RECEIPT",
+      "travel_booking": "BLOCKED_PENDING_WRITTEN_2026_TRANSPORT_DATE_CLARIFICATION"
+    },
     "compass": {
+      "application_id": "app-compass-bregal-2026-v1",
       "opportunity_id": "2025-3-PT02-KA152-YOU-000370370",
       "state": "SELECTED_EMAIL_ACCEPTED_PAYMENT_TALLY_PENDING",
       "next_gate": "HUMAN_PAYMENT_30_EUR_RECEIPT_THEN_TALLY",
       "confirmed": false
     },
-    "step_into_paralympics": {
-      "opportunity_id": "doc1-step-paralympics",
-      "state": "PARTICIPANT_PASS_DIRECT_FORM_DEADLINE_EXTENDED_CUTOFF_QUERY_PENDING",
-      "next_gate": "CURRENT_FORM_VALIDITY_OR_CUTOFF_REPLY_THEN_HUMAN_FORM_AND_RECEIPT"
-    },
     "civis_lab": {
+      "application_id": "app-salto-listing-2026-08-31-civis-lab-v1",
       "opportunity_id": "salto-listing-2026-08-31-civis-lab",
       "state": "ELIGIBILITY_PASS_HUMAN_PAYMENT_THEN_PARTICIPANT_LIST",
       "next_gate": "HUMAN_PAYMENT_50_EUR_AND_PROOF",
       "payment_executed": false
     },
     "saber_soilpunk": {
+      "application_id": "app-non_salto-saber-2026-v1",
       "opportunity_id": "non_salto-saber-2026",
       "state": "HOST_AUTHORISED_LATE_APPLICATION_AFTER_SPANISH_CANCELLATION",
       "ai_policy": "AI_ALLOWED_HOST_CONFIRMED",
@@ -165,22 +238,33 @@
       "rule": "Do not merge with another visible Italy listing without authoritative identity resolution."
     }
   },
+  "concurrency_snapshot": {
+    "captured_at": "2026-09-02T00:30:00+02:00",
+    "runtimegraph_v2_2_adapter_lease": "LSE-UEX-RUNTIMEGRAPH-ADAPTERS-20260902T001630-27 ACTIVE_AT_CAPTURE",
+    "agent_context_lease": "LSE-UEX-AGENT-CONTEXT-20260902T002200-31 ACTIVE_AT_CAPTURE",
+    "rule": "Re-read Work_Leases before every mutation; this snapshot is not a durable lease claim."
+  },
   "recovery": {
     "state_file": "STATE.md",
     "handoff_file": "HANDOFF.md",
     "changelog_file": "CHANGELOG.md",
-    "latest_checkpoint": "checkpoints/2026-09-02-convivial-foodscapes-p1-handoff.md",
+    "latest_checkpoint": "checkpoints/2026-09-02-runtimegraph-v2-1-dispatch-cycle-close.md",
+    "related_p1_checkpoint": "checkpoints/2026-09-02-convivial-foodscapes-p1-handoff.md",
     "private_pack_id": "19tM23N37cqweaWPSoVMxEECZhfOSrEJPGj_nRJB71q4",
-    "cold_start": "Read goal.md -> LIVE-STATE-OVERRIDE.json -> STATE.md -> AGENTS.md -> HANDOFF.md -> newest checkpoint -> private Drive control-plane tail."
+    "cold_start": "Read current main -> goal.md -> LIVE-STATE-OVERRIDE.json -> STATE.md -> AGENTS.md -> HANDOFF.md -> RuntimeGraph V2 docs -> newest checkpoint -> private Drive EventBus/leases/Command Center/cursors/DLQ."
   },
   "safety_invariants": [
+    "Raw prose alone does not establish eligibility, submission, receipt or confirmation",
+    "State-changing normalized observations require exact application_id or exact opportunity_id mapping",
     "ROUTE_QUERY_SENT != APPLICATION_SUBMITTED",
     "ELIGIBLE != SELECTED",
     "INVITED_TO_APPLY != ACCEPTED",
     "PAYMENT_REQUIRED_FOR_PLACE != CONFIRMED",
-    "No new APPLICATION_SUBMITTED state without evidence",
+    "CLICK_SUBMIT != SUBMITTED_CONFIRMED",
+    "No new APPLICATION_SUBMITTED state without authoritative evidence bound to exact identity",
     "No private payment coordinates or sensitive applicant attributes in public state",
-    "Notion/Todoist/HubSpot are projections, never submission evidence",
+    "Notion/Todoist/HubSpot/RuntimeGraph are projections, never submission evidence",
+    "Never pay, authenticate, enter credentials/OTP/cookies, externally certify PREFILL or irreversibly Submit as agent",
     "Do not enqueue or recommend CONVIVIAL submission while AI policy or full-November availability is unresolved"
   ],
   "integration_exit": "Retire this override only after equivalent evidence-backed state is integrated into goal-state.json and exact-head/main CI succeeds."

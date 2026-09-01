@@ -1,5 +1,20 @@
 # UE-Xchanges-OS — CHANGELOG
 
+## 2026-09-02 — RuntimeGraph V2.1 dispatch-cycle recovery seal
+
+- Promoted RuntimeGraph V2.1, release `6c23c9b6a70f33a7cb1eb780c54e49ebf5cf0d16`, to the current versioned recovery surface; legacy RuntimeGraph v1 frontier counts are now explicitly historical.
+- Persisted completed dispatcher cycle `SES-UEX-AUTO-20260901T233539-28` / `EVT-20260901T234155-DSPC-008`.
+- Recorded material Human Frontier transition **3 → 4** after the official Step Into Paralympics form was reverified live at `2026-09-01T23:35:39+02:00` on the organiser-confirmed extension date.
+- Preserved strict Step facts: exact closing time unknown; stale `18/08/2026` deadline text and stale 2025 transport dates remain in the form; application action is Human READY; travel purchase remains blocked pending written 2026 transport-date clarification; no submission or receipt claimed.
+- Persisted current Human Frontier: Step Into Paralympics, COMPASS, CIVIS LAB and SABER.
+- Persisted Source Cursors: Gmail last item `1a05eb5b1861284d`; official-source last item `step-form-live-20260901`; Receipt Reconciler/Form Gateway still at bootstrap/none.
+- Confirmed current-wave authoritative receipts **0** and Dead Letters **0**.
+- Recorded projection repair event `EVT-20260901T233800-DSPC-004`; the Step Applications column-offset incident was corrected immediately and changed no payment/submission/receipt state.
+- Preserved dispatcher guarantees: at-least-once + deterministic idempotency, monotonic cursors, same-strategy retry budget 3, dead-letter isolation, exact-ID routing only.
+- Preserved hard boundaries: no payment, auth, credentials/OTP/cookies, external PREFILL certification or irreversible agent Submit.
+- Added `checkpoints/2026-09-02-runtimegraph-v2-1-dispatch-cycle-close.md` and refreshed `STATE.md`, `HANDOFF.md` and `LIVE-STATE-OVERRIDE.json` without modifying canonical domain/application rows or active RuntimeGraph V2.2 adapter projections.
+- Retained the newer **176-opportunity** aggregate state and CONVIVIAL FOODSCAPES P1 hard gates from the immediately preceding continuity seal.
+
 ## 2026-09-02 — CONVIVIAL FOODSCAPES P1 continuity seal
 
 - Verified `non_salto-convivial-foodscapes-2026` is already canonical in Drive `Opportunities` row 178 and appears in `Decision_Queue` as P1.
