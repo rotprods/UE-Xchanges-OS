@@ -13,11 +13,12 @@ def _aware(value: datetime, name: str) -> datetime:
 
 @dataclass(frozen=True)
 class SourceCursor:
-    """Durable high-watermark for one ingress source.
+    """Durable monotonic high-watermark for one ingress source.
 
-    The sequence is a high-watermark, not an exclusivity guarantee: a late unique
-    event with a lower sequence may still be processed.  The cursor never moves
-    backwards.
+    A cursor summarizes the newest durable observation known for polling and recovery.
+    It is not an exclusivity guarantee: a late unique event with an older timestamp or
+    lower sequence may still be processed by the dispatcher, but it must never rewind
+    ``high_watermark``, ``last_observed_at`` or ``last_source_item_id``.
     """
 
     source_id: str
@@ -62,15 +63,19 @@ class SourceCursorStore:
 
         current = self.get(source_id)
         next_watermark = max(current.high_watermark, sequence or 0)
-        is_new_high_watermark = sequence is None or sequence >= current.high_watermark
+        is_new_cursor_head = _is_new_cursor_head(
+            current=current,
+            observed_at=observed_at,
+            sequence=sequence,
+        )
         updated = replace(
             current,
             high_watermark=next_watermark,
             last_source_item_id=(
-                source_item_id if is_new_high_watermark else current.last_source_item_id
+                source_item_id if is_new_cursor_head else current.last_source_item_id
             ),
             last_observed_at=(
-                observed_at if is_new_high_watermark else current.last_observed_at
+                observed_at if is_new_cursor_head else current.last_observed_at
             ),
             revision=current.revision + 1,
         )
@@ -92,3 +97,25 @@ class SourceCursorStore:
             }
             for source_id, cursor in sorted(self._cursors.items())
         }
+
+
+def _is_new_cursor_head(
+    *,
+    current: SourceCursor,
+    observed_at: datetime,
+    sequence: int | None,
+) -> bool:
+    """Return whether an applied event may replace the polling/recovery cursor head.
+
+    Sequence-aware sources use sequence first and timestamp as the tie-breaker.
+    Sequence-less sources use timestamp only.  Late events remain processable but do
+    not become the cursor head.
+    """
+    current_time = current.last_observed_at
+    if sequence is None:
+        return current_time is None or observed_at >= current_time
+    if sequence > current.high_watermark:
+        return True
+    if sequence < current.high_watermark:
+        return False
+    return current_time is None or observed_at >= current_time
