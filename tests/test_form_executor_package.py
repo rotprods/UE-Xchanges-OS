@@ -62,8 +62,25 @@ class FormExecutorPackageTests(unittest.TestCase):
 
         self.assertIn("mutating_http_methods_blocked: true", source)
         self.assertIn("form_values_read: false", source)
+        self.assertIn("url_query_material_exported: false", source)
         self.assertIn("cookies_read: false", source)
+        self.assertIn("safeUrl", source)
         self.assertIn("UEX_INSPECT_ONLY_SUBMIT_BLOCKED", source)
+
+    def test_cli_never_emits_raw_playwright_error_content(self):
+        source = (TOOL / "src" / "cli.mjs").read_text()
+        forbidden = (
+            "error?.stack",
+            "error.stack",
+            "error?.message",
+            "error.message",
+            "String(error)",
+            "JSON.stringify(error",
+        )
+        for fragment in forbidden:
+            self.assertNotIn(fragment, source)
+        self.assertIn("UEX_FORM_INSPECT_ERROR", source)
+        self.assertIn("error?.name", source)
 
 
 if __name__ == "__main__":
