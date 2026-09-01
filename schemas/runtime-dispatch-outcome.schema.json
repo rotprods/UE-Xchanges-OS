@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RuntimeDispatchOutcome",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "ingress_key",
+    "attempts",
+    "reason"
+  ],
+  "properties": {
+    "status": {
+      "enum": ["applied", "duplicate", "retry", "dead_letter", "unrouted"]
+    },
+    "ingress_key": {"type": "string", "pattern": "^rg21ing_[0-9a-f]{64}$"},
+    "application_id": {"type": ["string", "null"]},
+    "attempts": {"type": "integer", "minimum": 0},
+    "reason": {"type": "string"},
+    "cursor": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {"type": "string"},
+        "high_watermark": {"type": "integer", "minimum": 0},
+        "last_source_item_id": {"type": ["string", "null"]},
+        "last_observed_at": {"type": ["string", "null"], "format": "date-time"},
+        "revision": {"type": "integer", "minimum": 0}
+      }
+    },
+    "frontier_change": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "human_added": {"type": "array", "items": {"type": "string"}},
+        "human_removed": {"type": "array", "items": {"type": "string"}},
+        "agent_added": {"type": "array", "items": {"type": "string"}},
+        "agent_removed": {"type": "array", "items": {"type": "string"}},
+        "system_added": {"type": "array", "items": {"type": "string"}},
+        "system_removed": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

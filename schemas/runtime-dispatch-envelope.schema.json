@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RuntimeDispatchEnvelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source",
+    "source_id",
+    "source_item_id",
+    "source_version",
+    "observed_at",
+    "kind",
+    "authority",
+    "payload"
+  ],
+  "properties": {
+    "source": {
+      "enum": ["gmail", "form", "receipt", "official_source", "organiser", "human", "system"]
+    },
+    "source_id": {"type": "string", "minLength": 1},
+    "source_item_id": {"type": "string", "minLength": 1},
+    "source_version": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "kind": {
+      "enum": [
+        "evidence_added",
+        "gate_resolved",
+        "action_completed",
+        "deadline_updated",
+        "receipt_confirmed",
+        "outcome_recorded"
+      ]
+    },
+    "application_id": {"type": ["string", "null"], "minLength": 1},
+    "opportunity_id": {"type": ["string", "null"], "minLength": 1},
+    "authority": {"type": "string", "minLength": 1},
+    "sequence": {"type": ["integer", "null"], "minimum": 0},
+    "payload": {"type": "object"}
+  },
+  "anyOf": [
+    {"required": ["application_id"]},
+    {"required": ["opportunity_id"]}
+  ]
+}
