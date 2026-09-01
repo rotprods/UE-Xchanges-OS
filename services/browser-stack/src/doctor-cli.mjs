@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { defaultCapabilityKeyPath, loadOrCreateCapabilitySecret } from './secrets.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const WORKER_DOCTOR = path.resolve(HERE, '../../browser-worker/src/doctor-cli.mjs');
-const WORKER_PLAYWRIGHT = path.resolve(HERE, '../../browser-worker/node_modules/playwright/package.json');
+const WORKER_PACKAGE = path.resolve(HERE, '../../browser-worker/package.json');
 const RELAY_MCP = path.resolve(HERE, '../../browser-relay/node_modules/@modelcontextprotocol/server/package.json');
+const workerRequire = createRequire(WORKER_PACKAGE);
 
 function parseArgs(argv) {
   const out = { channel: 'chrome', keyPath: defaultCapabilityKeyPath() };
@@ -33,40 +34,65 @@ function dependencyVersion(filePath, code) {
   return value.version;
 }
 
-function doctorChildEnv(env = process.env) {
-  const out = {};
-  for (const key of ['HOME', 'PATH', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'DISPLAY', 'XDG_RUNTIME_DIR', 'DBUS_SESSION_BUS_ADDRESS', 'PLAYWRIGHT_BROWSERS_PATH']) {
-    if (typeof env[key] === 'string' && env[key]) out[key] = env[key];
+async function runWorkerDoctor(channel) {
+  let chromium;
+  let playwrightPackage;
+  try {
+    ({ chromium } = workerRequire('playwright'));
+    playwrightPackage = workerRequire('playwright/package.json');
+  } catch {
+    throw new Error('STACK_WORKER_DEPENDENCIES_MISSING');
   }
-  return out;
-}
 
-function runWorkerDoctor(channel) {
-  const result = spawnSync(process.execPath, [WORKER_DOCTOR, '--channel', channel], {
-    encoding: 'utf8',
-    env: doctorChildEnv(),
-    maxBuffer: 64 * 1024,
-  });
-  if (result.error || result.status !== 0) throw new Error('STACK_WORKER_DOCTOR_FAILED');
-  if (typeof result.stdout !== 'string' || result.stdout.length > 16 * 1024) throw new Error('STACK_WORKER_DOCTOR_OUTPUT_INVALID');
-  let value;
-  try { value = JSON.parse(result.stdout); }
-  catch { throw new Error('STACK_WORKER_DOCTOR_OUTPUT_INVALID'); }
-  const exact = ['status', 'node_major', 'playwright_version', 'browser_channel', 'launch', 'network', 'profile'];
-  if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).sort().join('|') !== exact.sort().join('|')) throw new Error('STACK_WORKER_DOCTOR_OUTPUT_INVALID');
-  if (value.status !== 'ok' || value.launch !== 'ok' || value.network !== 'blocked' || value.profile !== 'ephemeral') throw new Error('STACK_WORKER_DOCTOR_FAILED');
-  return value;
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'uex-stack-doctor-'));
+  const launchOptions = {
+    headless: true,
+    viewport: { width: 800, height: 600 },
+    args: [
+      '--disable-background-networking',
+      '--disable-component-update',
+      '--disable-default-apps',
+      '--disable-sync',
+      '--metrics-recording-only',
+      '--no-first-run',
+    ],
+  };
+  if (channel !== 'chromium') launchOptions.channel = channel;
+
+  let context;
+  try {
+    context = await chromium.launchPersistentContext(tempRoot, launchOptions);
+    await context.route('**/*', (route) => route.abort('blockedbyclient'));
+    const page = context.pages()[0] || (await context.newPage());
+    await page.goto('about:blank');
+    return {
+      status: 'ok',
+      node_major: Number(process.versions.node.split('.')[0]),
+      playwright_version: playwrightPackage.version,
+      browser_channel: channel,
+      launch: 'ok',
+      network: 'blocked',
+      profile: 'ephemeral',
+    };
+  } catch {
+    throw new Error('STACK_WORKER_DOCTOR_FAILED');
+  } finally {
+    if (context) await context.close();
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
 }
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const nodeMajor = Number(process.versions.node.split('.')[0]);
   if (!Number.isInteger(nodeMajor) || nodeMajor < 20) throw new Error('STACK_NODE_VERSION_UNSUPPORTED');
-  const workerDependencyVersion = dependencyVersion(WORKER_PLAYWRIGHT, 'STACK_WORKER_DEPENDENCIES_MISSING');
+  let workerDependencyVersion;
+  try { workerDependencyVersion = workerRequire('playwright/package.json').version; }
+  catch { throw new Error('STACK_WORKER_DEPENDENCIES_MISSING'); }
   const relayDependencyVersion = dependencyVersion(RELAY_MCP, 'STACK_RELAY_DEPENDENCIES_MISSING');
   const key = loadOrCreateCapabilitySecret({ filePath: args.keyPath });
   const stat = fs.statSync(key.secretPath);
-  const doctor = runWorkerDoctor(args.channel);
+  const doctor = await runWorkerDoctor(args.channel);
   process.stdout.write(`${JSON.stringify({
     status: 'ok',
     node_major: nodeMajor,
@@ -89,4 +115,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   });
 }
 
-export { parseArgs, dependencyVersion, doctorChildEnv, runWorkerDoctor };
+export { parseArgs, dependencyVersion, runWorkerDoctor };
