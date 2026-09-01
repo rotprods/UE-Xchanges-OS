@@ -7,6 +7,18 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WORKER_ENTRY = path.resolve(HERE, '../../browser-worker/src/server-cli.mjs');
 const RELAY_ENTRY = path.resolve(HERE, '../../browser-relay/src/server.mjs');
 const READY_RE = /^UEX_BROWSER_WORKER_READY (http:\/\/127\.0\.0\.1:\d+)$/;
+const SYSTEM_ENV_ALLOWLIST = [
+  'HOME', 'PATH', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'DISPLAY',
+  'XDG_RUNTIME_DIR', 'DBUS_SESSION_BUS_ADDRESS', 'PLAYWRIGHT_BROWSERS_PATH',
+];
+
+function minimalSystemEnv(env) {
+  const out = {};
+  for (const key of SYSTEM_ENV_ALLOWLIST) {
+    if (typeof env[key] === 'string' && env[key]) out[key] = env[key];
+  }
+  return out;
+}
 
 function envBool(value, defaultValue = false) {
   if (value === undefined) return defaultValue;
@@ -71,6 +83,8 @@ async function terminateChild(child, graceMs = 5_000) {
 }
 
 export async function startBrowserStack({ env = process.env, stdio = process, spawnImpl = spawn } = {}) {
+  if (!env || typeof env !== 'object') throw new Error('STACK_ENV_INVALID');
+  const systemEnv = minimalSystemEnv(env);
   const workerToken = generateEphemeralWorkerToken();
   const secretState = loadOrCreateCapabilitySecret({ filePath: env.UEX_BROWSER_STACK_CAPABILITY_KEY_PATH });
   const capabilitySecret = secretState.secret.toString('utf8');
@@ -79,40 +93,28 @@ export async function startBrowserStack({ env = process.env, stdio = process, sp
   const allowLocalPrefill = envBool(env.UEX_BROWSER_STACK_ALLOW_LOCAL_PREFILL, false);
 
   const workerEnv = {
-    ...env,
+    ...systemEnv,
     UEX_BROWSER_WORKER_TOKEN: workerToken,
     UEX_BROWSER_WORKER_PORT: '0',
     UEX_BROWSER_CHANNEL: channel,
     UEX_BROWSER_HEADLESS: headless ? '1' : '0',
     UEX_BROWSER_WORKER_ALLOW_LOCAL_PREFILL: allowLocalPrefill ? '1' : '0',
   };
-  delete workerEnv.UEX_BROWSER_RELAY_CAPABILITY_SECRET;
 
-  const worker = spawnImpl(process.execPath, [WORKER_ENTRY], {
-    env: workerEnv,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  const worker = spawnImpl(process.execPath, [WORKER_ENTRY], { env: workerEnv, stdio: ['ignore', 'pipe', 'pipe'] });
   worker.stderr?.on('data', (chunk) => safeChildStderr('UEX_STACK_WORKER:', chunk));
 
   let workerUrl;
-  try {
-    workerUrl = await waitForWorkerReady(worker);
-  } catch (error) {
-    await terminateChild(worker);
-    throw error;
-  }
+  try { workerUrl = await waitForWorkerReady(worker); }
+  catch (error) { await terminateChild(worker); throw error; }
 
   const relayEnv = {
-    ...env,
+    ...systemEnv,
     UEX_BROWSER_WORKER_URL: workerUrl,
     UEX_BROWSER_WORKER_TOKEN: workerToken,
     UEX_BROWSER_RELAY_CAPABILITY_SECRET: capabilitySecret,
   };
-
-  const relay = spawnImpl(process.execPath, [RELAY_ENTRY], {
-    env: relayEnv,
-    stdio: [stdio.stdin, stdio.stdout, stdio.stderr],
-  });
+  const relay = spawnImpl(process.execPath, [RELAY_ENTRY], { env: relayEnv, stdio: [stdio.stdin, stdio.stdout, stdio.stderr] });
 
   let closed = false;
   async function close() {
@@ -128,6 +130,7 @@ export async function startBrowserStack({ env = process.env, stdio = process, sp
     safeState: {
       worker_url: workerUrl,
       worker_token_persisted: false,
+      inherited_env_keys: Object.keys(systemEnv).sort(),
       capability_secret_ref: secretState.secretRef,
       capability_secret_path: secretState.secretPath,
       channel,
@@ -139,4 +142,4 @@ export async function startBrowserStack({ env = process.env, stdio = process, sp
   };
 }
 
-export { waitForWorkerReady, terminateChild, envBool };
+export { waitForWorkerReady, terminateChild, envBool, minimalSystemEnv };
