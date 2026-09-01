@@ -21,12 +21,24 @@ from .models import (
     SubmitAuthority,
 )
 from .policy import AnswerAuthor, AnswerCandidate, PolicyIssue, validate_candidate
+from .receipts import (
+    DuplicateDecision,
+    DuplicateDisposition,
+    answer_pack_hash,
+    build_submission_attempt,
+    evaluate_duplicate_guard,
+    execution_plan_hash,
+    reconcile_receipt,
+    submission_key,
+)
 
 __all__ = [
     "AnswerAuthor",
     "AnswerCandidate",
     "AuthRequirement",
     "CompilationResult",
+    "DuplicateDecision",
+    "DuplicateDisposition",
     "FieldOwnership",
     "FieldSensitivity",
     "FormExecutionPlan",
@@ -38,8 +50,14 @@ __all__ = [
     "SubmissionAttemptStatus",
     "SubmissionReceipt",
     "SubmitAuthority",
+    "answer_pack_hash",
+    "build_submission_attempt",
     "canonicalize_form_url",
     "compile_execution_plan",
+    "evaluate_duplicate_guard",
+    "execution_plan_hash",
     "form_schema_fingerprint",
+    "reconcile_receipt",
+    "submission_key",
     "validate_candidate",
 ]
