@@ -219,15 +219,19 @@ export async function prefillLocalForm({
     const page = context.pages()[0] || (await context.newPage());
     await page.route('**/*', async (route) => {
       const request = route.request();
-      const isTopLevelNavigation = request.isNavigationRequest() && request.frame() === page.mainFrame();
       let decision;
       try {
-        decision = networkDecision({
-          method: request.method(),
-          url: request.url(),
-          isTopLevelNavigation,
-          allowedOrigins: [validated.origin],
-        });
+        if (normalizeOrigin(request.url()) !== validated.origin) {
+          decision = { action: 'abort', reason: 'cross_origin_request_blocked' };
+        } else {
+          const isTopLevelNavigation = request.isNavigationRequest() && request.frame() === page.mainFrame();
+          decision = networkDecision({
+            method: request.method(),
+            url: request.url(),
+            isTopLevelNavigation,
+            allowedOrigins: [validated.origin],
+          });
+        }
       } catch {
         decision = { action: 'abort', reason: 'invalid_request_url' };
       }
@@ -265,6 +269,7 @@ export async function prefillLocalForm({
       protected_field_keys: validated.protectedFields,
       safety: {
         external_origins_allowed: false,
+        same_origin_requests_only: true,
         submit_blocked: true,
         mutating_http_methods_blocked: true,
         cookies_read: false,
