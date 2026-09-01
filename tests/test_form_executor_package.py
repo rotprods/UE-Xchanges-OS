@@ -26,19 +26,31 @@ class FormExecutorPackageTests(unittest.TestCase):
         self.assertEqual(package["dependencies"], {"playwright": "1.62.1"})
         self.assertNotIn("@playwright/mcp", package.get("dependencies", {}))
         self.assertNotIn("submit", package["scripts"])
+        self.assertEqual(package["scripts"]["human-login"], "node src/login-cli.mjs")
 
     def test_node_guard_and_arg_tests_pass(self):
         node = shutil.which("node")
         result = subprocess.run(
-            [node, "--test", str(TOOL / "test" / "guard.test.mjs"), str(TOOL / "test" / "args.test.mjs")],
+            [
+                node,
+                "--test",
+                str(TOOL / "test" / "guard.test.mjs"),
+                str(TOOL / "test" / "args.test.mjs"),
+                str(TOOL / "test" / "login.test.mjs"),
+            ],
             capture_output=True,
             text=True,
         )
         self.assertEqual(result.returncode, 0, msg=f"Node tests failed:\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}")
 
-    def test_inspector_and_cli_parse_without_installing_playwright(self):
+    def test_browser_entrypoints_parse_without_installing_playwright(self):
         node = shutil.which("node")
-        for path in (TOOL / "src" / "inspect.mjs", TOOL / "src" / "cli.mjs"):
+        for path in (
+            TOOL / "src" / "inspect.mjs",
+            TOOL / "src" / "cli.mjs",
+            TOOL / "src" / "login.mjs",
+            TOOL / "src" / "login-cli.mjs",
+        ):
             result = subprocess.run([node, "--check", str(path)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, msg=f"node --check failed for {path}:\n{result.stderr}")
 
@@ -67,20 +79,52 @@ class FormExecutorPackageTests(unittest.TestCase):
         self.assertIn("safeUrl", source)
         self.assertIn("UEX_INSPECT_ONLY_SUBMIT_BLOCKED", source)
 
-    def test_cli_never_emits_raw_playwright_error_content(self):
-        source = (TOOL / "src" / "cli.mjs").read_text()
-        forbidden = (
-            "error?.stack",
-            "error.stack",
-            "error?.message",
-            "error.message",
-            "String(error)",
-            "JSON.stringify(error",
-        )
-        for fragment in forbidden:
-            self.assertNotIn(fragment, source)
-        self.assertIn("UEX_FORM_INSPECT_ERROR", source)
-        self.assertIn("error?.name", source)
+    def test_human_login_source_has_no_dom_read_or_programmatic_interaction_api(self):
+        source = (TOOL / "src" / "login.mjs").read_text()
+        forbidden_patterns = {
+            r"\.evaluate\s*\(": "DOM evaluate",
+            r"\.locator\s*\(": "locator inspection",
+            r"\.fill\s*\(": "fill",
+            r"\.click\s*\(": "click",
+            r"\.check\s*\(": "check",
+            r"\.uncheck\s*\(": "uncheck",
+            r"\.selectOption\s*\(": "selectOption",
+            r"\.setInputFiles\s*\(": "file upload",
+            r"keyboard\.": "keyboard automation",
+            r"\.cookies\s*\(": "cookie extraction",
+            r"storageState\s*\(": "storage state export",
+            r"inputValue\s*\(": "input value read",
+            r"textContent\s*\(": "text content read",
+            r"innerText\s*\(": "inner text read",
+            r"getAttribute\s*\(": "attribute read",
+            r"localStorage": "local storage access",
+            r"sessionStorage": "session storage access",
+        }
+        for pattern, name in forbidden_patterns.items():
+            self.assertIsNone(re.search(pattern, source), f"human-login source contains forbidden {name} API")
+        self.assertIn("process.stdin.isTTY", source)
+        self.assertIn("confirmation !== 'DONE'", source)
+        self.assertIn("headless: false", source)
+        self.assertIn("launchPersistentContext", source)
+
+    def test_browser_clis_never_emit_raw_playwright_error_content(self):
+        for filename, marker in (
+            ("cli.mjs", "UEX_FORM_INSPECT_ERROR"),
+            ("login-cli.mjs", "UEX_HUMAN_LOGIN_ERROR"),
+        ):
+            source = (TOOL / "src" / filename).read_text()
+            forbidden = (
+                "error?.stack",
+                "error.stack",
+                "error?.message",
+                "error.message",
+                "String(error)",
+                "JSON.stringify(error",
+            )
+            for fragment in forbidden:
+                self.assertNotIn(fragment, source)
+            self.assertIn(marker, source)
+            self.assertIn("error?.name", source)
 
 
 if __name__ == "__main__":
