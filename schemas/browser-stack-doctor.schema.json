@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UEX Browser Stack Doctor v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "node_major",
+    "worker_playwright_version",
+    "relay_mcp_version",
+    "browser",
+    "capability_secret_ref",
+    "capability_key_mode",
+    "worker_token_persistence",
+    "submit_capability"
+  ],
+  "properties": {
+    "status": { "const": "ok" },
+    "node_major": { "type": "integer", "minimum": 20 },
+    "worker_playwright_version": { "type": "string", "minLength": 1 },
+    "relay_mcp_version": { "type": "string", "minLength": 1 },
+    "browser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "node_major", "playwright_version", "browser_channel", "launch", "network", "profile"],
+      "properties": {
+        "status": { "const": "ok" },
+        "node_major": { "type": "integer", "minimum": 20 },
+        "playwright_version": { "type": "string", "minLength": 1 },
+        "browser_channel": { "enum": ["chrome", "chromium", "msedge"] },
+        "launch": { "const": "ok" },
+        "network": { "const": "blocked" },
+        "profile": { "const": "ephemeral" }
+      }
+    },
+    "capability_secret_ref": { "type": "string", "pattern": "^secret:[0-9a-f]{64}$" },
+    "capability_key_mode": { "const": "600" },
+    "worker_token_persistence": { "const": "memory_only" },
+    "submit_capability": { "const": false }
+  }
+}

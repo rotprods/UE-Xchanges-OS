@@ -1,0 +1,19 @@
+{
+  "name": "@rotprods/uex-browser-stack",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "One-command local supervisor for UE-Xchanges Browser Worker + MCP Relay",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "capability": "node src/capability-cli.mjs",
+    "doctor": "node src/doctor-cli.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0"
+  }
+}
