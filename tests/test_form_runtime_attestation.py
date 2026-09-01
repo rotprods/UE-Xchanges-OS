@@ -53,6 +53,24 @@ def runtime_token(**overrides) -> str:
     return issue_runtime_attestation(**args)
 
 
+def inspect_args(rt: str) -> dict:
+    return dict(
+        runtime_token=rt,
+        runtime_secret=RUNTIME_SECRET,
+        evidence_secret=INSPECT_SECRET,
+        provider_id="example_provider",
+        canonical_form_url="https://forms.example.org/apply",
+        form_fingerprint=FORM_FP,
+        validation_signature=VALIDATION,
+        authenticated=False,
+        human_login_ref=None,
+        inspected_at=NOW,
+        now=NOW,
+        ttl_seconds=600,
+        nonce="inspect-default-nonce",
+    )
+
+
 class RuntimeAttestationTests(unittest.TestCase):
     def test_valid_runtime_attestation_is_derived_from_safe_doctor_evidence(self):
         evidence = doctor()
@@ -72,6 +90,7 @@ class RuntimeAttestationTests(unittest.TestCase):
         for overrides, pattern in [
             ({"status": "fail"}, "status must be ok"),
             ({"node_major": 19}, "Node major"),
+            ({"node_major": True}, "Node major"),
             ({"browser_channel": "firefox"}, "browser_channel"),
             ({"launch": "failed"}, "launch must be ok"),
             ({"network": "open"}, "network must be blocked"),
@@ -98,6 +117,8 @@ class RuntimeAttestationTests(unittest.TestCase):
             runtime_token(doctor_passed_at=NOW + timedelta(seconds=1))
         with self.assertRaisesRegex(ValueError, "at least 32"):
             runtime_token(secret=b"short")
+        with self.assertRaisesRegex(ValueError, "RuntimeDoctorEvidence"):
+            runtime_token(doctor_evidence={"status": "ok"})
 
     def test_authenticated_inspect_is_bound_to_valid_runtime_and_has_no_values(self):
         rt = runtime_token()
@@ -124,6 +145,19 @@ class RuntimeAttestationTests(unittest.TestCase):
         self.assertFalse(result.claims.cookies_read)
         self.assertFalse(result.claims.storage_state_exported)
         self.assertEqual(result.claims.canonical_form_url, "https://forms.example.org/apply")
+
+    def test_authenticated_inspect_rejects_ambiguous_types_and_url_credentials(self):
+        rt = runtime_token()
+        args = inspect_args(rt)
+        args["authenticated"] = "false"
+        args["human_login_ref"] = "human-login:wrong-type"
+        with self.assertRaisesRegex(ValueError, "authenticated must be boolean"):
+            issue_authenticated_inspect_evidence(**args)
+
+        args = inspect_args(rt)
+        args["canonical_form_url"] = "https://user:secret@forms.example.org/apply"
+        with self.assertRaisesRegex(ValueError, "embedded credentials"):
+            issue_authenticated_inspect_evidence(**args)
 
     def test_authenticated_inspect_requires_human_login_ref_and_live_runtime(self):
         rt = runtime_token(ttl_seconds=5)
