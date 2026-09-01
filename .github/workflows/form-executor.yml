@@ -5,6 +5,7 @@ on:
     paths:
       - 'tools/form-executor/**'
       - 'tests/test_form_executor_package.py'
+      - 'tests/test_form_fingerprint_parity.py'
       - 'docs/FORM_BROWSER_EXECUTOR.md'
       - '.github/workflows/form-executor.yml'
   push:
@@ -12,6 +13,7 @@ on:
     paths:
       - 'tools/form-executor/**'
       - 'tests/test_form_executor_package.py'
+      - 'tests/test_form_fingerprint_parity.py'
       - 'docs/FORM_BROWSER_EXECUTOR.md'
       - '.github/workflows/form-executor.yml'
 
@@ -48,3 +50,6 @@ jobs:
 
       - name: Live local-form inspect smoke
         run: npm run browser-smoke
+
+      - name: Live localhost-only prefill smoke
+        run: npm run prefill-smoke
