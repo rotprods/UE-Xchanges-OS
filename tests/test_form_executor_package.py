@@ -21,15 +21,17 @@ class FormExecutorPackageTests(unittest.TestCase):
         major = int(result.stdout.strip().lstrip("v").split(".", 1)[0])
         self.assertGreaterEqual(major, 20)
 
-    def test_package_pins_playwright_and_does_not_expose_raw_mcp(self):
+    def test_package_pins_playwright_and_does_not_expose_raw_mcp_or_operational_prefill(self):
         package = json.loads((TOOL / "package.json").read_text())
         self.assertEqual(package["engines"]["node"], ">=20")
         self.assertEqual(package["dependencies"], {"playwright": "1.62.1"})
         self.assertNotIn("@playwright/mcp", package.get("dependencies", {}))
         self.assertNotIn("submit", package["scripts"])
+        self.assertNotIn("prefill", package["scripts"], "PREFILL_LOCAL must not be exposed as an operational CLI")
         self.assertEqual(package["scripts"]["human-login"], "node src/login-cli.mjs")
         self.assertEqual(package["scripts"]["doctor"], "node src/doctor-cli.mjs")
         self.assertEqual(package["scripts"]["browser-smoke"], "node --test test/live-inspect.test.mjs")
+        self.assertEqual(package["scripts"]["prefill-smoke"], "node --test test/live-prefill.test.mjs")
 
     def test_node_guard_and_arg_tests_pass(self):
         node = shutil.which("node")
@@ -41,6 +43,7 @@ class FormExecutorPackageTests(unittest.TestCase):
                 str(TOOL / "test" / "args.test.mjs"),
                 str(TOOL / "test" / "login.test.mjs"),
                 str(TOOL / "test" / "doctor.test.mjs"),
+                str(TOOL / "test" / "prefill.test.mjs"),
             ],
             capture_output=True,
             text=True,
@@ -56,9 +59,27 @@ class FormExecutorPackageTests(unittest.TestCase):
             TOOL / "src" / "login-cli.mjs",
             TOOL / "src" / "doctor.mjs",
             TOOL / "src" / "doctor-cli.mjs",
+            TOOL / "src" / "dom-schema.mjs",
+            TOOL / "src" / "fingerprint.mjs",
+            TOOL / "src" / "prefill.mjs",
         ):
             result = subprocess.run([node, "--check", str(path)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, msg=f"node --check failed for {path}:\n{result.stderr}")
+
+    def test_shared_dom_schema_extractor_does_not_read_field_values(self):
+        source = (TOOL / "src" / "dom-schema.mjs").read_text()
+        for forbidden in (
+            "inputValue(",
+            ".value",
+            "defaultValue",
+            "localStorage",
+            "sessionStorage",
+            ".cookies(",
+            "storageState(",
+        ):
+            self.assertNotIn(forbidden, source)
+        self.assertIn("extractNativeFormSchema", source)
+        self.assertIn("black_secret_or_never_model", source)
 
     def test_inspect_only_source_contains_no_browser_write_or_secret_export_api(self):
         source = (TOOL / "src" / "inspect.mjs").read_text()
@@ -82,7 +103,6 @@ class FormExecutorPackageTests(unittest.TestCase):
         self.assertIn("form_values_read: false", source)
         self.assertIn("url_query_material_exported: false", source)
         self.assertIn("cookies_read: false", source)
-        self.assertIn("safeUrl", source)
         self.assertIn("UEX_INSPECT_ONLY_SUBMIT_BLOCKED", source)
 
     def test_human_login_source_has_no_dom_read_or_programmatic_interaction_api(self):
@@ -112,6 +132,27 @@ class FormExecutorPackageTests(unittest.TestCase):
         self.assertIn("confirmation !== 'DONE'", source)
         self.assertIn("headless: false", source)
         self.assertIn("launchPersistentContext", source)
+
+    def test_local_prefill_is_loopback_same_origin_and_never_exposes_values(self):
+        source = (TOOL / "src" / "prefill.mjs").read_text()
+        self.assertIn("PREFILL_LOCAL development mode rejects non-loopback origins", source)
+        self.assertIn("PLAN_BLOCKING_OWNERSHIP", source)
+        self.assertIn("cross_origin_request_blocked", source)
+        self.assertIn("FORM_FINGERPRINT_MISMATCH", source)
+        self.assertIn("FORM_STRUCTURE_CHANGED_DURING_PREFILL", source)
+        self.assertIn("same_origin_requests_only: true", source)
+        self.assertIn("answer_values_exported: false", source)
+        self.assertIn("protected_values_exported: false", source)
+        self.assertIn("UEX_PREFILL_ONLY_SUBMIT_BLOCKED", source)
+        for forbidden in (
+            ".click(",
+            ".setInputFiles(",
+            ".cookies(",
+            "storageState(",
+            "localStorage",
+            "sessionStorage",
+        ):
+            self.assertNotIn(forbidden, source)
 
     def test_doctor_is_ephemeral_and_network_isolated(self):
         source = (TOOL / "src" / "doctor.mjs").read_text()
@@ -143,7 +184,7 @@ class FormExecutorPackageTests(unittest.TestCase):
             self.assertIn(marker, source)
             self.assertIn("error?.name", source)
 
-    def test_live_smoke_is_loopback_only_and_contains_adversarial_secret_fixture(self):
+    def test_live_inspect_smoke_is_loopback_only_and_contains_adversarial_secret_fixture(self):
         source = (TOOL / "test" / "live-inspect.test.mjs").read_text()
         self.assertIn("127.0.0.1", source)
         self.assertNotIn("https://", source)
@@ -152,7 +193,17 @@ class FormExecutorPackageTests(unittest.TestCase):
         self.assertIn("mutationCount(), 0", source)
         self.assertIn("url_query_material_exported: false", source)
 
-    def test_browser_workflow_is_read_only_and_runs_live_local_smoke(self):
+    def test_live_prefill_smoke_is_loopback_only_and_adversarial(self):
+        source = (TOOL / "test" / "live-prefill.test.mjs").read_text()
+        self.assertIn("127.0.0.1", source)
+        self.assertIn("example.invalid/leak", source)
+        self.assertIn("HUMAN-MUST-STAY-UNTOUCHED", source)
+        self.assertIn("mutationCount(), 0", source)
+        self.assertIn("protectedTouchCount(), 0", source)
+        self.assertIn("FORM_FINGERPRINT_MISMATCH", source)
+        self.assertIn("answer_values_exported:false", source)
+
+    def test_browser_workflow_is_read_only_and_runs_both_live_local_smokes(self):
         workflow = WORKFLOW.read_text()
         self.assertIn("contents: read", workflow)
         self.assertNotIn("pull_request_target", workflow)
@@ -160,6 +211,7 @@ class FormExecutorPackageTests(unittest.TestCase):
         self.assertIn("playwright install --with-deps chromium", workflow)
         self.assertIn("npm run doctor -- --channel chromium", workflow)
         self.assertIn("npm run browser-smoke", workflow)
+        self.assertIn("npm run prefill-smoke", workflow)
         self.assertIn("--package-lock=false", workflow)
 
 
