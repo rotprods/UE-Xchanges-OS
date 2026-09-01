@@ -1,0 +1,73 @@
+name: browser-relay
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/browser-relay/**'
+      - 'services/browser-worker/**'
+      - 'schemas/browser-relay*.json'
+      - 'docs/FORM_BROWSER_RELAY_MCP.md'
+      - '.github/workflows/browser-relay.yml'
+      - 'tools/form-executor/src/**'
+  pull_request:
+    paths:
+      - 'services/browser-relay/**'
+      - 'services/browser-worker/**'
+      - 'schemas/browser-relay*.json'
+      - 'docs/FORM_BROWSER_RELAY_MCP.md'
+      - '.github/workflows/browser-relay.yml'
+      - 'tools/form-executor/src/**'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-relay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install pinned relay dependencies
+        working-directory: services/browser-relay
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+
+      - name: Install pinned worker dependencies
+        working-directory: services/browser-worker
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+
+      - name: Install Playwright Chromium runtime
+        working-directory: services/browser-worker
+        run: npx playwright install --with-deps chromium
+
+      - name: MCP relay unit + end-to-end Chromium gauntlet
+        working-directory: services/browser-relay
+        run: npm test
+
+      - name: Assert MCP source has no stdout logging
+        run: |
+          if grep -R --line-number --fixed-strings 'console.log' services/browser-relay/src; then
+            echo 'console.log would corrupt MCP stdio' >&2
+            exit 1
+          fi
+
+      - name: Assert relay exposes no HTTP MCP transport or forbidden tool names
+        run: |
+          if grep -R --line-number -E 'StreamableHTTP|SSEServer|browser_submit|browser_cookie|browser_storage|browser_shell|browser_eval|browser_upload|browser_payment' services/browser-relay/src; then
+            echo 'Forbidden relay transport/tool surface found' >&2
+            exit 1
+          fi
+
+      - name: Assert worker URL cannot be public by configuration example
+        run: |
+          if grep -R --line-number --fixed-strings '0.0.0.0' services/browser-relay/src; then
+            echo 'Public worker bind/reference found in relay source' >&2
+            exit 1
+          fi
