@@ -2,45 +2,49 @@
 
 Active product wave: `W9_CONTROLLED_SUBMISSION_BASELINE`.
 
-Execution-first plan: `plans/W9_EXECUTION_REPLAN_2026-08-30.md`.
+Current execution engine: **RuntimeGraph v1**.
+
+Runtime contract: `docs/RUNTIMEGRAPH_V1.md`.
+
+Form bridge: `docs/RUNTIMEGRAPH_FORM_GATEWAY.md`.
+
+Recovery: `RUNBOOKS/RUNTIMEGRAPH_RECOVERY.md`.
+
+Current material checkpoint: `checkpoints/2026-09-01-runtimegraph-v1-live.md`.
 
 Stop contract: `configs/w9_stop_contract_2026-08-29.json`.
 
-Current material checkpoint: `checkpoints/2026-08-31-cp7-live-recovery-email-reconciliation.md`.
-
-Latest prior opportunity checkpoint: `checkpoints/2026-08-30-strive-greece-october-final-call.md`.
-
-Machine state: `goal-state.json`.
-
 Private live authority: Google Drive CRM `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`.
+
+Private RuntimeGraph read model: Drive `16QcHOWoBD1ixstPkhivftuyqmQdhtZj6`.
+
+Machine snapshot: Drive `1iVyNAZWmURTdK8wZyYjYxyYDh9Djik3P`.
 
 Canonical context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`.
 
-Todoist control node: `6hPPRQrhG6cmhh3V`.
+Todoist W9 control: `6hPPRQrhG6cmhh3V`.
 
-Fresh recovery session: `SES-UEX-CHATGPT-20260831T191400-08`.
+Status: `RUNTIMEGRAPH_V1_LIVE_DERIVED_PROJECTION__W9_EXECUTION_ACTIVE`.
 
-Correlation: `CORR-20260831-CP7-EMAIL-WAVE`.
+## Execution frontier
 
-Status: `CP7_LIVE_RECOVERY_AND_EMAIL_INGESTION_WITH_W9_DEADLINE_CRITICAL_EXECUTION`.
+`Agent_Frontier → evidence/gate update in Drive → RuntimeGraph recompute → Human_Frontier → human action → receipt verification → application/outcome transition`.
 
-## Authority correction
+At materialisation:
 
-The previous V2 graph-refactor session expired without terminal handoff and its described V2 release is not present on current GitHub main. It has been reconciled as stale. Previous sandbox/local V2 outputs are candidate evidence only until deliberately recompiled from current main under a fresh architecture lease.
+- 164 applications;
+- 177 atomic actions;
+- 656 gates;
+- 1,211 edges;
+- Human READY 1;
+- Agent READY 145;
+- System READY 10;
+- Waiting 8.
 
-## Human-now frontier
+The application Human Frontier begins with COMPASS. Old Todoist labels/task titles do not override RuntimeGraph readiness; domain evidence must first update Drive and trigger recompilation.
 
-1. EYP/ESC account and Behind `53846` current route.
-2. Building final assets, send and receipt.
-3. Behind final assets, current authorised route and receipt.
-4. SABER host-authorised late form and receipt.
-5. Five captured Sapounofouska workshop forms plus VR/AR route capture.
-6. CIVIS payment terms review before any human-owned transfer.
+## Writer rule
 
-## Parallel non-human work
+`REGISTER SESSION → READ EVENT CURSOR → ACQUIRE NARROW/EXACT ACTION LEASE → EXECUTE → VERIFY → EMIT IDEMPOTENT EVENT → PERSIST DOMAIN EVIDENCE → RECOMPUTE FRONTIERS → RELEASE → HANDOFF`.
 
-`ORGANISER_REPLY_INGESTION + T0/T1_VERIFICATION + TELEGRAM_60 + PAID_TRAINER_SCAN + GLOBAL_SOURCE_SWEEPS`.
-
-Canonical writer rule:
-
-`REGISTER SESSION → REFRESH EVENT CURSOR → ACQUIRE NARROW LEASE → MUTATE → EMIT IDEMPOTENT EVENT → RECONCILE → RELEASE → HANDOFF`.
+No new architectural subsystem is authorised unless live execution exposes a repeatable failure that needs a deterministic invariant/test.
