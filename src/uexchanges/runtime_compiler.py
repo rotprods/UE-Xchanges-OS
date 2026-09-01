@@ -17,7 +17,11 @@ class AtomicStep:
     instruction: str
 
 
-def compile_mass_apply_row_atomic(row: Mapping[str, Any]) -> RuntimeGraph:
+def compile_mass_apply_row_atomic(
+    row: Mapping[str, Any], *, now: datetime | None = None
+) -> RuntimeGraph:
+    now = now or datetime.now(timezone.utc)
+    _aware(now, "now")
     application_id = _required(row, "Application ID")
     opportunity_id = _required(row, "Opportunity ID")
     deadline = _parse_deadline(row.get("Deadline"))
@@ -25,13 +29,15 @@ def compile_mass_apply_row_atomic(row: Mapping[str, Any]) -> RuntimeGraph:
     next_action = str(row.get("Next Action") or "VERIFY_CURRENT_STATE")
 
     graph = RuntimeGraph()
+    deadline_result, deadline_reason = _deadline_gate(row, deadline=deadline, now=now)
     gate_specs = (
-        ("spain", "Spain Gate", row.get("Spain Gate"), "spain"),
-        ("role", "Role Gate", row.get("Role Gate"), "role"),
-        ("form_ai", "Infopack/Form/AI", row.get("Infopack/Form/AI"), "form"),
+        ("spain", "Spain Gate", parse_live_gate_result(str(row.get("Spain Gate") or ""), kind="spain"), str(row.get("Spain Gate") or "")),
+        ("role", "Role Gate", parse_live_gate_result(str(row.get("Role Gate") or ""), kind="role"), str(row.get("Role Gate") or "")),
+        ("form_ai", "Infopack/Form/AI", parse_live_gate_result(str(row.get("Infopack/Form/AI") or ""), kind="form"), str(row.get("Infopack/Form/AI") or "")),
+        ("deadline", "Deadline Gate", deadline_result, deadline_reason),
     )
     gate_ids: list[str] = []
-    for suffix, name, raw, kind in gate_specs:
+    for suffix, name, result, reason in gate_specs:
         gate_id = f"gate:{application_id}:{suffix}"
         gate_ids.append(gate_id)
         graph.add_gate(
@@ -39,13 +45,17 @@ def compile_mass_apply_row_atomic(row: Mapping[str, Any]) -> RuntimeGraph:
                 gate_id=gate_id,
                 application_id=application_id,
                 name=name,
-                result=parse_live_gate_result(str(raw or ""), kind=kind),
-                reason=str(raw or ""),
+                result=result,
+                reason=reason,
             )
         )
 
     if _terminal_submit_state(submit_state):
         steps = [AtomicStep("TERMINAL_ARCHIVE", ExecutorType.SYSTEM, "Preserve terminal evidence; do not submit.")]
+    elif deadline_result is GateResult.FAIL:
+        steps = [_agent("VERIFY_DEADLINE_EXTENSION_OR_ARCHIVE")]
+    elif deadline_result is GateResult.UNKNOWN and _is_irreversible(next_action):
+        steps = [_agent("VERIFY_EXACT_DEADLINE_OR_LATE_ROUTE"), *decompose_next_action(next_action)]
     else:
         steps = decompose_next_action(next_action)
 
@@ -76,6 +86,7 @@ def compile_mass_apply_row_atomic(row: Mapping[str, Any]) -> RuntimeGraph:
                     step.action_type,
                     submit_state,
                     str(deadline or ""),
+                    deadline_result.value,
                 ),
                 metadata={
                     "queue_id": str(row.get("Queue ID") or ""),
@@ -86,6 +97,7 @@ def compile_mass_apply_row_atomic(row: Mapping[str, Any]) -> RuntimeGraph:
                     "bucket": str(row.get("Bucket") or ""),
                     "submit_state": submit_state,
                     "source_next_action": next_action,
+                    "deadline_gate": deadline_result.value,
                     "ordinal": index,
                     "step_count": len(steps),
                 },
@@ -93,14 +105,18 @@ def compile_mass_apply_row_atomic(row: Mapping[str, Any]) -> RuntimeGraph:
         )
         previous_id = action_id
 
-    graph.recompute(datetime.now(timezone.utc))
+    graph.recompute(now)
     return graph
 
 
-def compile_mass_apply_rows_atomic(rows: Iterable[Mapping[str, Any]]) -> RuntimeGraph:
+def compile_mass_apply_rows_atomic(
+    rows: Iterable[Mapping[str, Any]], *, now: datetime | None = None
+) -> RuntimeGraph:
+    now = now or datetime.now(timezone.utc)
+    _aware(now, "now")
     merged = RuntimeGraph()
     for row in rows:
-        subgraph = compile_mass_apply_row_atomic(row)
+        subgraph = compile_mass_apply_row_atomic(row, now=now)
         for gate in subgraph.gates.values():
             if gate.gate_id in merged.gates and merged.gates[gate.gate_id] != gate:
                 raise ValueError(f"conflicting gate: {gate.gate_id}")
@@ -109,6 +125,7 @@ def compile_mass_apply_rows_atomic(rows: Iterable[Mapping[str, Any]]) -> Runtime
             if action.action_id in merged.actions:
                 raise ValueError(f"duplicate action: {action.action_id}")
             merged.actions[action.action_id] = action
+    merged.recompute(now)
     return merged
 
 
@@ -175,7 +192,6 @@ def decompose_next_action(raw: str) -> list[AtomicStep]:
             _human("COMPLETE_HUMAN_FINAL_SUBMIT_STORE_RECEIPT"),
         ]
 
-    # Semicolons and explicit THEN markers are reliable orchestration boundaries.
     fragments: list[str] = []
     for clause in raw.replace(";", "_THEN_").split("_THEN_"):
         clause = clause.strip(" _")
@@ -262,6 +278,39 @@ def parse_live_gate_result(value: str | None, *, kind: str) -> GateResult:
     return GateResult.UNKNOWN
 
 
+def _deadline_gate(
+    row: Mapping[str, Any], *, deadline: datetime | None, now: datetime
+) -> tuple[GateResult, str]:
+    evidence = _normalise(
+        " | ".join(
+            str(row.get(key) or "")
+            for key in (
+                "Bucket",
+                "Role Gate",
+                "Infopack/Form/AI",
+                "Submit State",
+                "Next Action",
+            )
+        )
+    )
+    override_tokens = (
+        "HOST_AUTHORISED_LATE_APPLICATION",
+        "LATE_ROUTE_AUTHORISED",
+        "T0_SELECTED_HUMAN_CONFIRMATION",
+        "SELECTED_NOT_CONFIRMED",
+        "OPEN_PLACES_CONFIRMED",
+        "DIRECT_ORG_OPEN_PLACES",
+        "WAITING_HUMAN_PAYMENT_GATE",
+    )
+    if any(token in evidence for token in override_tokens):
+        return GateResult.PASS, "Authoritative late/open/selected/payment-route evidence overrides the ordinary deadline gate."
+    if deadline is None:
+        return GateResult.UNKNOWN, f"Exact actionable deadline unresolved from source value: {row.get('Deadline')!s}"
+    if deadline < now:
+        return GateResult.FAIL, f"Deadline {deadline.isoformat()} is before runtime now {now.isoformat()}; verify extension/late route before human work."
+    return GateResult.PASS, f"Deadline {deadline.isoformat()} is still open at runtime now {now.isoformat()}."
+
+
 def _step(raw: str) -> AtomicStep:
     token = _normalise(raw)
     if _is_human(token):
@@ -272,7 +321,6 @@ def _step(raw: str) -> AtomicStep:
 
 
 def _is_human(token: str) -> bool:
-    # Do not classify WORK_AUTH / AUTHORIZATION checks as authentication.
     human_tokens = (
         "HUMAN_",
         "LOGIN",
@@ -296,6 +344,11 @@ def _is_human(token: str) -> bool:
     return any(part in token for part in human_tokens)
 
 
+def _is_irreversible(raw: str) -> bool:
+    token = _normalise(raw)
+    return any(part in token for part in ("SUBMIT", "PAY", "TRANSFER", "CONFIRM_IDENTITY"))
+
+
 def _human(raw: str) -> AtomicStep:
     return AtomicStep(raw, ExecutorType.HUMAN, _instruction(raw))
 
@@ -310,15 +363,16 @@ def _instruction(raw: str) -> str:
 
 def _gate_requirements(step: AtomicStep, gate_ids: tuple[str, ...]) -> tuple[str, ...]:
     token = _normalise(step.action_type)
+    deadline_gate = gate_ids[3:4]
     if step.executor in {ExecutorType.AGENT, ExecutorType.SYSTEM}:
         return ()
     if any(part in token for part in ("LOGIN", "CREATE_EYP_ACCOUNT", "CREATE_EYP_ESC_ACCOUNT", "CREATE_TCANET_ACCOUNT", "MFA", "2FA", "CAPTCHA")):
-        return ()
+        return deadline_gate
     if any(part in token for part in ("PAY", "PAYMENT", "TRANSFER")):
-        return gate_ids[:2]
+        return (*gate_ids[:2], *deadline_gate)
     if "SUBMIT" in token:
         return gate_ids
-    return gate_ids[:2]
+    return (*gate_ids[:2], *deadline_gate)
 
 
 def _initial_state(step: AtomicStep, submit_state: str, *, first: bool) -> ActionState:
@@ -367,7 +421,7 @@ def _parse_deadline(raw: Any) -> datetime | None:
         return None
     value = str(raw).strip()
     upper = value.upper()
-    if not value or upper == "ASAP" or "ROLLING" in upper or "TIME_UNKNOWN" in upper:
+    if not value or upper == "ASAP" or "ROLLING" in upper or "TIME_UNKNOWN" in upper or "SOURCE_LITERAL" in upper:
         return None
     if value.replace(".", "", 1).isdigit():
         return None
@@ -398,3 +452,8 @@ def _required(row: Mapping[str, Any], key: str) -> str:
 
 def _normalise(value: str) -> str:
     return (value or "").upper().replace("-", "_")
+
+
+def _aware(value: datetime, name: str) -> datetime:
+    if value.tzinfo is None or value.utcoffset() is None:
+        raise ValueError(f"{name} must be timezone-aware")
