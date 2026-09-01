@@ -10,7 +10,7 @@ const expectedLinks = [
   'https://www.instagram.com/travelverses/',
   'https://youtube.com/@rotprods',
   'https://www.instagram.com/rot.prods/',
-  'https://www.linkedin.com/in/roberto-ortega',
+  'https://www.linkedin.com/in/roberto-ortega-b97666348',
   'https://www.instagram.com/oasismedia.es/',
   'https://wa.me/message/5TBPPKPLAWQAK1',
   'https://www.tiktok.com/@rot.prods',

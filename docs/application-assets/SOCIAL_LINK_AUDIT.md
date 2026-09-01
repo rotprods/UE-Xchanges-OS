@@ -8,7 +8,7 @@ Tracking parameters were removed wherever a stable profile URL was available.
 | Personal brand | https://www.instagram.com/rot.prods/ | Instagram |
 | Travel Reels | https://www.instagram.com/travelverses/ | Instagram |
 | YouTube | https://youtube.com/@rotprods | YouTube |
-| LinkedIn | https://www.linkedin.com/in/roberto-ortega | LinkedIn |
+| LinkedIn | https://www.linkedin.com/in/roberto-ortega-b97666348 | LinkedIn |
 | Media company | https://www.instagram.com/oasismedia.es/ | Instagram |
 | WhatsApp | https://wa.me/message/5TBPPKPLAWQAK1 | WhatsApp |
 | TikTok | https://www.tiktok.com/@rot.prods | TikTok |
