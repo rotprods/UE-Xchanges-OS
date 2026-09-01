@@ -29,6 +29,7 @@ from .models import (
     SubmissionReceipt,
     SubmitAuthority,
 )
+from .normalization import normalize_answer
 from .policy import AnswerAuthor, AnswerCandidate, PolicyIssue, validate_candidate
 from .receipts import (
     DuplicateDecision,
@@ -72,6 +73,7 @@ __all__ = [
     "execution_plan_hash",
     "form_schema_fingerprint",
     "issue_approval_token",
+    "normalize_answer",
     "reconcile_receipt",
     "submission_key",
     "validate_candidate",
