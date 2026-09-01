@@ -1,6 +1,7 @@
 # UE-Xchanges-OS — Session / Lease Snapshot
 
-Snapshot: 2026-09-02 00:22 Europe/Madrid
+Snapshot started: 2026-09-02 00:22 Europe/Madrid
+Refreshed: 2026-09-02 00:29 Europe/Madrid
 
 ## Current session
 
@@ -15,36 +16,40 @@ Scope:       github:agent_context/**
 Authority:   DERIVED CONTINUITY ONLY
 ```
 
-This session must not mutate domain applications, payments, submissions, RuntimeGraph adapter projections, or root continuity files currently leased by another writer.
+This session must not mutate domain applications, payments, submissions, RuntimeGraph adapter projections, or root recovery files owned by other writers.
 
-## Active concurrent sessions
+## Active concurrent sessions at refresh
 
 ### RG2.2 source adapters / self-heal
 - Session: `SES-UEX-CHATGPT-20260902T001630-27`
 - Agent: `AGT-RUNTIMEGRAPH-SOURCE-ADAPTERS-SELFHEAL`
 - Lease: `LSE-UEX-RUNTIMEGRAPH-ADAPTERS-20260902T001630-27`
-- Status: ACTIVE at snapshot.
+- Status: ACTIVE.
 - Owns `runtime_v2/adapters/**`, projection health/repair code and derived Command Center projection tabs.
 - Canonical application truth remains read-only.
 
-### Root continuity handoff sealer
-- Session: `SES-UEX-CHATGPT-20260902T002030-30`
-- Agent: `AGT-CONTINUITY-HANDOFF-SEALER`
-- Lease: `LSE-UEX-HANDOFF-20260902T002030-30`
-- Status: ACTIVE at snapshot.
-- Owns root `STATE.md`, `HANDOFF.md`, `CHANGELOG.md`, checkpoint/recovery-pack refresh.
-- Current target includes CONVIVIAL FOODSCAPES continuity; no domain gate promotion.
+### RG2.1 repo handoff sealer
+- Session: `SES-UEX-CHATGPT-20260902T002900-32`
+- Agent: `AGT-RUNTIMEGRAPH-HANDOFF-SEALER`
+- Status: ACTIVE.
+- Purpose: seal dispatcher-cycle facts into versioned recovery state after the prior continuity lease released.
+- Explicitly yields RG2.2 and `agent_context/**`.
 
 ## Recently completed sessions
+
+### Continuity handoff sealer
+- Session: `SES-UEX-CHATGPT-20260902T002030-30`
+- COMPLETED / lease RELEASED at 00:27.
+- Advanced root recovery state to `main=d72369366396e97cf532f9c7a462df3cfdc9b79e` and sealed CONVIVIAL P1 continuity.
 
 ### Browser Stack Supervisor
 - Session: `SES-UEX-CHATGPT-20260902T000500-29`
 - Node: `BROWSER_STACK_SUPERVISOR_V1_RELEASED`
 - PR #49 merged.
-- Main: `d1d82b0dbb8d5712888cef7d247b2487f9fd7514`.
+- Release ancestor: `d1d82b0dbb8d5712888cef7d247b2487f9fd7514`.
 - CI: `33565691506`, `33565691512` SUCCESS.
 
-Coordination caveat: owning session is COMPLETED but its lease row was last observed ACTIVE. Treat as stale coordination debt; do not assume new overlapping Browser Stack write authority until reconciled.
+Coordination caveat: owning session is COMPLETED but its Work_Lease row was previously observed ACTIVE. Re-read the lease before overlapping Browser Stack mutation.
 
 ### Browser Relay MCP
 - Session: `SES-UEX-CHATGPT-20260901T234518-28`
