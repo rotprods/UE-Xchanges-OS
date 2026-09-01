@@ -1,5 +1,15 @@
 # UE-Xchanges-OS — CHANGELOG
 
+## 2026-09-02 — CONVIVIAL FOODSCAPES P1 continuity seal
+
+- Verified `non_salto-convivial-foodscapes-2026` is already canonical in Drive `Opportunities` row 178 and appears in `Decision_Queue` as P1.
+- Canonical opportunity count advanced to **176**; `Mass_Apply_Queue` remains **164** because CONVIVIAL is intentionally not enqueued while hard gates are unresolved.
+- Preserved `POLICY_GATE_PENDING` with `AI_POLICY_UNKNOWN` and `FULL_NOVEMBER_AVAILABILITY_UNCONFIRMED`; required gate is `VERIFY_AI_POLICY_AND_NOVEMBER_AVAILABILITY_THEN_PREPARE`.
+- Persisted official-call funding and creative-fit facts, application package, deadline 2026-09-15 and Branca/Portugal residency dates 2026-11-01 through 2026-11-30.
+- Updated private zero-context recovery pack, `STATE.md`, `HANDOFF.md`, `LIVE-STATE-OVERRIDE.json` and created `checkpoints/2026-09-02-convivial-foodscapes-p1-handoff.md`.
+- Recorded continuity correlation `CORR-20260902-CONVIVIAL-HANDOFF` and canonical verification event `EVT-20260902T002200-HOFF-002`.
+- SALTO paid trainer watch remains unchanged: no newly verified open trajectory-changing paid call; announced September 2-plenary + 5-co-creation-lab facilitator wave remains watch-only until actual call/fee/eligibility evidence exists.
+
 ## 2026-09-01 — CGEV2 zero-context survival checkpoint
 
 - Reconciled Gmail organiser replies and P0 states.
