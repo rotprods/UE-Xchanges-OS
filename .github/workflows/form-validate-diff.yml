@@ -1,0 +1,68 @@
+name: form-validate-diff
+
+on:
+  pull_request:
+    paths:
+      - 'src/uexchanges/forms/validation_rules.py'
+      - 'schemas/form-validation-expectation.schema.json'
+      - 'tests/test_form_validation_rules.py'
+      - 'tests/test_form_validation_signature_parity.py'
+      - 'tools/form-executor/src/validate-diff.mjs'
+      - 'tools/form-executor/src/validation-signature.mjs'
+      - 'tools/form-executor/test/validate-diff.test.mjs'
+      - 'tools/form-executor/test/live-validate-diff.test.mjs'
+      - 'docs/FORM_VALIDATE_DIFF_LOCAL.md'
+      - '.github/workflows/form-validate-diff.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/uexchanges/forms/validation_rules.py'
+      - 'schemas/form-validation-expectation.schema.json'
+      - 'tests/test_form_validation_rules.py'
+      - 'tests/test_form_validation_signature_parity.py'
+      - 'tools/form-executor/src/validate-diff.mjs'
+      - 'tools/form-executor/src/validation-signature.mjs'
+      - 'tools/form-executor/test/validate-diff.test.mjs'
+      - 'tools/form-executor/test/live-validate-diff.test.mjs'
+      - 'docs/FORM_VALIDATE_DIFF_LOCAL.md'
+      - '.github/workflows/form-validate-diff.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validation-gauntlet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Python validation contracts and Python-Node signature parity
+        run: PYTHONPATH=src python -m unittest discover -s tests -p 'test_form_validation*.py' -v
+
+      - name: Install pinned Playwright dependency
+        working-directory: tools/form-executor
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+
+      - name: Pure validation diff tests
+        working-directory: tools/form-executor
+        run: node --test test/validate-diff.test.mjs
+
+      - name: Install Playwright Chromium runtime
+        working-directory: tools/form-executor
+        run: npx playwright install --with-deps chromium
+
+      - name: Live localhost validation diff smoke
+        working-directory: tools/form-executor
+        run: node --test test/live-validate-diff.test.mjs
