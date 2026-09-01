@@ -40,14 +40,14 @@ test('inspect and validate remain loopback-only', async () => {
   await core.inspectLocal({ requestId: 'req-inspect-0001', provider: 'generic_html', url: PLAN.canonical_form_url, allowedOrigins: ['http://127.0.0.1:39000'] });
   await core.validateLocal({ requestId: 'req-validate-0001', plan: PLAN });
   assert.equal(worker.calls.length, 2);
-  await assert.rejects(() => core.inspectLocal({ requestId: 'req-inspect-0002', provider: 'generic_html', url: 'https://example.com/form', allowedOrigins: ['https://example.com'] }), /RELAY_TARGET_NOT_LOOPBACK/);
+  assert.throws(() => core.inspectLocal({ requestId: 'req-inspect-0002', provider: 'generic_html', url: 'https://example.com/form', allowedOrigins: ['https://example.com'] }), /RELAY_TARGET_NOT_LOOPBACK/);
 });
 
 test('prefill cannot reach worker without a valid exact capability', async () => {
   const worker = fakeWorker();
   const core = new BrowserRelayCore({ workerClient: worker, capabilitySecret: SECRET });
   const requestId = 'req-prefill-0001';
-  await assert.rejects(() => core.prefillLocal({ requestId, plan: PLAN, capability: 'invalid-token-value-that-is-long-enough' }), /RELAY_CAPABILITY_MALFORMED/);
+  assert.throws(() => core.prefillLocal({ requestId, plan: PLAN, capability: 'invalid-token-value-that-is-long-enough' }), /RELAY_CAPABILITY_MALFORMED/);
   assert.equal(worker.calls.length, 0);
 
   const bodyHash = canonicalBodyHash({ plan: PLAN });
@@ -57,6 +57,6 @@ test('prefill cannot reach worker without a valid exact capability', async () =>
   assert.equal(worker.calls.length, 1);
 
   const changed = { ...PLAN, application_id: 'app-2' };
-  await assert.rejects(() => core.prefillLocal({ requestId, plan: changed, capability }), /RELAY_CAPABILITY_BINDING_MISMATCH/);
+  assert.throws(() => core.prefillLocal({ requestId, plan: changed, capability }), /RELAY_CAPABILITY_BINDING_MISMATCH/);
   assert.equal(worker.calls.length, 1);
 });
