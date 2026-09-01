@@ -1,14 +1,15 @@
 # UE-Xchanges-OS — Progress
 
-Snapshot: 2026-09-02 00:22 Europe/Madrid
+Snapshot started: 2026-09-02 00:22 Europe/Madrid
+Refreshed: 2026-09-02 00:29 Europe/Madrid
 Authority: derived only; live evidence/Drive Event Bus wins.
 
 ## Completed durable milestones
 
 ### Core control plane
-- Multi-agent sessions, event bus, leases, inbox and context registry exist in Drive.
+- Multi-agent sessions, Event Bus, leases, inbox and context registry exist in Drive.
 - Truth hierarchy and `APPLY EVERYTHING VIABLE` policy are canonical in `goal.md` / `AGENTS.md`.
-- Zero-context recovery artifacts already exist in root GitHub + private Drive.
+- Zero-context recovery artifacts exist in root GitHub + private Drive.
 
 ### CRM / projections
 - Drive remains canonical operational CRM.
@@ -19,7 +20,7 @@ Authority: derived only; live evidence/Drive Event Bus wins.
 ### RuntimeGraph
 - RG2 closed-loop released.
 - RG2.1 autonomous event dispatcher released.
-- First live dispatcher cycle reconciled Step Into Paralymics and promoted Human Frontier from 3 → 4.
+- First live dispatcher cycle reconciled Step Into Paralympics and promoted Human Frontier from 3 → 4.
 - Receipt authority remains strict: `SubmissionAttempt != SubmissionReceipt`.
 
 ### Form Execution Gateway
@@ -40,8 +41,13 @@ Completed and merged:
 14. MCP Relay v1;
 15. Browser Stack Supervisor v1.
 
-Current stack release: PR #49, `main=d1d82b0dbb8d5712888cef7d247b2487f9fd7514`.
-Main checks: `33565691506` SUCCESS, `33565691512` SUCCESS.
+Browser Stack release ancestor: PR #49 / `d1d82b0dbb8d5712888cef7d247b2487f9fd7514`.
+Browser Stack main checks: `33565691506` SUCCESS, `33565691512` SUCCESS.
+Current main at refresh: `d72369366396e97cf532f9c7a462df3cfdc9b79e`, which preserves Browser Stack and adds continuity updates.
+
+### Root continuity seal
+`SES-UEX-CHATGPT-20260902T002030-30` completed and released at 00:27.
+It sealed CONVIVIAL P1 continuity into root recovery artifacts and advanced `main` to `d7236936…` without resolving its hard gates.
 
 ## Active work
 
@@ -50,10 +56,10 @@ Session: `SES-UEX-CHATGPT-20260902T001630-27`
 Lease: `LSE-UEX-RUNTIMEGRAPH-ADAPTERS-20260902T001630-27`
 Scope: adapters + derived projection repair only.
 
-### Continuity handoff seal
-Session: `SES-UEX-CHATGPT-20260902T002030-30`
-Lease: `LSE-UEX-HANDOFF-20260902T002030-30`
-Owns root `STATE/HANDOFF/CHANGELOG/checkpoint` recovery work; this agent_context pack must not overwrite it.
+### RG2.1 repo handoff seal
+Session: `SES-UEX-CHATGPT-20260902T002900-32`
+Status: ACTIVE at refresh.
+Purpose: integrate RG2.1 dispatcher-cycle closure into versioned recovery state while yielding RG2.2 and `agent_context/**`.
 
 ### Agent-context pack
 Session: `SES-UEX-CHATGPT-20260902T002200-31`
@@ -73,17 +79,17 @@ Important non-human/open work:
 
 ## Known inconsistencies / debt
 
-1. Dashboard counts are stale (`175` opportunities) while latest canonical event says `176`.
+1. Dashboard was last read stale (`175` opportunities) while canonical continuity now says `176`.
 2. Dashboard says `Applications submitted=1`, but `Submission receipts=0`; never treat the former as receipt-backed current submission.
-3. Browser Stack owning session is COMPLETED/merged/green, while its Work_Lease row was last observed `ACTIVE`; reconcile that stale lease before overlapping stack mutation.
-4. Root `STATE.md` / `HANDOFF.md` are older than current Browser Stack + latest RuntimeGraph cycles; another active handoff session is updating them.
-5. `goal.md` scale figures are historic and not live counts; mission/policy remains canonical, counts do not.
+3. Browser Stack owning session is COMPLETED/merged/green, while its Work_Lease row was previously observed `ACTIVE`; reconcile current lease state before overlapping stack mutation.
+4. `goal.md` scale figures are historic and not live counts; mission/policy remains canonical, counts do not.
+5. Root recovery files may continue changing while RG2.1 handoff sealer is ACTIVE; always read latest main/checkpoint before writing.
 
 ## Next technical milestones
 
 1. Finish RG2.2 adapters/self-heal under its current lease.
-2. Seal root continuity writer and reconcile root recovery files.
-3. Reconcile stale Browser Stack lease state.
+2. Finish RG2.1 recovery/handoff seal and read its final event.
+3. Reconcile stale Browser Stack lease if still ACTIVE.
 4. Run Browser Stack doctor on the actual target environment when possible.
 5. Certify exactly one external provider for authenticated INSPECT/PREFILL; no Submit.
 6. Only after provider gauntlet: supervised Submit design with fresh ApprovalToken + attempt-before-click + receipt confirmation.
