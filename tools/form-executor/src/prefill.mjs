@@ -6,6 +6,7 @@ import { assertDedicatedProfileDir, networkDecision, normalizeOrigin } from './g
 
 const PREFILL_ALLOWED_STATES = new Set(['answer_pack_resolved', 'prefill_ready']);
 const EDITABLE_OWNERSHIP = new Set(['green_agent_factual', 'yellow_agent_assisted_human_review']);
+const PLAN_BLOCKING_OWNERSHIP = new Set(['black_secret_or_never_model', 'unresolved']);
 const SUPPORTED_TYPES = new Set(['text', 'textarea', 'email', 'number', 'date', 'select', 'radio', 'checkbox']);
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]']);
 
@@ -65,6 +66,9 @@ export function validateLocalPrefillPlan(plan, { now = new Date() } = {}) {
     const editable = field.editable_by_agent === true;
     const ownership = field.ownership;
     const sensitivity = field.sensitivity;
+    if (PLAN_BLOCKING_OWNERSHIP.has(ownership)) {
+      throw new Error(`prefill-ready plan cannot contain ${ownership}: ${field.field_key}`);
+    }
     if (editable) {
       if (!EDITABLE_OWNERSHIP.has(ownership)) throw new Error(`editable field has forbidden ownership: ${field.field_key}`);
       if (sensitivity === 'secret') throw new Error(`editable field cannot be SECRET: ${field.field_key}`);
