@@ -9,6 +9,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  process.stderr.write(`${error?.stack || error}\n`);
+  const errorType = typeof error?.name === 'string' && error.name ? error.name.replace(/[^A-Za-z0-9_.-]/g, '_') : 'Error';
+  process.stderr.write(`UEX_FORM_INSPECT_ERROR:${errorType}\n`);
   process.exitCode = 1;
 });
