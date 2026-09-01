@@ -33,6 +33,10 @@ function ensureAllowedFinalUrl(url, allowedOrigins) {
 async function extractNativeFormSchema(page) {
   return page.evaluate(() => {
     const clean = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const safeUrl = (value) => {
+      const parsed = new URL(value, location.href);
+      return `${parsed.origin}${parsed.pathname}`;
+    };
 
     const labelFor = (el) => {
       const labels = el.labels ? Array.from(el.labels).map((label) => clean(label.textContent)).filter(Boolean) : [];
@@ -127,7 +131,7 @@ async function extractNativeFormSchema(page) {
       id: clean(form.id) || null,
       name: clean(form.getAttribute('name')) || null,
       method: clean(form.getAttribute('method') || 'get').toUpperCase(),
-      action: form.getAttribute('action') ? new URL(form.getAttribute('action'), location.href).href : location.href,
+      action: safeUrl(form.getAttribute('action') || location.href),
     }));
 
     const submitControls = Array.from(document.querySelectorAll('button[type="submit"], input[type="submit"], button:not([type])')).map((el, index) => ({
@@ -144,7 +148,7 @@ async function extractNativeFormSchema(page) {
       schema_version: '0.1.0',
       mode: 'INSPECT_ONLY',
       page: {
-        url: location.href,
+        url: safeUrl(location.href),
         title: document.title,
         origin: location.origin,
       },
@@ -154,6 +158,7 @@ async function extractNativeFormSchema(page) {
       unsupported_custom_control_count: customControls.length,
       safety: {
         form_values_read: false,
+        url_query_material_exported: false,
         cookies_read: false,
         storage_state_exported: false,
         mutating_http_methods_blocked: true,
