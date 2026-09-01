@@ -1,0 +1,17 @@
+{
+  "name": "@rotprods/uex-browser-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Loopback-only authenticated browser worker for UE-Xchanges-OS",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server-cli.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.62.1"
+  }
+}
