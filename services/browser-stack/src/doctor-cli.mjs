@@ -33,16 +33,18 @@ function dependencyVersion(filePath, code) {
   return value.version;
 }
 
+function doctorChildEnv(env = process.env) {
+  const out = {};
+  for (const key of ['HOME', 'PATH', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'DISPLAY', 'XDG_RUNTIME_DIR', 'DBUS_SESSION_BUS_ADDRESS', 'PLAYWRIGHT_BROWSERS_PATH']) {
+    if (typeof env[key] === 'string' && env[key]) out[key] = env[key];
+  }
+  return out;
+}
+
 function runWorkerDoctor(channel) {
   const result = spawnSync(process.execPath, [WORKER_DOCTOR, '--channel', channel], {
     encoding: 'utf8',
-    env: {
-      HOME: process.env.HOME,
-      PATH: process.env.PATH,
-      TMPDIR: process.env.TMPDIR,
-      LANG: process.env.LANG,
-      PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH,
-    },
+    env: doctorChildEnv(),
     maxBuffer: 64 * 1024,
   });
   if (result.error || result.status !== 0) throw new Error('STACK_WORKER_DOCTOR_FAILED');
@@ -87,4 +89,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   });
 }
 
-export { parseArgs, dependencyVersion, runWorkerDoctor };
+export { parseArgs, dependencyVersion, doctorChildEnv, runWorkerDoctor };
