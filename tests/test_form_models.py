@@ -118,6 +118,16 @@ class FormModelContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unique"):
             make_plan(fields=(make_field(), make_field()))
 
+    def test_validation_signature_is_optional_for_research_but_strict_when_present(self):
+        unbound = make_plan(validation_signature=None)
+        self.assertFalse(unbound.validation_bound)
+        bound = make_plan(validation_signature="sha256:" + "a" * 64)
+        self.assertTrue(bound.validation_bound)
+        with self.assertRaisesRegex(ValueError, "64 lowercase hex"):
+            make_plan(validation_signature="sha256:not-a-real-signature")
+        with self.assertRaisesRegex(ValueError, "64 lowercase hex"):
+            make_plan(validation_signature="sha256:" + "A" * 64)
+
     def test_failed_attempt_requires_error_code(self):
         with self.assertRaisesRegex(ValueError, "error_code"):
             SubmissionAttempt(

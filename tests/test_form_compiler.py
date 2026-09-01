@@ -19,6 +19,8 @@ from uexchanges.models import AIPolicy
 
 
 NOW = datetime(2026, 9, 1, 16, 0, tzinfo=timezone.utc)
+VALIDATION_V1 = "sha256:" + "1" * 64
+VALIDATION_V2 = "sha256:" + "2" * 64
 
 
 def captured_text(*, key="motivation", label="Motivation", required=True, maxlength=500):
@@ -47,7 +49,7 @@ def candidate(*, key="motivation", value="Because this project matches my goals.
     )
 
 
-def compile_one(field: FormField, answer: AnswerCandidate | None, *, policy=AIPolicy.ASSIST_ONLY):
+def compile_one(field: FormField, answer: AnswerCandidate | None, *, policy=AIPolicy.ASSIST_ONLY, validation_signature=None):
     return compile_execution_plan(
         application_id="app-1",
         opportunity_id="opp-1",
@@ -62,6 +64,7 @@ def compile_one(field: FormField, answer: AnswerCandidate | None, *, policy=AIPo
         created_at=NOW,
         expires_at=NOW + timedelta(hours=1),
         source_version="form-v1",
+        validation_signature=validation_signature,
     )
 
 
@@ -180,6 +183,17 @@ class FormCompilerTests(unittest.TestCase):
         changed = captured_text(label="A changed question")
         fp3 = form_schema_fingerprint(provider="generic_html", canonical_form_url="https://forms.example.org/apply", fields=(changed,))
         self.assertNotEqual(fp1, fp3)
+
+    def test_validation_signature_is_carried_and_changes_plan_identity(self):
+        field = captured_text()
+        answer = candidate()
+        unbound = compile_one(field, answer)
+        first = compile_one(field, answer, validation_signature=VALIDATION_V1)
+        second = compile_one(field, answer, validation_signature=VALIDATION_V2)
+        self.assertIsNone(unbound.plan.validation_signature)
+        self.assertEqual(first.plan.validation_signature, VALIDATION_V1)
+        self.assertNotEqual(unbound.plan.plan_id, first.plan.plan_id)
+        self.assertNotEqual(first.plan.plan_id, second.plan.plan_id)
 
 
 if __name__ == "__main__":

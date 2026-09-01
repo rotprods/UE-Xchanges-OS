@@ -155,6 +155,78 @@ export function diffValidationSnapshots(expectedFields, actualFields) {
 async function compareCurrentValues(page, plan) {
   return page.evaluate((planFields) => {
     const clean = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const canonicalize = (fieldType, value) => {
+      const nfc = (text) => String(text).replace(/\r\n/g, '\n').replace(/\r/g, '\n').normalize('NFC');
+      const decimal = (input) => {
+        if (typeof input === 'boolean') throw new Error('boolean is not a canonical number');
+        let raw;
+        if (typeof input === 'number') {
+          if (!Number.isFinite(input)) throw new Error('number answers must be finite');
+          raw = String(input);
+        } else if (typeof input === 'string') raw = input.trim();
+        else throw new Error('number answer must be numeric or decimal string');
+        const match = raw.match(/^([+-]?)(\d+)(?:\.(\d*))?(?:[eE]([+-]?\d+))?$/);
+        if (!match) throw new Error('number answer is not a valid finite decimal');
+        const negative = match[1] === '-';
+        const integer = match[2];
+        const fraction = match[3] || '';
+        const exponent = Number(match[4] || '0') - fraction.length;
+        if (!Number.isSafeInteger(exponent)) throw new Error('number exponent is outside canonical range');
+        let digits = `${integer}${fraction}`.replace(/^0+/, '');
+        if (!digits) return '0';
+        let rendered;
+        if (exponent >= 0) rendered = digits + '0'.repeat(exponent);
+        else {
+          const point = digits.length + exponent;
+          rendered = point <= 0 ? `0.${'0'.repeat(-point)}${digits}` : `${digits.slice(0, point)}.${digits.slice(point)}`;
+          rendered = rendered.replace(/0+$/, '').replace(/\.$/, '');
+        }
+        rendered = rendered.replace(/^0+(?=\d)/, '');
+        return negative && rendered !== '0' ? `-${rendered}` : rendered;
+      };
+      const isoDate = (input) => {
+        if (typeof input !== 'string') throw new Error('browser date answer must be ISO string');
+        const raw = input.trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) throw new Error('date answer must use ISO YYYY-MM-DD');
+        const parsed = new Date(`${raw}T00:00:00Z`);
+        if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== raw) throw new Error('date answer must be real');
+        return raw;
+      };
+      if (value === null || value === undefined) return null;
+      if (fieldType === 'text' || fieldType === 'textarea') {
+        if (typeof value !== 'string') throw new Error('text-like answers must be strings');
+        return nfc(value);
+      }
+      if (fieldType === 'email') {
+        if (typeof value !== 'string') throw new Error('email answers must be strings');
+        return nfc(value).trim();
+      }
+      if (fieldType === 'number') return decimal(value);
+      if (fieldType === 'date') return isoDate(value);
+      if (fieldType === 'select' || fieldType === 'radio') {
+        if (typeof value !== 'string') throw new Error('choice answers must be strings');
+        const normalized = nfc(value).trim();
+        if (!normalized) throw new Error('choice answer must be non-empty');
+        return normalized;
+      }
+      if (fieldType === 'checkbox') {
+        if (typeof value === 'boolean') return value;
+        if (!Array.isArray(value)) throw new Error('checkbox answer must be boolean or array');
+        const normalized = value.map((item) => {
+          if (typeof item !== 'string') throw new Error('checkbox options must be strings');
+          const option = nfc(item).trim();
+          if (!option) throw new Error('checkbox option must be non-empty');
+          return option;
+        });
+        return [...new Set(normalized)].sort();
+      }
+      if (fieldType === 'consent') {
+        if (typeof value !== 'boolean') throw new Error('consent answer must be boolean');
+        return value;
+      }
+      if (fieldType === 'file' || fieldType === 'unknown') throw new Error('non-model value type');
+      throw new Error('unsupported field type');
+    };
     const labelFor = (el) => {
       const labels = el.labels ? Array.from(el.labels).map((label) => clean(label.textContent)).filter(Boolean) : [];
       if (labels.length) return labels.join(' / ');
@@ -207,10 +279,8 @@ async function compareCurrentValues(page, plan) {
           const selected = target.find((el) => el.checked);
           actual = selected ? optionIdentity(selected) : null;
         } else if (field.field_type === 'checkbox') {
-          actual = target.filter((el) => el.checked).map(optionIdentity).sort();
-        } else {
-          actual = null;
-        }
+          actual = target.filter((el) => el.checked).map(optionIdentity);
+        } else actual = null;
         valid = target.some((el) => typeof el.checkValidity !== 'function' || el.checkValidity());
       } else if (target instanceof HTMLInputElement && (target.type || '').toLowerCase() === 'checkbox') {
         actual = target.checked;
@@ -223,9 +293,12 @@ async function compareCurrentValues(page, plan) {
         valid = typeof target.checkValidity !== 'function' || target.checkValidity();
       }
 
-      let expected = field.answer;
-      if (Array.isArray(expected)) expected = expected.map(String).sort();
-      const valueMatch = JSON.stringify(actual) === JSON.stringify(expected === null || expected === undefined ? null : expected);
+      let valueMatch = false;
+      try {
+        valueMatch = JSON.stringify(canonicalize(field.field_type, actual)) === JSON.stringify(canonicalize(field.field_type, field.answer));
+      } catch {
+        valueMatch = false;
+      }
       results.push({
         field_key: field.field_key,
         present: true,

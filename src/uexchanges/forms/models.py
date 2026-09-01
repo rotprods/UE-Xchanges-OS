@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -7,6 +8,9 @@ from typing import Any
 from urllib.parse import urlparse
 
 from ..models import AIPolicy
+
+
+_SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 
 class FormFieldType(str, Enum):
@@ -88,6 +92,12 @@ def _require_origin(value: str, name: str) -> str:
     return f"{parsed.scheme.lower()}://{parsed.netloc.lower()}"
 
 
+def _require_sha256(value: str, name: str) -> str:
+    if not _SHA256_RE.fullmatch(value):
+        raise ValueError(f"{name} must use sha256:<64 lowercase hex>")
+    return value
+
+
 @dataclass(frozen=True)
 class FormField:
     field_key: str
@@ -147,6 +157,7 @@ class FormExecutionPlan:
     created_at: datetime
     expires_at: datetime
     source_version: str
+    validation_signature: str | None = None
     attachments: tuple[str, ...] = ()
     state: FormExecutionState = FormExecutionState.FORM_SCHEMA_VERIFIED
 
@@ -155,6 +166,8 @@ class FormExecutionPlan:
             raise ValueError("plan_id/application_id/opportunity_id must be non-empty")
         if not self.provider.strip() or not self.form_fingerprint.strip() or not self.source_version.strip():
             raise ValueError("provider/fingerprint/source_version must be non-empty")
+        if self.validation_signature is not None:
+            _require_sha256(self.validation_signature, "validation_signature")
         canonical_origin = _require_origin(self.canonical_form_url, "canonical_form_url")
         created = _require_aware(self.created_at, "created_at")
         expires = _require_aware(self.expires_at, "expires_at")
@@ -172,6 +185,10 @@ class FormExecutionPlan:
     @property
     def unresolved_fields(self) -> tuple[FormField, ...]:
         return tuple(field for field in self.fields if not field.resolved)
+
+    @property
+    def validation_bound(self) -> bool:
+        return self.validation_signature is not None
 
     def is_expired(self, now: datetime) -> bool:
         return _require_aware(now, "now") >= self.expires_at

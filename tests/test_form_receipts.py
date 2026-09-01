@@ -27,11 +27,13 @@ from uexchanges.models import AIPolicy
 
 
 NOW = datetime(2026, 9, 1, 16, 15, tzinfo=timezone.utc)
+VALIDATION_V1 = "sha256:" + "1" * 64
+VALIDATION_V2 = "sha256:" + "2" * 64
 
 
-def make_field(*, answer="Roberto", evidence_ids=("ev-name",), field_type=FormFieldType.TEXT) -> FormField:
+def make_field(*, answer="Roberto", evidence_ids=("ev-name",), field_type=FormFieldType.TEXT, field_key="name") -> FormField:
     return FormField(
-        field_key="name",
+        field_key=field_key,
         label="Name",
         field_type=field_type,
         required=True,
@@ -52,6 +54,7 @@ def make_plan(**overrides) -> FormExecutionPlan:
         canonical_form_url="https://forms.example.org/apply",
         provider="generic_html",
         form_fingerprint="sha256:form-v1",
+        validation_signature=VALIDATION_V1,
         fields=(make_field(),),
         ai_policy=AIPolicy.ASSIST_ONLY,
         auth_requirement=AuthRequirement.EXISTING_SESSION,
@@ -103,6 +106,19 @@ class FormReceiptTests(unittest.TestCase):
         self.assertEqual(answer_pack_hash(first), answer_pack_hash(changed))
         self.assertNotEqual(submission_key(first), submission_key(changed))
 
+    def test_submission_key_changes_when_validation_signature_changes(self):
+        first = make_plan()
+        changed = make_plan(validation_signature=VALIDATION_V2)
+        self.assertEqual(answer_pack_hash(first), answer_pack_hash(changed))
+        self.assertNotEqual(submission_key(first), submission_key(changed))
+        self.assertNotEqual(execution_plan_hash(first), execution_plan_hash(changed))
+
+    def test_unbound_validation_identity_cannot_collide_with_bound_identity(self):
+        bound = make_plan()
+        unbound = make_plan(validation_signature=None)
+        self.assertEqual(answer_pack_hash(bound), answer_pack_hash(unbound))
+        self.assertNotEqual(submission_key(bound), submission_key(unbound))
+
     def test_execution_plan_hash_tracks_evidence_even_when_submission_payload_same(self):
         first = make_plan()
         changed_evidence = make_plan(fields=(make_field(evidence_ids=("ev-name-new",)),))
@@ -113,6 +129,27 @@ class FormReceiptTests(unittest.TestCase):
         dated = make_plan(fields=(make_field(answer=date(2026, 10, 20), field_type=FormFieldType.DATE),))
         self.assertTrue(answer_pack_hash(dated).startswith("sha256:"))
         self.assertTrue(submission_key(dated).startswith("sha256:"))
+
+    def test_semantically_equivalent_numbers_share_payload_and_submission_identity(self):
+        first = make_plan(fields=(make_field(answer="1.00", field_type=FormFieldType.NUMBER),))
+        second = make_plan(fields=(make_field(answer="1", field_type=FormFieldType.NUMBER),))
+        third = make_plan(fields=(make_field(answer=1, field_type=FormFieldType.NUMBER),))
+        self.assertEqual(answer_pack_hash(first), answer_pack_hash(second))
+        self.assertEqual(answer_pack_hash(second), answer_pack_hash(third))
+        self.assertEqual(submission_key(first), submission_key(second))
+        self.assertEqual(execution_plan_hash(first), execution_plan_hash(second))
+
+    def test_checkbox_order_and_duplicates_do_not_change_identity(self):
+        first = make_plan(fields=(make_field(answer=["Video", "Photography", "Video"], field_type=FormFieldType.CHECKBOX),))
+        second = make_plan(fields=(make_field(answer=["Photography", "Video"], field_type=FormFieldType.CHECKBOX),))
+        self.assertEqual(answer_pack_hash(first), answer_pack_hash(second))
+        self.assertEqual(submission_key(first), submission_key(second))
+
+    def test_unicode_and_line_endings_are_canonicalized_for_identity(self):
+        first = make_plan(fields=(make_field(answer="cafe\u0301\r\nline", field_type=FormFieldType.TEXTAREA),))
+        second = make_plan(fields=(make_field(answer="café\nline", field_type=FormFieldType.TEXTAREA),))
+        self.assertEqual(answer_pack_hash(first), answer_pack_hash(second))
+        self.assertEqual(submission_key(first), submission_key(second))
 
     def test_confirmed_matching_receipt_blocks_duplicate(self):
         plan = make_plan()
