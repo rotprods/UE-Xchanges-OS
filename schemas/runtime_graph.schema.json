@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rotprods.github.io/UE-Xchanges-OS/schemas/runtime_graph.schema.json",
+  "title": "UE-Xchanges Runtime Graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at", "gates", "actions", "frontiers"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "source_revision": {"type": "string"},
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gate_id", "application_id", "name", "result", "hard"],
+        "properties": {
+          "gate_id": {"type": "string", "minLength": 1},
+          "application_id": {"type": "string", "minLength": 1},
+          "name": {"type": "string", "minLength": 1},
+          "result": {"enum": ["pass", "fail", "unknown"]},
+          "reason": {"type": "string"},
+          "evidence_refs": {"type": "array", "items": {"type": "string"}},
+          "hard": {"type": "boolean"}
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {"$ref": "runtime_action.schema.json"}
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "type", "to"],
+        "properties": {
+          "from": {"type": "string"},
+          "type": {"type": "string"},
+          "to": {"type": "string"},
+          "authority": {"type": "string"},
+          "source_ref": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "frontiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["human", "agent"],
+      "properties": {
+        "human": {"type": "array", "items": {"type": "string"}},
+        "agent": {"type": "array", "items": {"type": "string"}},
+        "system": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}
