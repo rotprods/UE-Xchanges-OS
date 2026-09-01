@@ -7,8 +7,10 @@ from uexchanges.forms import (
     AttestationStatus,
     AuthenticatedInspectClaims,
     RuntimeAttestationClaims,
+    RuntimeDoctorEvidence,
     issue_authenticated_inspect_evidence,
     issue_runtime_attestation,
+    runtime_doctor_evidence_hash,
     verify_authenticated_inspect_evidence,
     verify_runtime_attestation,
 )
@@ -17,19 +19,30 @@ from uexchanges.forms import (
 NOW = datetime(2026, 9, 1, 18, 45, tzinfo=timezone.utc)
 RUNTIME_SECRET = b"r" * 32
 INSPECT_SECRET = b"i" * 32
-DOCTOR_HASH = "sha256:" + "d" * 64
 FORM_FP = "sha256:" + "f" * 64
 VALIDATION = "sha256:" + "1" * 64
+
+
+def doctor(**overrides) -> RuntimeDoctorEvidence:
+    base = dict(
+        status="ok",
+        node_major=22,
+        playwright_version="1.62.1",
+        browser_channel="chrome",
+        launch="ok",
+        network="blocked",
+        profile="ephemeral",
+    )
+    base.update(overrides)
+    return RuntimeDoctorEvidence(**base)
 
 
 def runtime_token(**overrides) -> str:
     args = dict(
         runtime_ref="runtime:uex-primary",
         executor_version="0.4.0",
-        playwright_version="1.62.1",
-        browser_channel="chrome",
+        doctor_evidence=doctor(),
         profile_mode="dedicated_persistent",
-        doctor_evidence_hash=DOCTOR_HASH,
         doctor_passed_at=NOW - timedelta(minutes=1),
         issued_at=NOW,
         secret=RUNTIME_SECRET,
@@ -41,15 +54,31 @@ def runtime_token(**overrides) -> str:
 
 
 class RuntimeAttestationTests(unittest.TestCase):
-    def test_valid_runtime_attestation_contains_only_opaque_runtime_evidence(self):
-        token = runtime_token()
+    def test_valid_runtime_attestation_is_derived_from_safe_doctor_evidence(self):
+        evidence = doctor()
+        token = runtime_token(doctor_evidence=evidence)
         result = verify_runtime_attestation(token=token, secret=RUNTIME_SECRET, now=NOW + timedelta(seconds=1))
         self.assertTrue(result.valid)
         self.assertIs(result.status, AttestationStatus.VALID)
         self.assertIsInstance(result.claims, RuntimeAttestationClaims)
         self.assertEqual(result.claims.executor_version, "0.4.0")
         self.assertEqual(result.claims.playwright_version, "1.62.1")
+        self.assertEqual(result.claims.browser_channel, "chrome")
         self.assertEqual(result.claims.profile_mode, "dedicated_persistent")
+        self.assertEqual(result.claims.doctor_evidence_hash, runtime_doctor_evidence_hash(evidence))
+
+    def test_doctor_evidence_is_deterministic_and_strict(self):
+        self.assertEqual(runtime_doctor_evidence_hash(doctor()), runtime_doctor_evidence_hash(doctor()))
+        for overrides, pattern in [
+            ({"status": "fail"}, "status must be ok"),
+            ({"node_major": 19}, "Node major"),
+            ({"browser_channel": "firefox"}, "browser_channel"),
+            ({"launch": "failed"}, "launch must be ok"),
+            ({"network": "open"}, "network must be blocked"),
+            ({"profile": "persistent"}, "profile must be ephemeral"),
+        ]:
+            with self.assertRaisesRegex(ValueError, pattern):
+                doctor(**overrides)
 
     def test_runtime_attestation_tamper_wrong_secret_and_expiry_fail_closed(self):
         token = runtime_token(ttl_seconds=5)
@@ -62,11 +91,9 @@ class RuntimeAttestationTests(unittest.TestCase):
         expired = verify_runtime_attestation(token=token, secret=RUNTIME_SECRET, now=NOW + timedelta(seconds=5))
         self.assertIs(expired.status, AttestationStatus.EXPIRED)
 
-    def test_runtime_attestation_rejects_unsafe_or_invalid_doctor_claims(self):
+    def test_runtime_attestation_rejects_unsafe_runtime_claims(self):
         with self.assertRaisesRegex(ValueError, "dedicated_persistent"):
             runtime_token(profile_mode="personal_chrome")
-        with self.assertRaisesRegex(ValueError, "64 lowercase hex"):
-            runtime_token(doctor_evidence_hash="sha256:not-valid")
         with self.assertRaisesRegex(ValueError, "cannot be after"):
             runtime_token(doctor_passed_at=NOW + timedelta(seconds=1))
         with self.assertRaisesRegex(ValueError, "at least 32"):
