@@ -12,5 +12,8 @@
     "capability": "node src/capability-cli.mjs",
     "doctor": "node src/doctor-cli.mjs",
     "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0"
   }
 }
