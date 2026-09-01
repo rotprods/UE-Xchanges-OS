@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools" / "form-executor"
+WORKFLOW = ROOT / ".github" / "workflows" / "form-executor.yml"
 
 
 class FormExecutorPackageTests(unittest.TestCase):
@@ -27,6 +28,8 @@ class FormExecutorPackageTests(unittest.TestCase):
         self.assertNotIn("@playwright/mcp", package.get("dependencies", {}))
         self.assertNotIn("submit", package["scripts"])
         self.assertEqual(package["scripts"]["human-login"], "node src/login-cli.mjs")
+        self.assertEqual(package["scripts"]["doctor"], "node src/doctor-cli.mjs")
+        self.assertEqual(package["scripts"]["browser-smoke"], "node --test test/live-inspect.test.mjs")
 
     def test_node_guard_and_arg_tests_pass(self):
         node = shutil.which("node")
@@ -37,6 +40,7 @@ class FormExecutorPackageTests(unittest.TestCase):
                 str(TOOL / "test" / "guard.test.mjs"),
                 str(TOOL / "test" / "args.test.mjs"),
                 str(TOOL / "test" / "login.test.mjs"),
+                str(TOOL / "test" / "doctor.test.mjs"),
             ],
             capture_output=True,
             text=True,
@@ -50,6 +54,8 @@ class FormExecutorPackageTests(unittest.TestCase):
             TOOL / "src" / "cli.mjs",
             TOOL / "src" / "login.mjs",
             TOOL / "src" / "login-cli.mjs",
+            TOOL / "src" / "doctor.mjs",
+            TOOL / "src" / "doctor-cli.mjs",
         ):
             result = subprocess.run([node, "--check", str(path)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, msg=f"node --check failed for {path}:\n{result.stderr}")
@@ -107,10 +113,21 @@ class FormExecutorPackageTests(unittest.TestCase):
         self.assertIn("headless: false", source)
         self.assertIn("launchPersistentContext", source)
 
+    def test_doctor_is_ephemeral_and_network_isolated(self):
+        source = (TOOL / "src" / "doctor.mjs").read_text()
+        self.assertIn("mkdtempSync", source)
+        self.assertIn("headless: true", source)
+        self.assertIn("route.abort('blockedbyclient')", source)
+        self.assertIn("page.goto('about:blank')", source)
+        self.assertIn("rmSync", source)
+        for forbidden in (".cookies(", "storageState(", "localStorage", "sessionStorage", "https://", "http://"):
+            self.assertNotIn(forbidden, source)
+
     def test_browser_clis_never_emit_raw_playwright_error_content(self):
         for filename, marker in (
             ("cli.mjs", "UEX_FORM_INSPECT_ERROR"),
             ("login-cli.mjs", "UEX_HUMAN_LOGIN_ERROR"),
+            ("doctor-cli.mjs", "UEX_FORM_BROWSER_DOCTOR_ERROR"),
         ):
             source = (TOOL / "src" / filename).read_text()
             forbidden = (
@@ -125,6 +142,25 @@ class FormExecutorPackageTests(unittest.TestCase):
                 self.assertNotIn(fragment, source)
             self.assertIn(marker, source)
             self.assertIn("error?.name", source)
+
+    def test_live_smoke_is_loopback_only_and_contains_adversarial_secret_fixture(self):
+        source = (TOOL / "test" / "live-inspect.test.mjs").read_text()
+        self.assertIn("127.0.0.1", source)
+        self.assertNotIn("https://", source)
+        self.assertIn("TOP-SECRET-QUERY", source)
+        self.assertIn("PASSWORD-SECRET", source)
+        self.assertIn("mutationCount(), 0", source)
+        self.assertIn("url_query_material_exported: false", source)
+
+    def test_browser_workflow_is_read_only_and_runs_live_local_smoke(self):
+        workflow = WORKFLOW.read_text()
+        self.assertIn("contents: read", workflow)
+        self.assertNotIn("pull_request_target", workflow)
+        self.assertNotIn("secrets.", workflow)
+        self.assertIn("playwright install --with-deps chromium", workflow)
+        self.assertIn("npm run doctor -- --channel chromium", workflow)
+        self.assertIn("npm run browser-smoke", workflow)
+        self.assertIn("--package-lock=false", workflow)
 
 
 if __name__ == "__main__":
