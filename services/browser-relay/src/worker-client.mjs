@@ -1,9 +1,14 @@
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '::1']);
 
+function normalizedHostname(parsed) {
+  const raw = parsed.hostname.toLowerCase();
+  return raw.startsWith('[') && raw.endsWith(']') ? raw.slice(1, -1) : raw;
+}
+
 function assertLoopbackWorkerUrl(value) {
   if (typeof value !== 'string') throw new Error('RELAY_WORKER_URL_INVALID');
   const parsed = new URL(value);
-  if (parsed.protocol !== 'http:' || !LOOPBACK_HOSTS.has(parsed.hostname) || parsed.username || parsed.password || parsed.search || parsed.hash) {
+  if (parsed.protocol !== 'http:' || !LOOPBACK_HOSTS.has(normalizedHostname(parsed)) || parsed.username || parsed.password || parsed.search || parsed.hash) {
     throw new Error('RELAY_WORKER_URL_MUST_BE_LOOPBACK_HTTP');
   }
   if (parsed.pathname !== '/' && parsed.pathname !== '') throw new Error('RELAY_WORKER_URL_PATH_INVALID');
@@ -22,11 +27,8 @@ function requestIdHeader(value) {
 
 async function parseWorkerResponse(response, workerToken) {
   let value;
-  try {
-    value = await response.json();
-  } catch {
-    throw new Error('RELAY_WORKER_RESPONSE_INVALID_JSON');
-  }
+  try { value = await response.json(); }
+  catch { throw new Error('RELAY_WORKER_RESPONSE_INVALID_JSON'); }
   if (!value || typeof value !== 'object' || Array.isArray(value) || typeof value.ok !== 'boolean') throw new Error('RELAY_WORKER_RESPONSE_INVALID');
   const serialized = JSON.stringify(value);
   if (serialized.includes(workerToken)) throw new Error('RELAY_WORKER_SECRET_LEAK_DETECTED');
@@ -50,11 +52,7 @@ export class BrowserWorkerClient {
   }
 
   safeDescriptor() {
-    return {
-      worker_transport: 'loopback_http',
-      worker_origin: this.baseUrl.origin,
-      token_configured: true,
-    };
+    return { worker_transport: 'loopback_http', worker_origin: this.baseUrl.origin, token_configured: true };
   }
 
   async _fetch(path, init = {}) {
@@ -64,17 +62,12 @@ export class BrowserWorkerClient {
       return await this.fetchImpl(new URL(path, this.baseUrl), {
         ...init,
         signal: controller.signal,
-        headers: {
-          authorization: `Bearer ${this.token}`,
-          ...(init.headers || {}),
-        },
+        headers: { authorization: `Bearer ${this.token}`, ...(init.headers || {}) },
       });
     } catch (error) {
       if (error?.name === 'AbortError') throw new Error('RELAY_WORKER_TIMEOUT');
       throw new Error('RELAY_WORKER_UNREACHABLE');
-    } finally {
-      clearTimeout(timeout);
-    }
+    } finally { clearTimeout(timeout); }
   }
 
   async status() {
@@ -86,10 +79,7 @@ export class BrowserWorkerClient {
     const id = requestIdHeader(requestId);
     const response = await this._fetch(path, {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-uex-request-id': id,
-      },
+      headers: { 'content-type': 'application/json', 'x-uex-request-id': id },
       body: JSON.stringify(body),
     });
     return parseWorkerResponse(response, this.token);
@@ -99,13 +89,8 @@ export class BrowserWorkerClient {
     return this.post({ path: '/v1/inspect', requestId, body: { provider, url, allowed_origins: allowedOrigins } });
   }
 
-  validateLocal({ requestId, plan }) {
-    return this.post({ path: '/v1/validate-local', requestId, body: { plan } });
-  }
-
-  prefillLocal({ requestId, plan }) {
-    return this.post({ path: '/v1/prefill-local', requestId, body: { plan } });
-  }
+  validateLocal({ requestId, plan }) { return this.post({ path: '/v1/validate-local', requestId, body: { plan } }); }
+  prefillLocal({ requestId, plan }) { return this.post({ path: '/v1/prefill-local', requestId, body: { plan } }); }
 }
 
-export { assertLoopbackWorkerUrl };
+export { assertLoopbackWorkerUrl, normalizedHostname };
