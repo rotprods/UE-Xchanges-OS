@@ -1,0 +1,17 @@
+{
+  "name": "@rotprods/uex-form-executor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Restricted browser actuator for UE-Xchanges-OS form inspection",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "inspect": "node src/cli.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.62.1"
+  }
+}
