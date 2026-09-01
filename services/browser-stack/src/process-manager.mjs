@@ -1,7 +1,12 @@
 import { spawn } from 'node:child_process';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { generateEphemeralWorkerToken, loadOrCreateCapabilitySecret } from './secrets.mjs';
+import {
+  defaultCapabilityKeyPath,
+  generateEphemeralWorkerToken,
+  loadOrCreateCapabilitySecret,
+} from './secrets.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WORKER_ENTRY = path.resolve(HERE, '../../browser-worker/src/server-cli.mjs');
@@ -85,8 +90,10 @@ async function terminateChild(child, graceMs = 5_000) {
 export async function startBrowserStack({ env = process.env, stdio = process, spawnImpl = spawn } = {}) {
   if (!env || typeof env !== 'object') throw new Error('STACK_ENV_INVALID');
   const systemEnv = minimalSystemEnv(env);
+  const effectiveHome = typeof env.HOME === 'string' && env.HOME ? env.HOME : os.homedir();
+  const keyPath = env.UEX_BROWSER_STACK_CAPABILITY_KEY_PATH || defaultCapabilityKeyPath(effectiveHome);
   const workerToken = generateEphemeralWorkerToken();
-  const secretState = loadOrCreateCapabilitySecret({ filePath: env.UEX_BROWSER_STACK_CAPABILITY_KEY_PATH });
+  const secretState = loadOrCreateCapabilitySecret({ filePath: keyPath, homeDir: effectiveHome });
   const capabilitySecret = secretState.secret.toString('utf8');
   const channel = env.UEX_BROWSER_CHANNEL || 'chrome';
   const headless = envBool(env.UEX_BROWSER_HEADLESS, false);
