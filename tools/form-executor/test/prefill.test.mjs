@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assertLoopbackUrl, validateLocalPrefillPlan } from '../src/prefill.mjs';
+import { assertLoopbackUrl, validateLocalPrefillPlan } from '../src/prefill-policy.mjs';
 
 const future = new Date(Date.now() + 60_000).toISOString();
 
@@ -66,7 +66,7 @@ test('editable RED/BLACK/UNRESOLVED or SECRET fields are rejected', () => {
         editable_by_agent: true,
       }],
     });
-    assert.throws(() => validateLocalPrefillPlan(bad), /forbidden ownership|cannot be SECRET/);
+    assert.throws(() => validateLocalPrefillPlan(bad), /forbidden ownership|cannot be SECRET|cannot contain/);
   }
 });
 
