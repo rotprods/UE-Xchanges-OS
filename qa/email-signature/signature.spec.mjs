@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { expect, test } from '@playwright/test';
 
 const signaturePath = process.env.SIGNATURE_PATH;
@@ -16,6 +19,14 @@ const expectedLinks = [
   'https://www.tiktok.com/@rot.prods',
   'https://linktr.ee/Rot.prods'
 ].sort();
+
+test('repository policy requires the canonical signature for outreach email', () => {
+  const policy = readFileSync(resolve(process.cwd(), '../../AGENTS.md'), 'utf8');
+
+  expect(policy).toContain('OUTREACH_SIGNATURE_GATE_FAIL');
+  expect(policy).toContain(signaturePath);
+  expect(policy).toContain('must not be sent');
+});
 
 test.beforeEach(async ({ context, page }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
