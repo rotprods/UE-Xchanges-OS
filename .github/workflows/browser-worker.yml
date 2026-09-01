@@ -1,0 +1,60 @@
+name: browser-worker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/browser-worker/**'
+      - 'schemas/browser-worker*.json'
+      - 'docs/FORM_BROWSER_WORKER.md'
+      - '.github/workflows/browser-worker.yml'
+      - 'tools/form-executor/src/**'
+  pull_request:
+    paths:
+      - 'services/browser-worker/**'
+      - 'schemas/browser-worker*.json'
+      - 'docs/FORM_BROWSER_WORKER.md'
+      - '.github/workflows/browser-worker.yml'
+      - 'tools/form-executor/src/**'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install pinned Browser Worker dependency
+        working-directory: services/browser-worker
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+
+      - name: Install Playwright Chromium runtime
+        working-directory: services/browser-worker
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser Worker unit + live Chromium gauntlet
+        working-directory: services/browser-worker
+        run: npm test
+
+      - name: Assert protocol has no Submit endpoint
+        run: |
+          if grep -R --line-number --fixed-strings '/v1/submit' services/browser-worker/src; then
+            echo 'Submit endpoint found in Browser Worker source' >&2
+            exit 1
+          fi
+
+      - name: Assert public bind is absent
+        run: |
+          if grep -R --line-number --fixed-strings "0.0.0.0" services/browser-worker/src; then
+            echo 'Public bind found in Browser Worker source' >&2
+            exit 1
+          fi
