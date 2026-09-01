@@ -22,6 +22,8 @@ function fixtureHtml() {
     <textarea id="motivation" name="motivation" minlength="10" maxlength="250" pattern=".{10,}"></textarea>
     <label for="country">Country</label>
     <select id="country" name="country" required><option>Spain</option><option>Portugal</option></select>
+    <label for="hours">Available hours</label>
+    <input id="hours" name="hours" type="number" min="0" max="10" step="0.01" required>
     <label for="availability">Availability declaration</label>
     <input id="availability" name="availability" type="text" required>
   </form></body></html>`;
@@ -65,6 +67,7 @@ function buildPlan(url, structural) {
     {...byKey.get('email'), answer:'candidate@example.com', ownership:'green_agent_factual', sensitivity:'private', editable_by_agent:true},
     {...byKey.get('motivation'), answer:'A real motivation answer', ownership:'yellow_agent_assisted_human_review', sensitivity:'private', editable_by_agent:true},
     {...byKey.get('country'), answer:'Spain', ownership:'green_agent_factual', sensitivity:'public', editable_by_agent:true},
+    {...byKey.get('hours'), answer:'1.00', ownership:'green_agent_factual', sensitivity:'private', editable_by_agent:true},
     {...byKey.get('availability'), answer:'I can attend all project dates', ownership:'red_human_confirmation', sensitivity:'private', editable_by_agent:false},
   ];
   return {
@@ -76,7 +79,7 @@ function buildPlan(url, structural) {
   };
 }
 
-test('live validation reports matches/mismatches and rule drift without values', {timeout:60_000}, async () => {
+test('live validation uses canonical semantics and reports drift without values', {timeout:60_000}, async () => {
   const fixture = await startServer();
   const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'uex-validate-smoke-'));
   let context;
@@ -95,6 +98,7 @@ test('live validation reports matches/mismatches and rule drift without values',
       email:'candidate@example.com',
       motivation:'A real motivation answer',
       country:'Spain',
+      hours:'1',
       availability:'I can attend all project dates',
     };
     await setValues(page, values);
@@ -102,9 +106,17 @@ test('live validation reports matches/mismatches and rule drift without values',
     const passing = await validatePageAgainstExpectation({page, plan, expectation});
     assert.equal(passing.form_fingerprint_match, true);
     assert.equal(passing.validation_signature_match, true);
-    assert.equal(passing.all_values_match, true);
+    assert.equal(passing.all_values_match, true, 'browser value 1 must match plan answer 1.00 canonically');
     assert.equal(passing.all_fields_valid, true);
     assert.deepEqual(passing.schema_diff, {added_field_keys:[], removed_field_keys:[], changed_fields:[]});
+
+    await setValues(page, {hours:'2'});
+    const numberMismatch = await validatePageAgainstExpectation({page, plan, expectation});
+    assert.deepEqual(
+      numberMismatch.field_results.filter((item) => !item.value_match).map((item) => item.field_key),
+      ['hours'],
+    );
+    await setValues(page, {hours:'1'});
 
     await setValues(page, {motivation:'WRONG-MOTIVATION-CANARY'});
     const mismatched = await validatePageAgainstExpectation({page, plan, expectation});
@@ -121,7 +133,7 @@ test('live validation reports matches/mismatches and rule drift without values',
       {field_key:'motivation', changed_properties:['constraints.minlength']},
     ]);
 
-    for (const report of [passing, mismatched, ruleChanged]) {
+    for (const report of [passing, numberMismatch, mismatched, ruleChanged]) {
       const serialized = JSON.stringify(report);
       for (const canary of [
         'candidate@example.com',
