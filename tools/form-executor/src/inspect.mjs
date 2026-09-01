@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import { chromium } from 'playwright';
 import { extractNativeFormSchema } from './dom-schema.mjs';
+import { buildInspectIdentity } from './inspect-identity.mjs';
+import { extractValidationSnapshot } from './validate-diff.mjs';
 import {
   assertDedicatedProfileDir,
   networkDecision,
@@ -38,6 +40,7 @@ export async function inspectForm({
   headless = false,
   channel = 'chrome',
   timeoutMs = 20_000,
+  provider = 'generic_html',
 }) {
   const normalizedOrigins = normalizeAllowedOrigins([normalizeOrigin(url), ...allowedOrigins]);
   const dedicatedProfileDir = assertDedicatedProfileDir(profileDir);
@@ -75,7 +78,19 @@ export async function inspectForm({
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
     ensureAllowedFinalUrl(page.url(), normalizedOrigins);
     const result = await extractNativeFormSchema(page);
+    const validationFields = await extractValidationSnapshot(page);
+    const identity = buildInspectIdentity({
+      provider,
+      canonicalFormUrl: page.url(),
+      structuralFields: result.fields,
+      validationFields,
+    });
+
     result.mode = 'INSPECT_ONLY';
+    result.identity_version = identity.identity_version;
+    result.provider = identity.provider;
+    result.form_fingerprint = identity.form_fingerprint;
+    result.validation_signature = identity.validation_signature;
     result.allowed_origins = normalizedOrigins;
     result.profile_mode = 'dedicated_persistent';
     result.browser_channel = channel;
