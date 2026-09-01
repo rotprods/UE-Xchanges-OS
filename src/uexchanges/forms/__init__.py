@@ -5,6 +5,15 @@ outside the canonical Python core and must consume these contracts rather than
 inventing their own submission state.
 """
 
+from .approval import (
+    ApprovalAction,
+    ApprovalClaims,
+    ApprovalStatus,
+    ApprovalVerification,
+    MAX_APPROVAL_TTL_SECONDS,
+    issue_approval_token,
+    verify_approval_token,
+)
 from .compiler import CompilationResult, compile_execution_plan
 from .fingerprint import canonicalize_form_url, form_schema_fingerprint
 from .models import (
@@ -35,6 +44,10 @@ from .receipts import (
 __all__ = [
     "AnswerAuthor",
     "AnswerCandidate",
+    "ApprovalAction",
+    "ApprovalClaims",
+    "ApprovalStatus",
+    "ApprovalVerification",
     "AuthRequirement",
     "CompilationResult",
     "DuplicateDecision",
@@ -45,6 +58,7 @@ __all__ = [
     "FormExecutionState",
     "FormField",
     "FormFieldType",
+    "MAX_APPROVAL_TTL_SECONDS",
     "PolicyIssue",
     "SubmissionAttempt",
     "SubmissionAttemptStatus",
@@ -57,7 +71,9 @@ __all__ = [
     "evaluate_duplicate_guard",
     "execution_plan_hash",
     "form_schema_fingerprint",
+    "issue_approval_token",
     "reconcile_receipt",
     "submission_key",
     "validate_candidate",
+    "verify_approval_token",
 ]
