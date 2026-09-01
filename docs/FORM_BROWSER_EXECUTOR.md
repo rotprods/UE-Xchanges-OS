@@ -1,12 +1,26 @@
-# Form Browser Executor — Inspect-Only Bootstrap
+# Form Browser Executor — Restricted Capability Ladder
 
 ## Status
 
-Current mode: `INSPECT_ONLY`.
+Implemented capabilities:
 
-This component may open a form and extract its **structure**. It cannot fill fields, click controls, upload files, export cookies/session state, or submit anything.
+```text
+INSPECT_ONLY
+HUMAN_LOGIN_TAKEOVER
+```
 
-The production architecture intentionally does **not** expose raw Playwright MCP tools to the autonomous application agent. A raw browser-control surface could bypass UE-Xchanges hard gates. Instead, the restricted executor uses the Playwright library behind a purpose-built command surface.
+Not implemented/authorised yet:
+
+```text
+PREFILL_ONLY
+VALIDATE_AND_DIFF
+SUPERVISED_SUBMIT
+AUTONOMOUS_SUBMIT
+```
+
+A capability existing in the codebase does not grant the next capability. Each stage receives a separate control-plane lease, tests and release evidence.
+
+The production architecture intentionally does **not** expose raw Playwright MCP tools to the autonomous application agent. A raw browser-control surface could bypass UE-Xchanges hard gates. Instead, the restricted executor uses the Playwright library behind purpose-built commands.
 
 Current pinned browser library: `playwright@1.62.1`.
 
@@ -33,7 +47,9 @@ cd tools/form-executor
 npm install
 ```
 
-The dependency is pinned exactly in `package.json`. A generated lockfile should be committed from the target Mac runtime once dependency installation is performed there and verified; this bootstrap PR does not pretend that an ungenerated lock exists.
+The dependency is pinned exactly in `package.json`. A generated lockfile should be committed from the target Mac runtime once dependency installation is performed there and verified; the repository must not pretend an ungenerated lock exists.
+
+# INSPECT_ONLY
 
 ## Public-form inspection
 
@@ -65,20 +81,22 @@ During an inspection session:
 - DOM submit events are prevented;
 - direct `HTMLFormElement.submit()` and `requestSubmit()` are replaced with blocking functions;
 - no current form field values are extracted;
+- output URLs strip query, fragment and userinfo material;
+- raw Playwright errors are not emitted;
 - no cookies are read;
 - no Playwright storage state is exported;
 - no local/session storage is read;
 - no click/fill/check/select/upload/keyboard-write Playwright APIs exist in this module.
 
-This conservative network policy may prevent some modern SPAs from loading if they use POST requests for read-only GraphQL queries. That is an explicit safety trade-off. Provider-specific read-only exceptions require a future reviewed adapter; they must not be silently relaxed globally.
+This conservative network policy may prevent some modern SPAs from loading if they use POST requests for read-only GraphQL queries. That is an explicit safety trade-off. Provider-specific read-only exceptions require a reviewed adapter; they must not be silently relaxed globally.
 
-## Output
+## Inspector output
 
 The inspector returns JSON containing:
 
 ```text
-page URL/title/origin
-native forms + method/action
+redacted page URL/title/origin
+native forms + redacted method/action
 captured native fields
 required flags
 select/radio/checkbox options
@@ -95,17 +113,76 @@ Password inputs and fields with `autocomplete=one-time-code` are represented str
 
 All other fields enter as `UNRESOLVED/PRIVATE`. The canonical Python compiler subsequently decides GREEN/YELLOW/RED ownership and AI policy using UE-Xchanges evidence. The browser is not allowed to make those decisions.
 
-## Persistent authentication
+# HUMAN_LOGIN_TAKEOVER
 
-The executor uses Playwright `launchPersistentContext` so the dedicated UEX profile can eventually preserve legitimate login state without copying cookies into the model.
+This mode exists solely to establish legitimate authentication inside the dedicated UEX browser profile **without giving the agent credential access**.
 
-However, **this INSPECT_ONLY mode cannot perform login**, because login normally requires POST requests. An authenticated profile must already exist to inspect a private page.
+Example:
 
-A later `HUMAN_LOGIN_TAKEOVER` mode will be implemented as a separate capability/lease. It will let Roberto perform login/2FA manually inside the dedicated profile while the agent remains unable to see credentials. That mode is not present yet.
+```bash
+npm run human-login -- \
+  --url 'https://accounts.example.org/' \
+  --allowed-origin 'https://accounts.example.org' \
+  --allowed-origin 'https://application.example.org'
+```
 
-## Unsupported forms
+The initial `--url` must be a provider/base login URL with no query string, fragment or embedded username/password. This avoids leaking tokenised URLs through command-line process metadata.
 
-The generic inspector handles native:
+If SSO redirects across providers, every legitimate top-level origin must be listed explicitly with another `--allowed-origin`. Subresources may load normally.
+
+## Login takeover sequence
+
+```text
+program opens dedicated persistent profile
+→ initial allowlisted GET navigation
+→ program stops interacting with the page
+→ human uses visible browser manually
+→ human enters username/password/SSO/2FA/CAPTCHA as required
+→ human returns to terminal
+→ human types DONE
+→ browser context closes
+→ browser profile retains its legitimate session locally
+```
+
+The login program requires an interactive TTY. It does not support headless mode or an automation acknowledgement flag.
+
+## What HUMAN_LOGIN_TAKEOVER may do
+
+- launch the dedicated persistent browser profile;
+- navigate once to the provided base login URL;
+- allow browser network traffic required by the human login flow;
+- enforce the explicit allowlist for top-level navigation;
+- wait for the human to type `DONE`;
+- close the context cleanly so the local profile persists its normal browser session.
+
+## What it may not do
+
+The login implementation contains no API for:
+
+- DOM evaluation or locators;
+- reading text/attributes/input values;
+- agent-driven click/fill/check/select;
+- keyboard automation;
+- file upload;
+- cookie extraction;
+- `storageState` export;
+- localStorage/sessionStorage reads;
+- raw Playwright errors or page-content logging;
+- form/application submission on the user's behalf.
+
+The browser itself necessarily receives credentials/cookies during a legitimate login, but those values remain inside the browser/profile boundary and are never exported to the model or project stores.
+
+## Important distinction
+
+```text
+AUTHENTICATED_PROFILE != APPLICATION_SUBMIT_AUTHORITY
+```
+
+A successful login only enables a later capability to open an authenticated page. It does not satisfy eligibility, AI policy, human review or approval-token gates and does not create a `SUBMITTED` state.
+
+# Unsupported forms
+
+The generic inspector currently handles native:
 
 - input
 - textarea
@@ -114,21 +191,20 @@ The generic inspector handles native:
 - checkbox groups
 - file inputs structurally
 
-Custom React/ARIA/contenteditable controls are counted as unsupported custom controls rather than guessed. Provider adapters will be added after this generic boundary proves safe.
+Custom React/ARIA/contenteditable controls are counted as unsupported custom controls rather than guessed. Provider adapters will be added only after the generic boundaries prove safe.
 
-## Required progression
-
-The capability sequence remains:
+# Required progression
 
 ```text
 INSPECT_ONLY
-→ inspected fixtures/public forms
+→ target-runtime install + live public fixture smoke
 → HUMAN_LOGIN_TAKEOVER
+→ authenticated inspect smoke
 → PREFILL_ONLY
-→ deterministic validation + diff
+→ deterministic validation + form diff
 → human approval capability
 → supervised submit
 → receipt verification
 ```
 
-Each transition requires a new control-plane lease and its own tests. No current mode implies permission for the next mode.
+The approval capability already exists in the canonical Python core, but the browser is not yet connected to it. No current mode implies permission for the next mode.
