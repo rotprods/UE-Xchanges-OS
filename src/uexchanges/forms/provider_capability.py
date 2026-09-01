@@ -27,7 +27,7 @@ class ProviderCapabilityManifest:
     inspect_allowed: bool
     human_login_allowed: bool
     requires_human_login: bool
-    external_prefill_certified: bool
+    prefill_certified: bool
     submit_certified: bool
     certified_executor_versions: tuple[str, ...]
     certified_playwright_versions: tuple[str, ...]
@@ -49,13 +49,13 @@ class ProviderCapabilityManifest:
                 raise ValueError("local_fixture_only manifests may contain only loopback origins")
         if self.requires_human_login and not self.human_login_allowed:
             raise ValueError("requires_human_login requires human_login_allowed")
-        if self.external_prefill_certified and not self.inspect_allowed:
-            raise ValueError("external_prefill_certified requires inspect_allowed")
-        if self.submit_certified and not self.external_prefill_certified:
-            raise ValueError("submit_certified requires external_prefill_certified")
-        if (self.external_prefill_certified or self.submit_certified) and not self.evidence_refs:
+        if self.prefill_certified and not self.inspect_allowed:
+            raise ValueError("prefill_certified requires inspect_allowed")
+        if self.submit_certified and not self.prefill_certified:
+            raise ValueError("submit_certified requires prefill_certified")
+        if (self.prefill_certified or self.submit_certified) and not self.evidence_refs:
             raise ValueError("certified write/submit capabilities require evidence_refs")
-        if self.external_prefill_certified and (not self.certified_executor_versions or not self.certified_playwright_versions):
+        if self.prefill_certified and (not self.certified_executor_versions or not self.certified_playwright_versions):
             raise ValueError("prefill certification requires executor and Playwright version constraints")
 
 
@@ -119,8 +119,8 @@ def evaluate_prefill_promotion(
         reasons.append("provider_manifest_mismatch")
     if not manifest.inspect_allowed:
         reasons.append("provider_inspect_not_certified")
-    if not manifest.external_prefill_certified:
-        reasons.append("provider_external_prefill_not_certified")
+    if not manifest.prefill_certified:
+        reasons.append("provider_prefill_not_certified")
     if not _manifest_allows_url(manifest, plan.canonical_form_url):
         reasons.append("provider_origin_not_certified")
 
