@@ -1,0 +1,83 @@
+name: browser-stack
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/browser-stack/**'
+      - 'services/browser-relay/**'
+      - 'services/browser-worker/**'
+      - 'schemas/browser-stack*.json'
+      - 'docs/FORM_BROWSER_STACK.md'
+      - '.github/workflows/browser-stack.yml'
+      - 'tools/form-executor/src/**'
+  pull_request:
+    paths:
+      - 'services/browser-stack/**'
+      - 'services/browser-relay/**'
+      - 'services/browser-worker/**'
+      - 'schemas/browser-stack*.json'
+      - 'docs/FORM_BROWSER_STACK.md'
+      - '.github/workflows/browser-stack.yml'
+      - 'tools/form-executor/src/**'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install stack test dependency
+        working-directory: services/browser-stack
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+
+      - name: Install pinned relay dependencies
+        working-directory: services/browser-relay
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+
+      - name: Install pinned worker dependencies
+        working-directory: services/browser-worker
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+
+      - name: Install Playwright Chromium runtime
+        working-directory: services/browser-worker
+        run: npx playwright install --with-deps chromium
+
+      - name: Stack doctor
+        working-directory: services/browser-stack
+        run: npm run doctor -- --channel chromium
+
+      - name: Supervisor unit + one-command MCP lifecycle gauntlet
+        working-directory: services/browser-stack
+        run: npm test
+
+      - name: Assert MCP supervisor stdout stays protocol-owned
+        run: |
+          if grep -n --fixed-strings 'process.stdout' services/browser-stack/src/server.mjs services/browser-stack/src/process-manager.mjs; then
+            echo 'Supervisor runtime may corrupt MCP stdout' >&2
+            exit 1
+          fi
+
+      - name: Assert no public bind or Submit surface
+        run: |
+          if grep -R --line-number -E '0\.0\.0\.0|/v1/submit|browser_submit|submit_certified.*true' services/browser-stack/src; then
+            echo 'Forbidden Browser Stack surface found' >&2
+            exit 1
+          fi
+
+      - name: Assert child environment is not wholesale inherited
+        run: |
+          if grep -n --fixed-strings '...env,' services/browser-stack/src/process-manager.mjs; then
+            echo 'Supervisor passes wholesale parent environment to a child' >&2
+            exit 1
+          fi
