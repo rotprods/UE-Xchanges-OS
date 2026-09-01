@@ -29,6 +29,7 @@ _MANIFEST_KEYS = {
     "submit_certified",
     "certified_executor_versions",
     "certified_playwright_versions",
+    "certified_browser_channels",
     "evidence_refs",
     "local_fixture_only",
 }
@@ -46,6 +47,7 @@ class ProviderCapabilityManifest:
     submit_certified: bool
     certified_executor_versions: tuple[str, ...]
     certified_playwright_versions: tuple[str, ...]
+    certified_browser_channels: tuple[str, ...]
     evidence_refs: tuple[str, ...] = ()
     local_fixture_only: bool = False
 
@@ -54,6 +56,15 @@ class ProviderCapabilityManifest:
             raise ValueError("provider_id/manifest_version must be non-empty")
         if not self.allowed_origins:
             raise ValueError("allowed_origins must not be empty")
+        for collection_name, values in (
+            ("allowed_origins", self.allowed_origins),
+            ("certified_executor_versions", self.certified_executor_versions),
+            ("certified_playwright_versions", self.certified_playwright_versions),
+            ("certified_browser_channels", self.certified_browser_channels),
+            ("evidence_refs", self.evidence_refs),
+        ):
+            if len(values) != len(set(values)):
+                raise ValueError(f"{collection_name} values must be unique")
         for origin in self.allowed_origins:
             parsed = urlparse(origin)
             if parsed.scheme not in {"http", "https"} or not parsed.hostname:
@@ -70,8 +81,12 @@ class ProviderCapabilityManifest:
             raise ValueError("submit_certified requires prefill_certified")
         if (self.prefill_certified or self.submit_certified) and not self.evidence_refs:
             raise ValueError("certified write/submit capabilities require evidence_refs")
-        if self.prefill_certified and (not self.certified_executor_versions or not self.certified_playwright_versions):
-            raise ValueError("prefill certification requires executor and Playwright version constraints")
+        if self.prefill_certified and (
+            not self.certified_executor_versions
+            or not self.certified_playwright_versions
+            or not self.certified_browser_channels
+        ):
+            raise ValueError("prefill certification requires executor, Playwright and browser-channel constraints")
 
 
 @dataclass(frozen=True)
@@ -93,6 +108,9 @@ def provider_manifest_from_mapping(raw: Mapping[str, Any]) -> ProviderCapability
         raise ValueError(f"provider manifest missing keys: {','.join(sorted(missing))}")
     if unknown:
         raise ValueError(f"provider manifest has unknown keys: {','.join(sorted(unknown))}")
+    for key in ("provider_id", "manifest_version"):
+        if not isinstance(raw[key], str) or not raw[key].strip():
+            raise ValueError(f"provider manifest {key} must be a non-empty string")
     for key in (
         "inspect_allowed",
         "human_login_allowed",
@@ -107,13 +125,14 @@ def provider_manifest_from_mapping(raw: Mapping[str, Any]) -> ProviderCapability
         "allowed_origins",
         "certified_executor_versions",
         "certified_playwright_versions",
+        "certified_browser_channels",
         "evidence_refs",
     ):
-        if not isinstance(raw[key], list) or any(not isinstance(item, str) for item in raw[key]):
-            raise ValueError(f"provider manifest {key} must be an array of strings")
+        if not isinstance(raw[key], list) or any(not isinstance(item, str) or not item.strip() for item in raw[key]):
+            raise ValueError(f"provider manifest {key} must be an array of non-empty strings")
     return ProviderCapabilityManifest(
-        provider_id=str(raw["provider_id"]),
-        manifest_version=str(raw["manifest_version"]),
+        provider_id=raw["provider_id"],
+        manifest_version=raw["manifest_version"],
         allowed_origins=tuple(raw["allowed_origins"]),
         inspect_allowed=raw["inspect_allowed"],
         human_login_allowed=raw["human_login_allowed"],
@@ -122,6 +141,7 @@ def provider_manifest_from_mapping(raw: Mapping[str, Any]) -> ProviderCapability
         submit_certified=raw["submit_certified"],
         certified_executor_versions=tuple(raw["certified_executor_versions"]),
         certified_playwright_versions=tuple(raw["certified_playwright_versions"]),
+        certified_browser_channels=tuple(raw["certified_browser_channels"]),
         evidence_refs=tuple(raw["evidence_refs"]),
         local_fixture_only=raw["local_fixture_only"],
     )
@@ -188,6 +208,8 @@ def evaluate_prefill_promotion(
             reasons.append("executor_version_not_certified")
         if runtime.playwright_version not in manifest.certified_playwright_versions:
             reasons.append("playwright_version_not_certified")
+        if runtime.browser_channel not in manifest.certified_browser_channels:
+            reasons.append("browser_channel_not_certified")
 
     if inspect is not None:
         if runtime is not None and inspect.runtime_attestation_id != runtime.attestation_id:
