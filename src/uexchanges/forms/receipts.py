@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, replace
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import Any
 
@@ -36,6 +36,8 @@ def _jsonable(value: Any) -> Any:
     if isinstance(value, datetime):
         if value.tzinfo is None or value.utcoffset() is None:
             raise ValueError("datetime values must be timezone-aware")
+        return value.isoformat()
+    if isinstance(value, date):
         return value.isoformat()
     if isinstance(value, tuple):
         return [_jsonable(item) for item in value]
@@ -75,7 +77,7 @@ def submission_key(plan: FormExecutionPlan) -> str:
 
 
 def execution_plan_hash(plan: FormExecutionPlan) -> str:
-    """Audit hash for the complete model-visible plan, excluding no hidden secrets."""
+    """Audit hash for the complete model-visible plan, excluding hidden secrets."""
     payload = {
         "plan_id": plan.plan_id,
         "application_id": plan.application_id,
