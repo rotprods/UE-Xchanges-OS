@@ -1,10 +1,10 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "project": "UE-Xchanges-OS",
   "status": "ACTIVE",
-  "generated_at": "2026-09-01T15:39:00+02:00",
+  "generated_at": "2026-09-01T16:36:00+02:00",
   "expires_at": "2026-09-04T22:00:00+02:00",
-  "reason": "The versioned goal-state.json is a release snapshot from 2026-08-31 and is materially behind the current evidence-backed Drive CRM. Existing execution-state precedence requires an active LIVE-STATE-OVERRIDE.json to be read before stale goal-state deadline/status/count fields.",
+  "reason": "goal-state.json remains a 2026-08-31 release snapshot. The private Drive CRM and evidence graph have advanced through CGEV2 source/bootstrap and recovery work, so the repository's existing execution-state precedence requires this active override to control current aggregate state.",
   "base_goal_state": {
     "commit": "419452755e33503ce20959e3267e91411bfc2e46",
     "schema_version": "1.12.0",
@@ -13,66 +13,73 @@
   "authority": {
     "precedence": [
       "current official source / organiser confirmation / submission receipt",
-      "this active public override",
       "private Drive CRM + Agent Event Bus",
+      "this active public override",
       "goal-state.json release snapshot",
-      "Todoist / Notion / HubSpot projections"
+      "Notion / Todoist / HubSpot projections"
     ],
     "private_crm_id": "1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU",
     "crm_timezone": "Europe/Madrid",
     "session_id": "SES-UEX-CHATGPT-20260901T144200-11",
     "agent_id": "AGT-DOMAIN-RECONCILER-BACKFILL",
-    "event_watermark": "EVT-20260901T153900-STATE-009"
+    "event_watermark": "EVT-20260901T163600-CGEV2-001",
+    "private_recovery_pack_id": "19tM23N37cqweaWPSoVMxEECZhfOSrEJPGj_nRJB71q4"
   },
   "runtime": {
-    "opportunity_nodes": 170,
-    "application_nodes": 159,
-    "mass_apply_queue_rows": 159,
-    "organisation_nodes": 26,
+    "opportunity_nodes": 175,
+    "application_nodes": 164,
+    "mass_apply_queue_rows": 164,
+    "organisation_nodes": 30,
     "outcome_rows": 6,
-    "event_bus_events_at_override": 128,
     "submission_receipts": 0,
     "historical_applications_proven_by_outcome_evidence": 1,
     "verified_toy_qualifying_references": 0,
     "open_paid_trainer_calls_crossing_alert_threshold": 0,
-    "telegram_unique_unresolved": 60
+    "telegram_unique_unresolved": 60,
+    "telegram_state": "SOURCE_ACCESS_BLOCKED_NOT_PROCESSED"
   },
   "projection_state": {
     "notion": {
-      "status": "FULL_CANONICAL_READ_MODEL_VERIFIED",
-      "opportunities": "170/170 unique canonical IDs",
-      "applications": "159/159 unique application IDs",
-      "organisations": "26/26 materialized",
+      "status": "CURRENT_ONE_WAY_READ_MODEL",
+      "opportunities": "175/175 intended canonical IDs",
+      "applications": "164/164 intended application IDs",
+      "organisations": "30/30 intended canonical organisations",
       "writeback": "PROHIBITED"
     },
     "hubspot": {
       "role": "relationship graph only",
       "company_contact_deal_read": "AVAILABLE",
       "company_contact_deal_write": "REQUIRES_REAUTHORIZATION",
-      "hot_org_exact_name_dedupe_checked": 10,
-      "hot_org_matches_found": 0,
       "deal_rule": "Only genuine paid trainer/facilitator/consultancy engagements; participant mobility applications are never Deals."
+    },
+    "todoist": {
+      "role": "human action queue only",
+      "submission_evidence": false
     }
+  },
+  "active_wave": {
+    "id": "W9_CONTROLLED_SUBMISSION_BASELINE",
+    "stop": "2026-09-04T22:00:00+02:00",
+    "receipt_floor": 2,
+    "receipt_target": 5,
+    "receipts_current": 0,
+    "policy": "APPLY_EVERYTHING_VIABLE"
   },
   "p0_frontier": {
     "compass": {
       "opportunity_id": "2025-3-PT02-KA152-YOU-000370370",
       "state": "SELECTED_EMAIL_ACCEPTED_PAYMENT_TALLY_PENDING",
-      "evidence": "BreGal selection after #1 waitlist + applicant acceptance email on 2026-09-01",
       "next_gate": "HUMAN_PAYMENT_30_EUR_RECEIPT_THEN_TALLY",
       "confirmed": false
     },
     "step_into_paralympics": {
       "opportunity_id": "doc1-step-paralympics",
-      "state": "PARTICIPANT_PASS_DIRECT_FORM_DEADLINE_TODAY_CUTOFF_QUERY_SENT",
-      "eligibility": "Organizer confirms mixed disabled/non-disabled participant group and no youth-work experience requirement for normal participants.",
-      "ai_policy": "Not prohibited; organiser prefers genuine personal answers.",
-      "next_gate": "EXACT_CUTOFF_OR_FORM_VALIDITY_REPLY_THEN_HUMAN_FORM_AND_RECEIPT"
+      "state": "PARTICIPANT_PASS_DIRECT_FORM_DEADLINE_EXTENDED_CUTOFF_QUERY_PENDING",
+      "next_gate": "CURRENT_FORM_VALIDITY_OR_CUTOFF_REPLY_THEN_HUMAN_FORM_AND_RECEIPT"
     },
     "civis_lab": {
       "opportunity_id": "salto-listing-2026-08-31-civis-lab",
       "state": "ELIGIBILITY_PASS_HUMAN_PAYMENT_THEN_PARTICIPANT_LIST",
-      "route": "No Spanish application form required",
       "next_gate": "HUMAN_PAYMENT_50_EUR_AND_PROOF",
       "payment_executed": false
     },
@@ -84,42 +91,71 @@
     },
     "game_of_nature": {
       "opportunity_id": "2026-1-BG01-KA152-YOU-000396917",
-      "state": "PARTICIPANT_PASS_GROUP_LEADER_FOLLOWUP_SENT",
-      "deadline": "2026-09-15",
-      "next_gate": "ORGANISER_REPLY_ON_GL_DUTIES_MINIMUM_EXPERIENCE_ROUTE_AND_AI_POLICY"
+      "state": "PARTICIPANT_PASS_GROUP_LEADER_FOLLOWUP_PENDING",
+      "next_gate": "ORGANISER_REPLY_ON_GL_DUTIES_MINIMUM_EXPERIENCE_SLOTS_ROUTE_AI_POLICY"
     },
     "i_play": {
       "opportunity_id": "ticket2europe-i-play-2026",
-      "state": "OPEN_PLACES_CONFIRMED_ROUTE_QUERY_SENT",
-      "activity_dates": "2026-10-27/2026-11-05",
-      "next_gate": "TICKET2EUROPE_REPLY_ON_CURRENT_ROLE_SLOTS_FORM_DEADLINE_FUNDING_AI_POLICY"
+      "state": "OPEN_PLACES_CONFIRMED_ROUTE_DETAILS_QUERY_PENDING",
+      "next_gate": "TICKET2EUROPE_REPLY_ON_ROLE_SLOTS_FORM_DEADLINE_FUNDING_AI_POLICY"
     },
     "oriel_53967": {
       "opportunity_id": "eyp-53967",
       "state": "DEADLINE_PASSED_SUBMISSION_UNVERIFIED",
-      "deadline": "2026-09-01T15:00:00+02:00",
-      "next_gate": "HUMAN_RECEIPT_EVIDENCE_IF_FORM_WAS_SUBMITTED_BEFORE_CUTOFF"
+      "next_gate": "HUMAN_RECEIPT_EVIDENCE_IF_SUBMITTED_BEFORE_CUTOFF"
+    }
+  },
+  "new_p1_professional": {
+    "european_youth_forum_comms": {
+      "opportunity_id": "youthforum-communications-officer-2026-09-15",
+      "deadline": "2026-09-15 23:59 CET SOURCE_LITERAL",
+      "state": "HARD_GATES_VERIFY_NO_SUBMIT"
+    },
+    "unicef_rome_comms_g6": {
+      "opportunity_id": "unicef-595258-communication-associate-rome",
+      "deadline": "2026-09-03 23:55 W_EUROPE_DAYLIGHT_TIME",
+      "state": "HARD_PROFILE_VERIFY_NO_SUBMIT"
+    },
+    "unicef_valencia_project_g6": {
+      "opportunity_id": "unicef-595426-project-associate-valencia",
+      "deadline": "2026-09-11 23:55 SOURCE_OFFICIAL_LOCAL_TIME",
+      "state": "HARD_PROFILE_VERIFY_NO_SUBMIT"
+    },
+    "camp_leaders_media_2027": {
+      "opportunity_id": "campleaders-spain-media-2027",
+      "state": "ROLLING_PREP_HARD_GATES"
+    },
+    "camp_america_media_2027": {
+      "opportunity_id": "campamerica-spain-media-2027",
+      "state": "ROLLING_PREP_HARD_GATES"
     }
   },
   "source_watch": {
     "salto_calls_for_trainers": {
       "last_scan": "2026-09-01T15:35:16+02:00",
       "result": "NO_NEW_OPEN_TRAJECTORY_CHANGING_PAID_CALL",
-      "watch": "Inspirational Event call 912 still states calls for 2 plenary facilitators and 5 co-creation-lab facilitators are planned in September 2026; not yet published as open calls."
+      "watch": "Inspirational Event still announces future September calls for 2 plenary facilitators and 5 co-creation-lab facilitators; not yet open."
+    },
+    "telegram": {
+      "state": "60_UNRESOLVED_SOURCE_ACCESS_BLOCKED",
+      "rule": "Do not mark processed without source body/export/Telegram-capable access."
+    },
+    "global_bootstrap": {
+      "waves_1_to_3": "COMPLETE_AT_CGEV2_BOUNDARY",
+      "remaining": "detail/dynamic/original-source verification backlog"
     },
     "ticket2europe_italy_late_september": {
       "state": "PROMISED_BY_SENDING_ORG_LINK_PENDING",
-      "rule": "Do not merge with the visible LEAD RIGHT listing unless Ticket2Europe or fresh authoritative publication resolves identity."
+      "rule": "Do not merge with another visible Italy listing without authoritative identity resolution."
     }
   },
-  "human_now": [
-    "COMPASS: pay association/project contribution, keep receipt, complete final Tally",
-    "Step Into Paralympics: act only on current direct form after cutoff/form-validity gate; capture receipt",
-    "CIVIS LAB: pay only if choosing the place, then send proof; do not buy travel before host authorization",
-    "SABER: complete host-authorised late form and retain confirmation",
-    "Oriel 53967: provide receipt evidence if submitted manually before 15:00",
-    "HubSpot: reauthorize write scopes before relationship graph population"
-  ],
+  "recovery": {
+    "state_file": "STATE.md",
+    "handoff_file": "HANDOFF.md",
+    "changelog_file": "CHANGELOG.md",
+    "private_pack_id": "19tM23N37cqweaWPSoVMxEECZhfOSrEJPGj_nRJB71q4",
+    "cold_start": "Read goal.md -> LIVE-STATE-OVERRIDE.json -> STATE.md -> AGENTS.md -> HANDOFF.md -> newest checkpoint -> private Drive control-plane tail."
+  },
   "safety_invariants": [
     "ROUTE_QUERY_SENT != APPLICATION_SUBMITTED",
     "ELIGIBLE != SELECTED",
@@ -129,5 +165,5 @@
     "No private payment coordinates or sensitive applicant attributes in public state",
     "Notion/Todoist/HubSpot are projections, never submission evidence"
   ],
-  "integration_exit": "Retire this override only after the same evidence-backed state is integrated into goal-state.json and exact-head/main CI succeeds."
+  "integration_exit": "Retire this override only after equivalent evidence-backed state is integrated into goal-state.json and exact-head/main CI succeeds."
 }
