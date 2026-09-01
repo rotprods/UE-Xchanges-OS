@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UEX Browser Relay Capability Claims v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "capability_id",
+    "operation",
+    "request_id",
+    "body_hash",
+    "issued_at",
+    "expires_at",
+    "nonce"
+  ],
+  "properties": {
+    "capability_id": { "type": "string", "pattern": "^relaycap:[0-9a-f]{64}$" },
+    "operation": { "const": "prefill-local" },
+    "request_id": { "type": "string", "pattern": "^[A-Za-z0-9._:-]{8,128}$" },
+    "body_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "issued_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "nonce": { "type": "string", "minLength": 8, "maxLength": 128 }
+  }
+}
