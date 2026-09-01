@@ -35,6 +35,7 @@ from .provider_capability import (
     PrefillPromotionDecision,
     ProviderCapabilityManifest,
     evaluate_prefill_promotion,
+    provider_manifest_from_mapping,
 )
 from .receipts import (
     DuplicateDecision,
@@ -102,6 +103,7 @@ __all__ = [
     "issue_authenticated_inspect_evidence",
     "issue_runtime_attestation",
     "normalize_answer",
+    "provider_manifest_from_mapping",
     "reconcile_receipt",
     "submission_key",
     "validate_candidate",
