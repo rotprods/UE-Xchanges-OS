@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rotprods.github.io/UE-Xchanges-OS/schemas/runtime_action.schema.json",
+  "title": "UE-Xchanges Runtime Action",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "action_id",
+    "application_id",
+    "action_type",
+    "executor",
+    "instruction",
+    "expected_output",
+    "state",
+    "requires",
+    "produces",
+    "idempotency_key"
+  ],
+  "properties": {
+    "action_id": {"type": "string", "minLength": 1},
+    "application_id": {"type": "string", "minLength": 1},
+    "action_type": {"type": "string", "minLength": 1},
+    "executor": {"enum": ["AGENT", "HUMAN", "SYSTEM"]},
+    "instruction": {"type": "string", "minLength": 1},
+    "expected_output": {"type": "string", "minLength": 1},
+    "state": {"enum": ["BLOCKED", "READY", "RUNNING", "WAITING", "DONE", "FAILED"]},
+    "requires": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "produces": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "next_actions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "deadline": {"type": ["string", "null"], "format": "date-time"},
+    "priority": {"type": "integer", "minimum": 0, "maximum": 100},
+    "idempotency_key": {"type": "string", "minLength": 1},
+    "failure_route": {"type": ["string", "null"]},
+    "metadata": {"type": "object"}
+  }
+}
