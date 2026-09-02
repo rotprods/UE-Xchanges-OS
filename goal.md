@@ -68,7 +68,7 @@ Source_Coverage
 Profile_Interview
 ```
 
-A chat must register a unique session, read events after the context cursor, acquire the smallest safe lease, emit idempotent events, update projections and release with a handoff. Unregistered sessions are read-only.
+A chat must register a unique session, load the mandatory bootstrap context, read events after the context cursor, acquire the smallest safe lease, emit idempotent events, update projections and release with a handoff. Unregistered or non-bootstrapped sessions are read-only.
 
 This provides near-real-time external alignment through read-before-write. It does not imply magical push synchronization between already-running chats.
 
@@ -107,16 +107,20 @@ Literal proof that every vacancy on the Internet was found is not available. Ope
 5. inaccessible/stale/unresolved frontier counted;
 6. every viable call routed to receipt-backed submission or an objective sourced block.
 
-## Current canonical scale
+## Live-state rule
 
-- 167 opportunity rows;
-- 156 application/dossier and mass-apply rows;
-- 96 source-inbox nodes;
-- 22 organisation nodes;
-- 52 execution-log events;
-- 35 urgent rows classified;
-- 60 unique Telegram posts unresolved;
-- 0 receipt-backed submissions;
-- 0 verified TOY-qualifying references.
+This file is a **stable mission/policy contract** and intentionally does not embed current opportunity, application, organisation, frontier, receipt or event counts.
 
-The private Drive CRM is authoritative for live rows, profile data, answers, events, leases and receipts. GitHub stores policy, code, schemas, tests and aggregate state.
+Read live scale/state from the current authority chain:
+
+```text
+current official/organiser/receipt evidence
+→ private Drive CRM + Agent_Event_Bus
+→ current versioned recovery state / active LIVE-STATE-OVERRIDE.json
+→ RuntimeGraph derived Command Center
+→ watermarked agent_context snapshots / UI projections
+```
+
+Numeric scale snapshots in historical commits/checkpoints are archaeology only. They must never override a newer event-backed count.
+
+The private Drive CRM is authoritative for live rows, profile data, answers, events, leases and receipts. GitHub stores policy, code, schemas, tests and watermarked aggregate/recovery state.
