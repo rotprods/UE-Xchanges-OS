@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UEX Recovery Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract", "version", "generated_at", "current_main_sha", "event_watermark",
+    "bootstrap_manifest_version", "command_center_ref", "command_center_watermark",
+    "public_artifacts", "private_sources", "bundle_hash", "authority"
+  ],
+  "properties": {
+    "contract": {"const": "UEX_RECOVERY_MANIFEST"},
+    "version": {"const": "1.0.0"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "current_main_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "event_watermark": {"type": "string", "minLength": 1},
+    "bootstrap_manifest_version": {"type": "string", "minLength": 1},
+    "command_center_ref": {"type": "string", "minLength": 1},
+    "command_center_watermark": {"type": "string", "minLength": 1},
+    "public_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "role", "required"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "role": {"type": "string", "minLength": 1},
+          "required": {"type": "boolean"}
+        }
+      }
+    },
+    "private_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "available", "watermark"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "available": {"type": "boolean"},
+          "watermark": {"type": "string"}
+        }
+      }
+    },
+    "bundle_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "authority": {"const": "INVENTORY_ONLY_NOT_DOMAIN_AUTHORITY"}
+  }
+}
