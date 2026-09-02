@@ -4,6 +4,7 @@ import * as z from 'zod/v4';
 const requestId = z.string().regex(/^[A-Za-z0-9._:-]{8,128}$/);
 const url = z.string().url();
 const plan = z.record(z.string(), z.unknown());
+const applicationId = z.string().regex(/^[A-Za-z0-9._:-]{3,160}$/);
 
 function safeCode(error) {
   const raw = typeof error?.message === 'string' ? error.message : '';
@@ -29,13 +30,14 @@ function failure(error) {
 export function createRelayMcpServer({ core }) {
   if (!core) throw new Error('RELAY_CORE_REQUIRED');
   const server = new McpServer(
-    { name: 'uex-browser-relay', version: '0.1.0' },
+    { name: 'uex-browser-relay', version: '0.2.0' },
     {
       instructions: [
-        'Local-only UE-Xchanges Browser Worker relay.',
-        'External INSPECT/PREFILL and Submit are not available.',
+        'UE-Xchanges Browser Worker relay.',
+        'External form capture is read-only and requires a repository-certified provider manifest.',
+        'External PREFILL and Submit are not available.',
         'Never request or expose passwords, OTPs, cookies, storage state, worker tokens, or signing secrets.',
-        'browser_prefill_local requires a short-lived capability bound to the exact request ID and plan hash.',
+        'browser_prefill_local remains loopback-only and requires a short-lived capability bound to the exact request ID and plan hash.',
       ].join(' '),
     },
   );
@@ -66,6 +68,25 @@ export function createRelayMcpServer({ core }) {
     async ({ request_id, provider, url: targetUrl, allowed_origins }) => {
       try {
         return success(await core.inspectLocal({ requestId: request_id, provider, url: targetUrl, allowedOrigins: allowed_origins }));
+      } catch (error) { return failure(error); }
+    },
+  );
+
+  server.registerTool(
+    'browser_capture_provider_form',
+    {
+      description: 'Capture the exact value-free schema of a repository-certified external provider form. Ephemeral browser context; GET/HEAD/OPTIONS only; no login, PREFILL or Submit.',
+      inputSchema: z.object({
+        request_id: requestId,
+        application_id: applicationId,
+        provider: z.enum(['google_forms']),
+        url,
+      }),
+    },
+    async ({ request_id, application_id, provider, url: targetUrl }) => {
+      try {
+        if (typeof core.inspectProvider !== 'function') throw new Error('RELAY_PROVIDER_CAPTURE_UNAVAILABLE');
+        return success(await core.inspectProvider({ requestId: request_id, applicationId: application_id, provider, url: targetUrl }));
       } catch (error) { return failure(error); }
     },
   );

@@ -2,6 +2,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import { BrowserWorkerSession } from './session.mjs';
+import { ProviderCaptureService } from './provider-capture.mjs';
 import { createBrowserWorkerServer } from './server.mjs';
 
 function envFlag(name, defaultValue = false) {
@@ -22,18 +23,23 @@ async function main() {
   if (!Number.isInteger(port)) throw new Error('UEX_BROWSER_WORKER_PORT_INVALID');
   const headless = envFlag('UEX_BROWSER_HEADLESS', false);
   const allowLocalPrefill = envFlag('UEX_BROWSER_WORKER_ALLOW_LOCAL_PREFILL', false);
+  const allowExternalInspect = envFlag('UEX_BROWSER_WORKER_ALLOW_EXTERNAL_INSPECT', false);
 
   const session = new BrowserWorkerSession({ profileDir, channel, headless });
+  const providerCapture = new ProviderCaptureService({ channel, headless });
   const worker = createBrowserWorkerServer({
     session,
+    providerCapture,
     token,
     host: '127.0.0.1',
     port,
     allowLocalPrefill,
+    allowExternalInspect,
   });
   const address = await worker.listen();
   process.stdout.write(`UEX_BROWSER_WORKER_READY http://${address.host}:${address.port}\n`);
   process.stdout.write('UEX_BROWSER_WORKER_SUBMIT_ENDPOINT=ABSENT\n');
+  process.stdout.write(`UEX_BROWSER_WORKER_EXTERNAL_INSPECT=${allowExternalInspect ? 'CERTIFIED_MANIFEST_ONLY' : 'DISABLED'}\n`);
 
   let closing = false;
   const close = async () => {

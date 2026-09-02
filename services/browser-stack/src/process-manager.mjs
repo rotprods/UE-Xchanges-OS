@@ -45,7 +45,6 @@ function waitForWorkerReady(child, timeoutMs = 30_000) {
     let buffer = '';
     let settled = false;
     const timer = setTimeout(() => finish(new Error('STACK_WORKER_READY_TIMEOUT')), timeoutMs);
-
     function cleanup() {
       clearTimeout(timer);
       child.stdout?.off('data', onData);
@@ -70,7 +69,6 @@ function waitForWorkerReady(child, timeoutMs = 30_000) {
     }
     function onExit(code) { finish(new Error(code === 0 ? 'STACK_WORKER_EXITED_EARLY' : 'STACK_WORKER_START_FAILED')); }
     function onError() { finish(new Error('STACK_WORKER_SPAWN_FAILED')); }
-
     child.stdout?.on('data', onData);
     child.once('exit', onExit);
     child.once('error', onError);
@@ -98,6 +96,7 @@ export async function startBrowserStack({ env = process.env, stdio = process, sp
   const channel = env.UEX_BROWSER_CHANNEL || 'chrome';
   const headless = envBool(env.UEX_BROWSER_HEADLESS, false);
   const allowLocalPrefill = envBool(env.UEX_BROWSER_STACK_ALLOW_LOCAL_PREFILL, false);
+  const allowExternalInspect = envBool(env.UEX_BROWSER_STACK_ALLOW_EXTERNAL_INSPECT, true);
 
   const workerEnv = {
     ...systemEnv,
@@ -106,6 +105,7 @@ export async function startBrowserStack({ env = process.env, stdio = process, sp
     UEX_BROWSER_CHANNEL: channel,
     UEX_BROWSER_HEADLESS: headless ? '1' : '0',
     UEX_BROWSER_WORKER_ALLOW_LOCAL_PREFILL: allowLocalPrefill ? '1' : '0',
+    UEX_BROWSER_WORKER_ALLOW_EXTERNAL_INSPECT: allowExternalInspect ? '1' : '0',
   };
 
   const worker = spawnImpl(process.execPath, [WORKER_ENTRY], { env: workerEnv, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -143,6 +143,8 @@ export async function startBrowserStack({ env = process.env, stdio = process, sp
       channel,
       headless,
       local_prefill_enabled: allowLocalPrefill,
+      external_inspect_enabled: allowExternalInspect,
+      external_prefill_enabled: false,
       submit_capability: false,
     },
     close,

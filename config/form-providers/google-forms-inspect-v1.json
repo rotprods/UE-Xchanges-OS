@@ -1,0 +1,24 @@
+{
+  "provider_id": "google_forms",
+  "manifest_version": "inspect-v1.0.0",
+  "allowed_origins": [
+    "https://forms.gle",
+    "https://docs.google.com",
+    "https://ssl.gstatic.com",
+    "https://www.gstatic.com",
+    "https://fonts.googleapis.com",
+    "https://fonts.gstatic.com"
+  ],
+  "inspect_allowed": true,
+  "human_login_allowed": false,
+  "requires_human_login": false,
+  "prefill_certified": false,
+  "submit_certified": false,
+  "certified_executor_versions": [],
+  "certified_playwright_versions": [],
+  "certified_browser_channels": [],
+  "evidence_refs": [
+    "docs/RUNTIMEGRAPH_V2_4_PROVIDER_FORM_CAPTURE.md"
+  ],
+  "local_fixture_only": false
+}

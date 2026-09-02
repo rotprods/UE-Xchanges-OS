@@ -3,6 +3,7 @@ import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import { BrowserWorkerClient } from './worker-client.mjs';
 import { BrowserRelayCore } from './relay-core.mjs';
 import { createRelayMcpServer } from './mcp-server.mjs';
+import { loadProviderInspectManifest, assertProviderCaptureUrl } from './provider-registry.mjs';
 
 function secretFromEnvironment(env, name) {
   const value = env[name];
@@ -17,6 +18,17 @@ export function createServerFromEnvironment(env = process.env) {
   const capabilitySecret = secretFromEnvironment(env, 'UEX_BROWSER_RELAY_CAPABILITY_SECRET');
   const workerClient = new BrowserWorkerClient({ baseUrl: workerUrl, token: workerToken });
   const core = new BrowserRelayCore({ workerClient, capabilitySecret: Buffer.from(capabilitySecret, 'utf8') });
+  core.inspectProvider = async ({ requestId, applicationId, provider, url }) => {
+    const manifest = loadProviderInspectManifest(provider);
+    assertProviderCaptureUrl(manifest, url);
+    return workerClient.inspectProvider({
+      requestId,
+      applicationId,
+      provider,
+      url,
+      allowedOrigins: manifest.allowed_origins,
+    });
+  };
   return createRelayMcpServer({ core });
 }
 

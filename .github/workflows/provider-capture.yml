@@ -1,0 +1,61 @@
+name: provider-capture
+
+on:
+  pull_request:
+    paths:
+      - 'tools/form-executor/**'
+      - 'services/browser-worker/**'
+      - 'services/browser-relay/**'
+      - 'services/browser-stack/**'
+      - 'config/form-providers/**'
+      - 'scripts/provider-capture-live-smoke.mjs'
+      - '.github/workflows/provider-capture.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/form-executor/**'
+      - 'services/browser-worker/**'
+      - 'services/browser-relay/**'
+      - 'services/browser-stack/**'
+      - 'config/form-providers/**'
+      - 'scripts/provider-capture-live-smoke.mjs'
+      - '.github/workflows/provider-capture.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-live-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      UEX_PROVIDER_CAPTURE_SMOKE_URL: https://docs.google.com/forms/d/e/1FAIpQLSeMRa7-weBDv-R1-W__n4as9kCZ7twIpN55gZpS9AvQwtfFSg/viewform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install form executor
+        working-directory: tools/form-executor
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+      - name: Install browser worker
+        working-directory: services/browser-worker
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+      - name: Install relay
+        working-directory: services/browser-relay
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+      - name: Install Chromium
+        working-directory: services/browser-worker
+        run: npx playwright install --with-deps chromium
+      - name: Form executor unit tests
+        working-directory: tools/form-executor
+        run: npm test
+      - name: Browser worker unit tests
+        working-directory: services/browser-worker
+        run: npm test
+      - name: Browser relay unit tests
+        working-directory: services/browser-relay
+        run: npm test
+      - name: Live Google Forms read-only capture
+        run: node scripts/provider-capture-live-smoke.mjs

@@ -36,6 +36,7 @@ test('one stdio process supervises Relay + Worker and kills Worker when MCP clos
     UEX_BROWSER_CHANNEL: 'chromium',
     UEX_BROWSER_HEADLESS: '1',
     UEX_BROWSER_STACK_ALLOW_LOCAL_PREFILL: '0',
+    UEX_BROWSER_STACK_ALLOW_EXTERNAL_INSPECT: '1',
     UEX_BROWSER_STACK_CAPABILITY_KEY_PATH: keyPath,
   };
   const transport = new StdioClientTransport({ command: process.execPath, args: [SERVER], env });
@@ -45,6 +46,7 @@ test('one stdio process supervises Relay + Worker and kills Worker when MCP clos
     await client.connect(transport);
     const { tools } = await client.listTools();
     assert.deepEqual(tools.map((tool) => tool.name).sort(), [
+      'browser_capture_provider_form',
       'browser_inspect_local',
       'browser_prefill_local',
       'browser_status',
@@ -58,6 +60,8 @@ test('one stdio process supervises Relay + Worker and kills Worker when MCP clos
     assert.equal(status.structuredContent.capabilities.external_prefill, false);
     assert.equal(status.structuredContent.worker.status.safety.submit_api_present, false);
     assert.equal(status.structuredContent.worker.status.transport.operations.includes('prefill-local'), false);
+    assert.equal(status.structuredContent.worker.status.transport.operations.includes('inspect-provider'), true);
+    assert.equal(status.structuredContent.worker.status.transport.external_prefill, false);
     workerOrigin = status.structuredContent.worker.descriptor.worker_origin;
     assert.match(workerOrigin, /^http:\/\/127\.0\.0\.1:\d+$/);
 
