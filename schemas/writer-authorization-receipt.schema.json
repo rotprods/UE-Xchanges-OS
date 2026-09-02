@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UEX Writer Authorization Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "version",
+    "receipt_id",
+    "issued_at",
+    "expires_at",
+    "session_id",
+    "agent_id",
+    "context_id",
+    "manifest_version",
+    "observed_main_sha",
+    "intent",
+    "proposed_lease_id",
+    "scope_sha256",
+    "authorization_decision_digest",
+    "authorization_evaluated_at",
+    "health_report_sha256",
+    "health_generated_at",
+    "prelease_event_watermark",
+    "prelease_lease_scan_at",
+    "overlapping_lease_ids",
+    "repair_plan_id",
+    "coordination_allowed",
+    "domain_authority",
+    "external_capability"
+  ],
+  "properties": {
+    "contract": { "const": "UEX_WRITER_AUTHORIZATION_RECEIPT" },
+    "version": { "const": "1.0.0" },
+    "receipt_id": { "type": "string", "pattern": "^WAZ-[0-9a-f]{24}$" },
+    "issued_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "session_id": { "type": "string", "minLength": 1 },
+    "agent_id": { "type": "string", "minLength": 1 },
+    "context_id": { "type": "string", "minLength": 1 },
+    "manifest_version": { "type": "string", "minLength": 1 },
+    "observed_main_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "intent": {
+      "enum": [
+        "VERSIONED_CODE",
+        "CONTROL_PLANE_REPAIR",
+        "DERIVED_PROJECTION",
+        "CANONICAL_DOMAIN",
+        "EXTERNAL_SIDE_EFFECT"
+      ]
+    },
+    "proposed_lease_id": { "type": "string", "minLength": 1 },
+    "scope_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "authorization_decision_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "authorization_evaluated_at": { "type": "string", "format": "date-time" },
+    "health_report_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "health_generated_at": { "type": "string", "format": "date-time" },
+    "prelease_event_watermark": { "type": "string", "minLength": 1 },
+    "prelease_lease_scan_at": { "type": "string", "format": "date-time" },
+    "overlapping_lease_ids": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "repair_plan_id": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "pattern": "^RPL-[0-9a-f]{16}$" }
+      ]
+    },
+    "coordination_allowed": { "const": true },
+    "domain_authority": { "const": false },
+    "external_capability": { "const": false }
+  }
+}
