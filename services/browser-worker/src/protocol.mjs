@@ -50,6 +50,29 @@ export function parseInspectRequest(value) {
   return { provider: body.provider.trim(), url: body.url, allowedOrigins };
 }
 
+export function parseProviderInspectRequest(value) {
+  const body = assertPlainObject(value);
+  assertExactKeys(body, new Set(['application_id', 'provider', 'url', 'allowed_origins']));
+  if (typeof body.application_id !== 'string' || !/^[A-Za-z0-9._:-]{3,160}$/.test(body.application_id)) {
+    throw new Error('WORKER_APPLICATION_ID_INVALID');
+  }
+  if (typeof body.provider !== 'string' || !/^[a-z0-9_]{3,80}$/.test(body.provider)) throw new Error('WORKER_PROVIDER_INVALID');
+  assertHttpUrl(body.url);
+  if (!Array.isArray(body.allowed_origins) || body.allowed_origins.length === 0 || body.allowed_origins.length > 16) {
+    throw new Error('WORKER_ALLOWED_ORIGINS_INVALID');
+  }
+  const allowedOrigins = body.allowed_origins.map((origin) => {
+    assertHttpUrl(origin, 'WORKER_ALLOWED_ORIGINS_INVALID');
+    return origin;
+  });
+  return {
+    applicationId: body.application_id,
+    provider: body.provider,
+    url: body.url,
+    allowedOrigins,
+  };
+}
+
 export function parsePlanRequest(value) {
   const body = assertPlainObject(value);
   assertExactKeys(body, new Set(['plan']));

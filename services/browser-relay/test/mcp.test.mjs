@@ -6,8 +6,11 @@ import { createRelayMcpServer } from '../src/mcp-server.mjs';
 
 function fakeCore() {
   return {
-    status: async () => ({ relay_version: 'test', capabilities: { submit: false } }),
+    status: async () => ({ relay_version: 'test', capabilities: { submit: false, external_prefill: false } }),
     inspectLocal: async () => ({ mode: 'INSPECT_LOCAL_ONLY', form_fingerprint: `sha256:${'f'.repeat(64)}` }),
+    inspectProvider: async ({ applicationId, provider }) => ({
+      mode: 'INSPECT_PROVIDER_READ_ONLY', application_id: applicationId, provider, fields: [{ field_key: 'q-1', label: 'Question', field_type: 'text' }],
+    }),
     validateLocal: async () => ({ mode: 'VALIDATE_LOCAL_ONLY', all_values_match: true }),
     prefillLocal: async ({ capability }) => {
       if (capability !== 'valid-capability-token'.padEnd(40, 'x')) throw new Error('RELAY_CAPABILITY_MALFORMED');
@@ -29,17 +32,36 @@ async function withMcp(fn) {
   }
 }
 
-test('MCP tool surface contains no Submit/browser-generic escape hatch', async () => {
+test('MCP tool surface exposes provider capture but no Submit/browser-generic escape hatch', async () => {
   await withMcp(async (client) => {
     const { tools } = await client.listTools();
     const names = tools.map((tool) => tool.name).sort();
     assert.deepEqual(names, [
+      'browser_capture_provider_form',
       'browser_inspect_local',
       'browser_prefill_local',
       'browser_status',
       'browser_validate_local',
     ]);
     assert.equal(names.some((name) => /submit|cookie|storage|eval|shell|upload|payment/i.test(name)), false);
+  });
+});
+
+test('provider capture returns value-free application-bound structure', async () => {
+  await withMcp(async (client) => {
+    const result = await client.callTool({
+      name: 'browser_capture_provider_form',
+      arguments: {
+        request_id: 'req-provider-0001',
+        application_id: 'app-game-nature-v1',
+        provider: 'google_forms',
+        url: 'https://docs.google.com/forms/d/e/example/viewform',
+      },
+    });
+    assert.equal(result.isError, undefined);
+    assert.equal(result.structuredContent.application_id, 'app-game-nature-v1');
+    assert.equal(result.structuredContent.mode, 'INSPECT_PROVIDER_READ_ONLY');
+    assert.equal(JSON.stringify(result).includes('answer_value'), false);
   });
 });
 

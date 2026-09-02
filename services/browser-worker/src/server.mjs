@@ -13,6 +13,7 @@ import {
   jsonBytes,
   parseInspectRequest,
   parsePlanRequest,
+  parseProviderInspectRequest,
   readJsonBody,
   responseEnvelope,
 } from './protocol.mjs';
@@ -39,13 +40,16 @@ function routePath(request) {
 
 export function createBrowserWorkerServer({
   session,
+  providerCapture = null,
   token,
   host = '127.0.0.1',
   port = 4777,
   allowLocalPrefill = false,
+  allowExternalInspect = false,
   maxIdempotencyEntries = 256,
 }) {
   if (!session || typeof session.status !== 'function') throw new Error('WORKER_SESSION_INVALID');
+  if (allowExternalInspect && (!providerCapture || typeof providerCapture.inspect !== 'function')) throw new Error('WORKER_PROVIDER_CAPTURE_INVALID');
   const bindHost = assertLoopbackBind(host);
   const authToken = assertWorkerToken(token);
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('WORKER_PORT_INVALID');
@@ -96,6 +100,10 @@ export function createBrowserWorkerServer({
 
       if (path === '/v1/status') {
         if (request.method !== 'GET') return sendJson(response, 405, errorEnvelope({ code: 'WORKER_METHOD_NOT_ALLOWED' }));
+        const operations = allowLocalPrefill
+          ? ['status', 'inspect', 'prefill-local', 'validate-local']
+          : ['status', 'inspect', 'validate-local'];
+        if (allowExternalInspect) operations.push('inspect-provider');
         return sendJson(response, 200, responseEnvelope({
           operation: 'status',
           result: {
@@ -106,9 +114,9 @@ export function createBrowserWorkerServer({
               bearer_auth: true,
               submit_endpoint_present: false,
               human_takeover: 'local_cli_only',
-              operations: allowLocalPrefill
-                ? ['status', 'inspect', 'prefill-local', 'validate-local']
-                : ['status', 'inspect', 'validate-local'],
+              operations,
+              external_inspect: allowExternalInspect ? 'certified_manifest_only' : false,
+              external_prefill: false,
             },
           },
         }));
@@ -132,6 +140,11 @@ export function createBrowserWorkerServer({
         operation = 'inspect';
         const input = parseInspectRequest(parsed);
         invoke = () => session.inspect(input);
+      } else if (path === '/v1/inspect-provider') {
+        if (!allowExternalInspect) return sendJson(response, 403, errorEnvelope({ requestId, code: 'WORKER_EXTERNAL_INSPECT_DISABLED' }));
+        operation = 'inspect-provider';
+        const input = parseProviderInspectRequest(parsed);
+        invoke = () => providerCapture.inspect(input);
       } else if (path === '/v1/prefill-local') {
         if (!allowLocalPrefill) return sendJson(response, 403, errorEnvelope({ requestId, code: 'WORKER_LOCAL_PREFILL_DISABLED' }));
         operation = 'prefill-local';
@@ -151,7 +164,11 @@ export function createBrowserWorkerServer({
       return sendJson(response, 200, payload);
     } catch (error) {
       const code = safeErrorCode(error);
-      const statusCode = code === 'WORKER_BODY_TOO_LARGE' ? 413 : code === 'WORKER_CROSS_SITE_REQUEST_BLOCKED' || code === 'WORKER_ORIGIN_NOT_LOOPBACK' ? 403 : 400;
+      const statusCode = code === 'WORKER_BODY_TOO_LARGE'
+        ? 413
+        : code === 'WORKER_CROSS_SITE_REQUEST_BLOCKED' || code === 'WORKER_ORIGIN_NOT_LOOPBACK' || code === 'WORKER_EXTERNAL_INSPECT_DISABLED'
+          ? 403
+          : 400;
       return sendJson(response, statusCode, errorEnvelope({ requestId, code }));
     }
   });
@@ -160,11 +177,10 @@ export function createBrowserWorkerServer({
     server,
     async listen() {
       await session.start?.();
-      await new Promise((resolve, reject) => {
+      const address = await new Promise((resolve, reject) => {
         server.once('error', reject);
-        server.listen(port, bindHost, resolve);
+        server.listen(port, bindHost, () => resolve(server.address()));
       });
-      const address = server.address();
       if (!address || typeof address === 'string') throw new Error('WORKER_LISTEN_FAILED');
       return { host: bindHost, port: address.port };
     },

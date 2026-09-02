@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { chromium } from 'playwright';
-import { extractNativeFormSchema } from './dom-schema.mjs';
+import { extractProviderFormSchema } from './providers/provider-extractor.mjs';
 import { buildInspectIdentity } from './inspect-identity.mjs';
 import { extractValidationSnapshot } from './validate-diff.mjs';
 import {
@@ -77,8 +77,8 @@ export async function inspectForm({
 
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
     ensureAllowedFinalUrl(page.url(), normalizedOrigins);
-    const result = await extractNativeFormSchema(page);
-    const validationFields = await extractValidationSnapshot(page);
+    const result = await extractProviderFormSchema(page, provider);
+    const validationFields = provider === 'generic_html' ? await extractValidationSnapshot(page) : [];
     const identity = buildInspectIdentity({
       provider,
       canonicalFormUrl: page.url(),

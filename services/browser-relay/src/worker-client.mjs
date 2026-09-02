@@ -42,7 +42,7 @@ async function parseWorkerResponse(response, workerToken) {
 }
 
 export class BrowserWorkerClient {
-  constructor({ baseUrl, token, timeoutMs = 15_000, fetchImpl = fetch }) {
+  constructor({ baseUrl, token, timeoutMs = 45_000, fetchImpl = fetch }) {
     this.baseUrl = assertLoopbackWorkerUrl(baseUrl);
     this.token = assertWorkerToken(token);
     if (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 120_000) throw new Error('RELAY_TIMEOUT_INVALID');
@@ -87,6 +87,14 @@ export class BrowserWorkerClient {
 
   inspectLocal({ requestId, provider, url, allowedOrigins }) {
     return this.post({ path: '/v1/inspect', requestId, body: { provider, url, allowed_origins: allowedOrigins } });
+  }
+
+  inspectProvider({ requestId, applicationId, provider, url, allowedOrigins }) {
+    return this.post({
+      path: '/v1/inspect-provider',
+      requestId,
+      body: { application_id: applicationId, provider, url, allowed_origins: allowedOrigins },
+    });
   }
 
   validateLocal({ requestId, plan }) { return this.post({ path: '/v1/validate-local', requestId, body: { plan } }); }
