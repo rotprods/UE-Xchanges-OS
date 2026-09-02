@@ -1,0 +1,13 @@
+{
+  "vectors": {
+    "semantic": {
+      "size": 1024,
+      "distance": "Cosine"
+    },
+    "cos20": {
+      "size": 20,
+      "distance": "Cosine"
+    }
+  },
+  "on_disk_payload": true
+}

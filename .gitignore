@@ -11,3 +11,6 @@ infopacks/private/
 profile/private.json
 *.sqlite3
 *.db
+.qdrant/
+artifacts/semantic/
+.semantic-cache/
