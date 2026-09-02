@@ -1,0 +1,232 @@
+name: semantic-runtime-bridge
+
+on:
+  push:
+    branches:
+      - ops/semantic-runtime-bridge-20260902-0938
+
+permissions:
+  contents: read
+
+jobs:
+  package-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      OLLAMA_VERSION: v0.33.2
+      OLLAMA_SHA256: 9785247dea264d9072f09f6c9c0eb4b8e666892826a3d8388eba3e8fb9ed1db9
+      OLLAMA_MODEL: qwen3-embedding:0.6b
+      QDRANT_VERSION: v1.19.0
+      QDRANT_SHA256: e4405091f67d02f96fb941695ef8a6974e677632507ff7b04a3fcbb332ad9c19
+    steps:
+      - name: Checkout current main corpus
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Prepare bridge workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bridge" "$RUNNER_TEMP/models" "$RUNNER_TEMP/full-ollama"
+          echo "MAIN_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          git config --local --unset-all http.https://github.com/.extraheader || true
+          git remote set-url origin https://github.com/rotprods/UE-Xchanges-OS.git
+          command -v zstd || (sudo apt-get update && sudo apt-get install -y zstd)
+
+      - name: Download pinned Ollama runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst" \
+            -o "$RUNNER_TEMP/ollama-linux-amd64.tar.zst"
+          echo "${OLLAMA_SHA256}  $RUNNER_TEMP/ollama-linux-amd64.tar.zst" | sha256sum -c -
+          tar --zstd -xf "$RUNNER_TEMP/ollama-linux-amd64.tar.zst" -C "$RUNNER_TEMP/full-ollama"
+          test -x "$RUNNER_TEMP/full-ollama/bin/ollama"
+          "$RUNNER_TEMP/full-ollama/bin/ollama" --version
+          du -sh "$RUNNER_TEMP/full-ollama" || true
+          find "$RUNNER_TEMP/full-ollama/lib/ollama" -maxdepth 2 -type f -printf '%s %p\n' | sort -nr | head -40 || true
+
+      - name: Pull Qwen3 embedding model and verify 1024D
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$RUNNER_TEMP/full-ollama/bin:$PATH"
+          export LD_LIBRARY_PATH="$RUNNER_TEMP/full-ollama/lib/ollama${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export OLLAMA_HOST=127.0.0.1:11434
+          export OLLAMA_MODELS="$RUNNER_TEMP/models"
+          export OLLAMA_KEEP_ALIVE=0
+          export OLLAMA_NUM_PARALLEL=1
+          ollama serve >"$RUNNER_TEMP/ollama-full.log" 2>&1 &
+          OLLAMA_PID=$!
+          trap 'kill "$OLLAMA_PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 120); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$OLLAMA_MODEL"
+          curl -fsS http://127.0.0.1:11434/api/embed \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"qwen3-embedding:0.6b","input":["UE-Xchanges semantic bridge 1024D verification"]}' \
+            > "$RUNNER_TEMP/embed-smoke.json"
+          python - <<'PY'
+          import json, os
+          p=os.path.join(os.environ['RUNNER_TEMP'],'embed-smoke.json')
+          data=json.load(open(p,encoding='utf-8'))
+          emb=data['embeddings'][0]
+          print('embedding_dimensions=',len(emb))
+          assert len(emb)==1024, len(emb)
+          assert all(isinstance(v,(int,float)) for v in emb)
+          PY
+          du -sh "$RUNNER_TEMP/models"
+          kill "$OLLAMA_PID" || true
+          wait "$OLLAMA_PID" 2>/dev/null || true
+          trap - EXIT
+
+      - name: Build and smoke-test CPU-only Ollama payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          STAGE="$RUNNER_TEMP/bridge/ollama-cpu"
+          mkdir -p "$STAGE/bin" "$STAGE/lib/ollama"
+          cp "$RUNNER_TEMP/full-ollama/bin/ollama" "$STAGE/bin/ollama"
+          LIBSRC="$RUNNER_TEMP/full-ollama/lib/ollama"
+          shopt -s nullglob
+          for item in "$LIBSRC"/*; do
+            base="$(basename "$item")"
+            case "$base" in
+              cuda*|rocm*|vulkan*|oneapi*|metal*)
+                echo "skip GPU payload: $base"
+                ;;
+              *)
+                cp -a "$item" "$STAGE/lib/ollama/"
+                ;;
+            esac
+          done
+          shopt -u nullglob
+          chmod +x "$STAGE/bin/ollama"
+          du -sh "$STAGE" "$STAGE/lib/ollama" || true
+          export LD_LIBRARY_PATH="$STAGE/lib/ollama${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export OLLAMA_HOST=127.0.0.1:11435
+          export OLLAMA_MODELS="$RUNNER_TEMP/models"
+          export OLLAMA_KEEP_ALIVE=0
+          export OLLAMA_NUM_PARALLEL=1
+          "$STAGE/bin/ollama" serve >"$RUNNER_TEMP/ollama-staged.log" 2>&1 &
+          PID=$!
+          trap 'kill "$PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 90); do
+            curl -fsS http://127.0.0.1:11435/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11435/api/embed \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"qwen3-embedding:0.6b","input":["CPU-only staged runtime verification"]}' \
+            > "$RUNNER_TEMP/embed-staged.json"
+          python - <<'PY'
+          import json, os
+          d=json.load(open(os.path.join(os.environ['RUNNER_TEMP'],'embed-staged.json'),encoding='utf-8'))
+          assert len(d['embeddings'][0])==1024
+          print('staged_cpu_embedding_dimensions=1024')
+          PY
+          kill "$PID" || true
+          wait "$PID" 2>/dev/null || true
+          trap - EXIT
+
+      - name: Download pinned standalone Qdrant
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://github.com/qdrant/qdrant/releases/download/${QDRANT_VERSION}/qdrant-x86_64-unknown-linux-gnu.tar.gz" \
+            -o "$RUNNER_TEMP/qdrant.tar.gz"
+          echo "${QDRANT_SHA256}  $RUNNER_TEMP/qdrant.tar.gz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/qdrant-extract" "$RUNNER_TEMP/bridge/qdrant-repo/qdrant"
+          tar -xzf "$RUNNER_TEMP/qdrant.tar.gz" -C "$RUNNER_TEMP/qdrant-extract"
+          QDRANT_BIN="$(find "$RUNNER_TEMP/qdrant-extract" -type f -name qdrant -perm -111 | head -1)"
+          test -n "$QDRANT_BIN"
+          cp "$QDRANT_BIN" "$RUNNER_TEMP/bridge/qdrant-repo/qdrant/qdrant"
+          chmod +x "$RUNNER_TEMP/bridge/qdrant-repo/qdrant/qdrant"
+          "$RUNNER_TEMP/bridge/qdrant-repo/qdrant/qdrant" --version
+
+      - name: Package exact main checkout and offline Python extras
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="$RUNNER_TEMP/bridge/qdrant-repo"
+          mkdir -p "$DEST/repo" "$DEST/wheels"
+          python -m pip download --only-binary=:all: --dest "$DEST/wheels" 'pypdf>=5,<6' || python -m pip download --dest "$DEST/wheels" 'pypdf>=5,<6'
+          rsync -a --delete \
+            --exclude='.qdrant/' --exclude='.runtime/' --exclude='artifacts/' --exclude='.semantic-cache/' \
+            ./ "$DEST/repo/"
+          test -d "$DEST/repo/.git"
+          test "$(git -C "$DEST/repo" rev-parse HEAD)" = "$MAIN_SHA"
+          git -C "$DEST/repo" config --local --unset-all http.https://github.com/.extraheader || true
+          git -C "$DEST/repo" remote set-url origin https://github.com/rotprods/UE-Xchanges-OS.git
+          python - <<'PY'
+          import json, os, pathlib, subprocess, time
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'bridge'/'qdrant-repo'
+          manifest={
+            'contract':'UEX_SEMANTIC_RUNTIME_BRIDGE_V1',
+            'repo':'rotprods/UE-Xchanges-OS',
+            'main_sha':os.environ['MAIN_SHA'],
+            'ollama_version':os.environ['OLLAMA_VERSION'],
+            'ollama_model':os.environ['OLLAMA_MODEL'],
+            'semantic_dimensions':1024,
+            'qdrant_version':os.environ['QDRANT_VERSION'],
+            'cos_dimensions':20,
+            'authority':'DERIVED_RECONSTRUCTIBLE_ONLY',
+            'generated_unix':int(time.time()),
+          }
+          (root/'bridge-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(manifest,indent=2))
+          PY
+          du -sh "$DEST/repo" "$DEST/qdrant" "$DEST/wheels" || true
+
+      - name: Create deterministic transfer archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/bridge"
+          tar --zstd -cf "$RUNNER_TEMP/ollama-cpu-linux-amd64-${OLLAMA_VERSION}.tar.zst" ollama-cpu
+          mkdir -p qwen-model
+          cp -a "$RUNNER_TEMP/models" qwen-model/models
+          tar --zstd -cf "$RUNNER_TEMP/qwen3-embedding-0.6b-ollama-model.tar.zst" qwen-model
+          tar --zstd -cf "$RUNNER_TEMP/qdrant-${QDRANT_VERSION}-repo-main-${MAIN_SHA}.tar.zst" qdrant-repo
+          cd "$RUNNER_TEMP"
+          sha256sum ollama-cpu-linux-amd64-${OLLAMA_VERSION}.tar.zst > ollama.sha256
+          sha256sum qwen3-embedding-0.6b-ollama-model.tar.zst > model.sha256
+          sha256sum qdrant-${QDRANT_VERSION}-repo-main-${MAIN_SHA}.tar.zst > qdrant-repo.sha256
+          ls -lh *.tar.zst *.sha256
+
+      - name: Upload Ollama CPU artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-ollama-cpu-linux-amd64-v0.33.2
+          path: |
+            ${{ runner.temp }}/ollama-cpu-linux-amd64-v0.33.2.tar.zst
+            ${{ runner.temp }}/ollama.sha256
+          compression-level: 0
+          retention-days: 1
+
+      - name: Upload Qwen3 model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-qwen3-embedding-0.6b-model
+          path: |
+            ${{ runner.temp }}/qwen3-embedding-0.6b-ollama-model.tar.zst
+            ${{ runner.temp }}/model.sha256
+          compression-level: 0
+          retention-days: 1
+
+      - name: Upload Qdrant + repo artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-qdrant-v1.19.0-repo-main
+          path: |
+            ${{ runner.temp }}/qdrant-v1.19.0-repo-main-${{ env.MAIN_SHA }}.tar.zst
+            ${{ runner.temp }}/qdrant-repo.sha256
+          compression-level: 0
+          retention-days: 1
