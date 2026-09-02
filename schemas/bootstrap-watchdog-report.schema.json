@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ue-xchanges-os.local/schemas/bootstrap-watchdog-report.schema.json",
+  "title": "UE-Xchanges Bootstrap Compliance Watchdog Report v1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "contract",
+    "healthy",
+    "open_alert_count",
+    "notification_count",
+    "open_by_severity",
+    "alerts"
+  ],
+  "properties": {
+    "contract": {"const": "UEX_BOOTSTRAP_COMPLIANCE_WATCHDOG"},
+    "healthy": {"type": "boolean"},
+    "open_alert_count": {"type": "integer", "minimum": 0},
+    "notification_count": {"type": "integer", "minimum": 0},
+    "open_by_severity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["INFO", "WARNING", "HIGH", "CRITICAL"],
+      "properties": {
+        "INFO": {"type": "integer", "minimum": 0},
+        "WARNING": {"type": "integer", "minimum": 0},
+        "HIGH": {"type": "integer", "minimum": 0},
+        "CRITICAL": {"type": "integer", "minimum": 0}
+      }
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "subject_key",
+          "subject_type",
+          "subject_id",
+          "session_id",
+          "fingerprint",
+          "severity",
+          "transition",
+          "codes",
+          "notify",
+          "recommended_action"
+        ],
+        "properties": {
+          "subject_key": {"type": "string", "minLength": 1},
+          "subject_type": {"type": "string", "minLength": 1},
+          "subject_id": {"type": "string", "minLength": 1},
+          "session_id": {"type": ["string", "null"]},
+          "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "severity": {"enum": ["INFO", "WARNING", "HIGH", "CRITICAL"]},
+          "transition": {"enum": ["NEW", "UPDATED", "PERSISTING", "RESOLVED"]},
+          "codes": {"type": "array", "items": {"type": "string"}},
+          "notify": {"type": "boolean"},
+          "recommended_action": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "source_manifest_version": {"type": ["string", "null"]},
+    "source_main_sha": {"type": ["string", "null"]},
+    "source_now": {"type": ["string", "null"]}
+  }
+}
