@@ -73,7 +73,7 @@ class AgentBootstrapContractTests(unittest.TestCase):
         manifest = json.loads((ROOT / "agent_context/bootstrap_manifest.json").read_text())
         migration = manifest["migration"]
         self.assertEqual(migration["receipt_enforcement"], "NON_RETROACTIVE")
-        self.assertIn("not retroactively invalidated", migration["existing_sessions"])
+        self.assertIn("no existing lease is retroactively invalidated", migration["existing_sessions"])
         self.assertIn("separately versioned capability", migration["external_side_effects"])
         shortcuts = manifest["forbidden_bootstrap_shortcuts"]
         self.assertIn(
