@@ -17,14 +17,19 @@ Every compliant writer must:
 3. create a fresh Session ID;
 4. emit `SESSION_STARTED`;
 5. emit `BOOTSTRAP_CONTEXT_LOADED` with the manifest version, observed main SHA and private watermark;
-6. refresh currently unexpired leases/Event Bus tail;
-7. only then acquire a write lease.
+6. refresh current main, currently unexpired leases, Event Bus tail and control-plane health;
+7. evaluate generic `WriterAuthorization` for the exact proposed lease/scope/intent;
+8. only after a positive decision, emit `WRITER_AUTHORIZATION_GRANTED` carrying one `UEX_WRITER_AUTHORIZATION_RECEIPT@1.0.0` bound to that exact lease;
+9. only then acquire the write lease, referencing the receipt ID + authorization decision digest;
+10. execute within the lease and release it durably.
+
+A Writer Authorization Receipt is coordination evidence only. It is **not** domain authority, browser/provider capability, payment permission, authentication authority or Submit permission.
 
 The pack is navigation. `MEMORY.md` is semantic memory. Neither is live domain authority.
 
 ## Files
 
-- `bootstrap_manifest.json` — mandatory machine-readable read/handshake/write order.
+- `bootstrap_manifest.json` — mandatory machine-readable read/handshake/authorization/write order.
 - `context.md` — watermarked non-sensitive project snapshot and authority map.
 - `progress.md` — completed milestones, active work, debt and next milestones.
 - `goals.md` — concise goal projection; canonical authority remains `../goal.md`.
@@ -33,6 +38,11 @@ The pack is navigation. `MEMORY.md` is semantic memory. Neither is live domain a
 - `runtimegraph.md` — RuntimeGraph + Form Gateway execution topology.
 - `knowledge.md` — known facts, unknowns and forbidden inference rules.
 - `recovery.md` — cold-start algorithm.
+
+Additional mandatory coordination contracts are declared by the manifest, including:
+
+- `../docs/WRITER_AUTHORIZATION_AND_RELIABILITY_WATCHDOG.md`
+- `../docs/WRITER_AUTHORIZATION_RECEIPT.md`
 
 ## Authority rule
 
@@ -63,6 +73,7 @@ CURRENT_GITHUB_MAIN_SHA
 → AGENTS.md
 → MEMORY.md
 → agent_context/bootstrap_manifest.json
+→ required writer-authorization contracts
 → LIVE-STATE-OVERRIDE.json
 → newest STATE.md / HANDOFF.md / checkpoint
 → agent_context watermarked navigation files
@@ -72,9 +83,11 @@ CURRENT_GITHUB_MAIN_SHA
 → NEW session
 → SESSION_STARTED
 → BOOTSTRAP_CONTEXT_LOADED
-→ refresh leases/events
-→ acquire fresh narrow lease
+→ refresh main + leases + events + health
+→ WriterAuthorization(ALLOWED)
+→ WRITER_AUTHORIZATION_GRANTED(receipt)
+→ acquire fresh narrow lease referencing receipt
 → execute
 ```
 
-Never reuse the snapshot session ID for writes.
+Never reuse the snapshot session ID for writes. Never reuse one authorization receipt for a different lease or changed scope.
