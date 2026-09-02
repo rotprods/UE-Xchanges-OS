@@ -16,12 +16,12 @@ from uexchanges.control_plane_health import (
 NOW = datetime(2026, 9, 2, 9, 30, tzinfo=timezone.utc)
 
 
-def session(*, sid="s1", agent="a1", status="ACTIVE", heartbeat=None):
+def session(*, sid="s1", agent="a1", status="ACTIVE", heartbeat=None, started_at=None):
     return SessionHealthRecord(
         session_id=sid,
         agent_id=agent,
         context_id="ctx",
-        started_at=NOW - timedelta(minutes=10),
+        started_at=started_at or NOW - timedelta(minutes=10),
         last_heartbeat=heartbeat or NOW - timedelta(minutes=1),
         status=status,
     )
@@ -105,7 +105,12 @@ class ControlPlaneHealthTests(unittest.TestCase):
     def test_stale_context_projection_bootstrap_and_dead_letter_are_visible(self):
         report = evaluate_control_plane_health(
             now=NOW,
-            sessions=(session(heartbeat=NOW - timedelta(hours=1)),),
+            sessions=(
+                session(
+                    started_at=NOW - timedelta(hours=2),
+                    heartbeat=NOW - timedelta(hours=1),
+                ),
+            ),
             leases=(),
             contexts=(ContextHealthRecord("ctx", NOW - timedelta(days=2), "ACTIVE"),),
             projections=(ProjectionHealthRecord("Command_Center", NOW - timedelta(hours=2), "old"),),
