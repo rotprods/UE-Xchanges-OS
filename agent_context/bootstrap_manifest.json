@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract": "UEX_AGENT_BOOTSTRAP",
+  "version": "1.0.0",
+  "context_id": "CTX-UEX-GLOBAL-EXPANSION-INCOME-V1",
+  "authority": "DERIVED_BOOTSTRAP_ROUTER_ONLY",
+  "rules": {
+    "chat_memory_is_authoritative": false,
+    "memory_md_is_live_state": false,
+    "agent_context_is_canonical_domain_truth": false,
+    "must_refresh_before_every_write": true,
+    "must_emit_bootstrap_ack_before_lease": true,
+    "required_ack_event": "BOOTSTRAP_CONTEXT_LOADED",
+    "never_reuse_session_id_for_writes": true
+  },
+  "required_public_reads": [
+    "CURRENT_GITHUB_MAIN_SHA",
+    "goal.md",
+    "AGENTS.md",
+    "MEMORY.md",
+    "LIVE-STATE-OVERRIDE.json",
+    "STATE.md",
+    "HANDOFF.md",
+    "agent_context/README.md",
+    "agent_context/context.md",
+    "agent_context/progress.md",
+    "agent_context/checkpoints.md",
+    "agent_context/session.md",
+    "agent_context/runtimegraph.md",
+    "agent_context/knowledge.md",
+    "agent_context/recovery.md"
+  ],
+  "required_private_reads": [
+    "Drive:Context_Registry",
+    "Drive:Agent_Sessions",
+    "Drive:Work_Leases:UNEXPIRED_ONLY",
+    "Drive:Agent_Event_Bus:AFTER_CONTEXT_CURSOR",
+    "Drive:RuntimeGraphV2CommandCenter:Command_Center",
+    "Drive:RuntimeGraphV2CommandCenter:Human_Now",
+    "Drive:RuntimeGraphV2CommandCenter:Agent_Next",
+    "Drive:RuntimeGraphV2CommandCenter:Source_Cursors",
+    "Drive:RuntimeGraphV2CommandCenter:Dead_Letters"
+  ],
+  "freshness_checks": [
+    "re-read current GitHub main before mutation",
+    "re-read unexpired Work_Leases immediately before mutation",
+    "read Event Bus tail after the stored context/event watermark",
+    "reconcile target projection before write",
+    "read fresh Gmail/official evidence when the action depends on external state"
+  ],
+  "bootstrap_ack_required_fields": [
+    "manifest_version",
+    "observed_main_sha",
+    "context_id",
+    "public_read_set_hash_or_refs",
+    "private_event_watermark",
+    "lease_scan_at",
+    "agent_id",
+    "session_id"
+  ],
+  "write_sequence": [
+    "READ_BOOTSTRAP_MANIFEST",
+    "READ_REQUIRED_PUBLIC_CONTEXT",
+    "READ_REQUIRED_PRIVATE_CONTEXT",
+    "REGISTER_UNIQUE_SESSION",
+    "EMIT_SESSION_STARTED",
+    "EMIT_BOOTSTRAP_CONTEXT_LOADED",
+    "REFRESH_UNEXPIRED_LEASES_AND_EVENT_TAIL",
+    "ACQUIRE_SMALLEST_SAFE_LEASE",
+    "EXECUTE_BOUNDED_TRANSITION",
+    "VERIFY_READ_BACK",
+    "EMIT_EVENT",
+    "RECOMPUTE_DERIVED_PROJECTIONS_IF_NEEDED",
+    "RELEASE_LEASE",
+    "SESSION_COMPLETED"
+  ],
+  "forbidden_bootstrap_shortcuts": [
+    "write_from_chat_memory_only",
+    "reuse_old_session_id",
+    "treat_agent_context_as_live_authority",
+    "treat_MEMORY.md_as_current_state",
+    "trust_stale_ACTIVE_lease_without_expiry_event_reconciliation",
+    "infer_submission_from_draft_task_open_form_or_route_query",
+    "claim_merge_or_ci_without_github_evidence"
+  ]
+}

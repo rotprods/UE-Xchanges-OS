@@ -1,7 +1,13 @@
 # UE-Xchanges-OS — AGENTS.md
 
-> Canonical cross-session contract for multi-agent control-plane v1. Read in order:
-> `goal.md` → `goal-state.json` → this file → `ARCHITECTURE.md` → `docs/MULTI_AGENT_CONTROL_PLANE.md` → `docs/GLOBAL_MOBILITY_AND_INCOME_STRATEGY.md` → `docs/MASS_APPLY_POLICY.md` → `docs/GRAPH_OPERATING_PROTOCOL.md` → current checkpoint → private Drive context/events/leases.
+> Canonical cross-session contract for every UE-Xchanges-OS agent/writer.
+>
+> Mandatory cold-start router: `agent_context/bootstrap_manifest.json`.
+>
+> Stable read order starts with:
+> `CURRENT_GITHUB_MAIN_SHA` → `goal.md` → this file → `MEMORY.md` → `agent_context/bootstrap_manifest.json` → `LIVE-STATE-OVERRIDE.json` → `STATE.md` → `HANDOFF.md` → required `agent_context/**` navigation → current checkpoint → private Drive context/events/leases/RuntimeGraph cursors.
+>
+> A compliant writer must emit `BOOTSTRAP_CONTEXT_LOADED` before acquiring a write lease.
 
 ## 1. Mission lock
 
@@ -56,38 +62,68 @@ This order never fabricates role eligibility. Duration has no global hard ceilin
 
 1. Current original official page, infopack, authorised form, organiser confirmation, contract or receipt.
 2. Private Drive CRM event bus and evidence graph.
-3. GitHub versioned policy, schemas, code and aggregate state.
-4. Portable snapshots.
-5. Todoist/interface projections.
+3. Current GitHub versioned policy, schemas, code and aggregate/recovery state.
+4. RuntimeGraph and portable derived snapshots.
+5. `agent_context/**`, `MEMORY.md`, Todoist and interface projections.
+6. Chat memory.
 
 `UNKNOWN` is first-class verification debt. The latest edit is not automatically authoritative.
 
+`MEMORY.md` is slow-changing semantic memory, **not live state**. `agent_context/**` is derived zero-context navigation, **not canonical domain truth**.
+
 ## 5. Source topology and privacy
 
-- GitHub is public: code, schemas, public policies/facts, tests and aggregate state only.
+- GitHub is public: code, schemas, public policies/facts, tests and aggregate/recovery state only.
 - Drive is private: applicant data/evidence, answers, sessions, events, leases, forms, restricted infopacks, dossiers and receipts.
 - Gmail/provider portals are communication/submission evidence channels.
 - Todoist is an execution projection only.
 
-Never place phone, DOB, addresses, identity numbers, health data, emergency contacts, private references, applicant answers or restricted files in public GitHub.
+Never place phone, DOB, addresses, identity numbers, health data, emergency contacts, private references, applicant answers, receipt-private content, secrets/tokens or restricted files in public GitHub.
 
 ## 6. Mandatory multi-agent cold start
 
-Before any canonical write, every chat/agent must:
+The canonical machine-readable contract is `agent_context/bootstrap_manifest.json`.
 
-1. read the current GitHub contract and checkpoint;
-2. read private `Context_Registry`;
-3. inspect `Agent_Sessions` and unexpired `Work_Leases`;
-4. read `Agent_Event_Bus` after the context cursor;
-5. reconcile the target projection;
-6. register a unique Session ID;
-7. emit `SESSION_STARTED`;
-8. acquire the smallest safe lease;
-9. execute only transitions within that lease.
+Before **any canonical or versioned write**, every chat/agent must:
 
-Unregistered sessions are read-only.
+1. read current GitHub `main` and record the SHA;
+2. read `goal.md`, `AGENTS.md`, `MEMORY.md` and `agent_context/bootstrap_manifest.json`;
+3. read the required public recovery/context files declared by the manifest, including current `STATE.md`, `HANDOFF.md` and required `agent_context/**` navigation;
+4. read private `Context_Registry`;
+5. inspect `Agent_Sessions` and **currently unexpired** `Work_Leases`;
+6. read `Agent_Event_Bus` after the current context/event watermark;
+7. read relevant RuntimeGraph Command Center/cursors/dead letters and fresh Gmail/official evidence when the intended action depends on external state;
+8. register a **new** unique Session ID;
+9. emit `SESSION_STARTED`;
+10. emit `BOOTSTRAP_CONTEXT_LOADED` with manifest version, observed main SHA, context ID, public read-set refs/hash, private event watermark, lease-scan timestamp, agent ID and session ID;
+11. refresh unexpired leases + Event Bus tail immediately before lease acquisition;
+12. reconcile the target projection;
+13. acquire the smallest safe lease;
+14. execute only transitions within that lease.
 
-Current context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`.
+`BOOTSTRAP_CONTEXT_LOADED` must occur **before** `LEASE_ACQUIRED` for compliant writers.
+
+Unregistered sessions are read-only. A registered session that has not completed the bootstrap handshake is also read-only.
+
+Never reuse a historical Session ID for writes.
+
+Current global context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`.
+
+## 6A. Memory and context contract
+
+`MEMORY.md` stores only slow-changing semantic memory:
+
+- mission/policy invariants;
+- architecture laws;
+- recurring failure modes;
+- durable evidence rules;
+- long-lived operational decisions.
+
+Do **not** store volatile counts, frontier membership, deadline-sensitive states, current lease ownership, current receipt IDs or applicant-private values in `MEMORY.md`.
+
+Volatile state belongs in authoritative/private systems and watermarked recovery artifacts (`STATE.md`, `HANDOFF.md`, current checkpoint, `LIVE-STATE-OVERRIDE.json`, Drive and `agent_context/**`).
+
+An already-running session does not automatically learn a repository update. Before every material mutation it must refresh Event Bus + leases. If bootstrap contracts (`AGENTS.md`, `MEMORY.md`, manifest) changed materially during a long session, refresh them before continuing significant work.
 
 ## 7. Sessions, leases and events
 
@@ -97,7 +133,9 @@ Session IDs follow:
 
 Stable Agent IDs identify roles, not conversations.
 
-Default lease TTL is 120 minutes. Target heartbeat is 15 minutes while writing. Another session's unexpired lease blocks mutation. Expired/released takeover requires an event.
+Default lease TTL is 120 minutes. Target heartbeat is 15 minutes while writing. Another session's **unexpired, overlapping** lease blocks mutation. Expired/released takeover requires reconciliation/event evidence.
+
+A stale row that still contains the word `ACTIVE` is not a perpetual lock: reconcile status, expiry, heartbeat and later release/takeover events.
 
 Every material mutation emits an append-only event containing project/context/session/agent/entity identity, state before/after, source, causal parent, correlation, lease, writer version and idempotency key.
 
@@ -112,6 +150,8 @@ Same operation + same source version = no-op replay.
 The current Drive-based bus provides near-real-time shared state through mandatory read-before-write. It is not a push broker: an already-running chat does not receive updates automatically. Every material operation must refresh events and leases immediately before mutation.
 
 A projection changed without an event, or an event missing from required projections, creates `PROJECTION_DIVERGENCE` and blocks wave closure.
+
+GitHub is authoritative for GitHub code/PR/CI state. Never claim a merge or green CI because a projection says it happened; observe GitHub itself.
 
 ## 9. Apply-everything contract
 
@@ -153,14 +193,9 @@ Urgency accelerates verification; it never bypasses it.
 
 Historical youth-sector experience, current youth-work context, delivered facilitation and trainer qualification are separate facts.
 
-Verified private aggregate context:
+Verified private aggregate context may exist in Drive, but public/versioned documents must not inflate it into unproven role claims.
 
-- two completed Erasmus+ KA1 Youth Staff professional-development mobilities;
-- one completed Erasmus+ Youth Exchange;
-- current youth-work context: `UNKNOWN`;
-- TOY-qualifying trainer references: `0`.
-
-Attendance never implies group leadership, facilitation or trainer responsibility. Exact roles remain in the private `Profile_Interview` queue until evidenced.
+Attendance never implies group leadership, facilitation or trainer responsibility. Exact roles remain in private evidence/Profile Interview until evidenced.
 
 ## 13. Ask-once profile contract
 
@@ -198,11 +233,11 @@ For each canonical opportunity:
 6. create a project-specific answer pack;
 7. create/update required CV, letter, portfolio, video script or attachments;
 8. route missing facts to `Profile_Interview`;
-9. obtain human-owned final wording and declarations;
-10. submit through the authorised route;
+9. obtain human-owned final wording and declarations where required;
+10. submit only through the authorised route and current capability policy;
 11. store a durable receipt.
 
-Infopacks are analysed; forms and attached templates are completed.
+Infopacks are analysed; forms and attached templates are completed where authorised capability exists.
 
 ## 16. Personalisation and claims
 
@@ -257,21 +292,25 @@ Never call a zero-result or blocked scraper complete.
 
 Build, do not claim. Historical participation supports programme literacy only.
 
-## 21. Submission boundary
+## 21. Submission and browser capability boundary
 
 `SUBMITTED` requires:
 
 - correct authorised channel;
 - all public/private/policy gates pass;
-- human review/ownership;
+- required human review/ownership;
 - legitimate authentication;
 - timestamp;
-- receipt/capture or authoritative confirmation;
+- durable receipt/capture or authoritative confirmation;
 - CRM/event/log update.
 
-Connectors may discover, read, prepare, prefill facts, create documents, draft/send authorised email routes and update systems. Arbitrary authenticated forms, CAPTCHA, MySALTO/EYP/Eurodyssey declarations require Roberto's legitimate final interaction unless an explicit connected action supports submission.
+`SubmissionAttempt != SubmissionReceipt`. Clicking a button, seeing a transient page, completing Todoist, preparing a form, sending an eligibility query or holding a browser session does not establish submission truth.
 
-The handoff must be `READY_FOR_HUMAN_SUBMIT` with exact fields/assets, not “write this yourself”.
+The Form Execution Gateway may expose progressively stronger capabilities, but each capability is independent. Authentication does not imply PREFILL permission. PREFILL does not imply Submit permission. A local HMAC capability is not a browser credential.
+
+Current Form Gateway/Browser capability state must be read from **current code + current recovery artifacts**, not inferred from this stable contract or `MEMORY.md`.
+
+Irreversible Submit remains blocked unless the current versioned capability contract explicitly enables it and all approval/attempt/receipt invariants pass. Payments remain separate from form execution.
 
 ## 22. Todoist
 
@@ -294,54 +333,60 @@ Raw duplicates remain provenance. Conflicting authoritative facts are preserved 
 
 Before ending a session:
 
-1. refresh target/events;
-2. emit final domain events;
-3. reconcile Drive/GitHub/Todoist projections;
-4. record tests and CI actually observed;
+1. refresh current main, target events and unexpired leases;
+2. emit final domain/control events;
+3. reconcile authoritative state and affected projections;
+4. record tests, PRs, merge SHA and CI actually observed;
 5. set exactly one next transition per active node;
-6. update session output/handoff;
-7. emit `HANDOFF_READY` and `SESSION_COMPLETED`;
-8. release every lease.
+6. persist durable semantic lessons in `MEMORY.md` only if they meet the memory-write policy;
+7. update watermarked recovery/context artifacts when within lease;
+8. update session output/handoff;
+9. emit `HANDOFF_READY` when applicable and `SESSION_COMPLETED`;
+10. release every lease.
 
 Historical sessions are backfilled only from evidence. Unknown identity stays unknown.
 
-## 25. Current checkpoint
+## 25. Volatile-state contract
 
-W9 baseline remains:
+**Do not embed live counts, current frontier membership or transient opportunity states in this stable contract.**
 
-- 167 opportunities;
-- 156 application/dossier and mass-apply rows;
-- 96 Source Inbox nodes;
-- 22 organisations;
-- 52 execution-log events;
-- 35 urgent rows classified;
-- 60 unique Telegram posts unresolved;
-- 0 receipts;
-- 0 TOY references.
+For current scale/status read, in order:
 
-Control-plane v1 adds eight private tables, one canonical global context and the first registered session without changing the application baseline or claiming submissions.
+1. current official/organiser/receipt evidence when entity-specific;
+2. private Drive CRM + Event Bus;
+3. current `LIVE-STATE-OVERRIDE.json`, `STATE.md`, `HANDOFF.md` and newest checkpoint;
+4. watermarked `agent_context/context.md` / `progress.md` / `checkpoints.md` as navigation;
+5. RuntimeGraph derived projections.
 
-## 26. Immediate bottlenecks
+Any numeric snapshot in historical commits is historical only.
 
-1. Functional EYP/ESC account and private PRN.
-2. MySALTO access/form capture.
-3. Applicant-owned YUPI assets and receipt-backed submissions.
-4. P0 profile intake: exact Erasmus roles/activities, delivered youth work, education, professional timeline, portfolio links, invoicing and remote-work constraints.
-5. Economics verification for live paid roles.
-6. T1 scans for paid trainers, humanitarian/outside-EU, paid monitors/camps and professional mobility.
-7. Resolve all 60 Telegram posts.
-8. Keep every writer sessioned, leased, idempotent and reconciled.
+## 26. Immediate work selection
+
+Do not maintain a static bottleneck list here.
+
+Select work from live authority:
+
+1. current Human/Agent/System Frontier;
+2. deadlines and hard gates;
+3. current source deltas / dead letters / receipts;
+4. current Form Gateway capability ceiling;
+5. current paid/global opportunity priorities;
+6. unresolved profile/economics/source-access debt.
+
+The current execution frontier belongs in Drive/RuntimeGraph/HANDOFF/agent_context with a timestamp, not in this stable contract.
 
 ## 27. Release protocol
 
 Before merge/release:
 
-1. re-read main and active leases;
-2. update policy/state/checkpoint;
-3. run focused local tests when possible;
-4. open PR;
-5. observe exact-head CI;
-6. merge only green;
-7. observe main push CI;
-8. update private event/session/lease state and Todoist;
-9. never claim an operation that did not occur.
+1. re-read current main and unexpired leases;
+2. confirm bootstrap handshake exists for the writer session;
+3. update only files within lease;
+4. run focused local tests when possible;
+5. open PR;
+6. observe exact-head CI;
+7. verify merge-ref includes current base;
+8. merge only green;
+9. observe main push CI;
+10. update private event/session/lease state and affected projections;
+11. never claim an operation that did not occur.
