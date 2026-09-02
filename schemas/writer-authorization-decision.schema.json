@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UEX Writer Authorization Decision v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract", "version", "coordination_allowed", "intent", "codes", "bootstrap",
+    "failed_slos", "health_blockers", "overlapping_lease_ids", "evaluated_at",
+    "decision_digest", "repair_plan_id", "domain_authority", "external_capability"
+  ],
+  "properties": {
+    "contract": {"const": "UEX_WRITER_AUTHORIZATION"},
+    "version": {"const": "1.0.0"},
+    "coordination_allowed": {"type": "boolean"},
+    "intent": {"enum": ["VERSIONED_CODE", "CONTROL_PLANE_REPAIR", "DERIVED_PROJECTION", "CANONICAL_DOMAIN", "EXTERNAL_SIDE_EFFECT"]},
+    "codes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "bootstrap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "codes"],
+      "properties": {
+        "allowed": {"type": "boolean"},
+        "codes": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "failed_slos": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "health_blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "overlapping_lease_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "evaluated_at": {"type": "string", "format": "date-time"},
+    "decision_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "repair_plan_id": {"type": ["string", "null"], "pattern": "^RPL-[0-9a-f]{16}$"},
+    "domain_authority": {"const": false},
+    "external_capability": {"const": false}
+  }
+}
