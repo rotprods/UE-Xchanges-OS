@@ -46,8 +46,6 @@ jobs:
           tar --zstd -xf "$RUNNER_TEMP/ollama-linux-amd64.tar.zst" -C "$RUNNER_TEMP/full-ollama"
           test -x "$RUNNER_TEMP/full-ollama/bin/ollama"
           "$RUNNER_TEMP/full-ollama/bin/ollama" --version
-          du -sh "$RUNNER_TEMP/full-ollama" || true
-          find "$RUNNER_TEMP/full-ollama/lib/ollama" -maxdepth 2 -type f -printf '%s %p\n' | sort -nr | head -40 || true
 
       - name: Pull Qwen3 embedding model and verify 1024D
         shell: bash
@@ -81,7 +79,6 @@ jobs:
           assert len(emb)==1024, len(emb)
           assert all(isinstance(v,(int,float)) for v in emb)
           PY
-          du -sh "$RUNNER_TEMP/models"
           kill "$OLLAMA_PID" || true
           wait "$OLLAMA_PID" 2>/dev/null || true
           trap - EXIT
@@ -98,17 +95,12 @@ jobs:
           for item in "$LIBSRC"/*; do
             base="$(basename "$item")"
             case "$base" in
-              cuda*|rocm*|vulkan*|oneapi*|metal*)
-                echo "skip GPU payload: $base"
-                ;;
-              *)
-                cp -a "$item" "$STAGE/lib/ollama/"
-                ;;
+              cuda*|rocm*|vulkan*|oneapi*|metal*) echo "skip GPU payload: $base" ;;
+              *) cp -a "$item" "$STAGE/lib/ollama/" ;;
             esac
           done
           shopt -u nullglob
           chmod +x "$STAGE/bin/ollama"
-          du -sh "$STAGE" "$STAGE/lib/ollama" || true
           export LD_LIBRARY_PATH="$STAGE/lib/ollama${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           export OLLAMA_HOST=127.0.0.1:11435
           export OLLAMA_MODELS="$RUNNER_TEMP/models"
@@ -166,7 +158,7 @@ jobs:
           git -C "$DEST/repo" config --local --unset-all http.https://github.com/.extraheader || true
           git -C "$DEST/repo" remote set-url origin https://github.com/rotprods/UE-Xchanges-OS.git
           python - <<'PY'
-          import json, os, pathlib, subprocess, time
+          import json, os, pathlib, time
           root=pathlib.Path(os.environ['RUNNER_TEMP'])/'bridge'/'qdrant-repo'
           manifest={
             'contract':'UEX_SEMANTIC_RUNTIME_BRIDGE_V1',
@@ -183,9 +175,8 @@ jobs:
           (root/'bridge-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
           print(json.dumps(manifest,indent=2))
           PY
-          du -sh "$DEST/repo" "$DEST/qdrant" "$DEST/wheels" || true
 
-      - name: Create deterministic transfer archives
+      - name: Create transfer archives and split model below connector limit
         shell: bash
         run: |
           set -euo pipefail
@@ -197,9 +188,16 @@ jobs:
           tar --zstd -cf "$RUNNER_TEMP/qdrant-${QDRANT_VERSION}-repo-main-${MAIN_SHA}.tar.zst" qdrant-repo
           cd "$RUNNER_TEMP"
           sha256sum ollama-cpu-linux-amd64-${OLLAMA_VERSION}.tar.zst > ollama.sha256
-          sha256sum qwen3-embedding-0.6b-ollama-model.tar.zst > model.sha256
+          sha256sum qwen3-embedding-0.6b-ollama-model.tar.zst > model.full.sha256
           sha256sum qdrant-${QDRANT_VERSION}-repo-main-${MAIN_SHA}.tar.zst > qdrant-repo.sha256
-          ls -lh *.tar.zst *.sha256
+          split -b 180M -d -a 2 qwen3-embedding-0.6b-ollama-model.tar.zst model.part.
+          test -f model.part.00
+          test -f model.part.01
+          test -f model.part.02
+          test -f model.part.03
+          test "$(find . -maxdepth 1 -name 'model.part.*' | wc -l)" -eq 4
+          sha256sum model.part.00 model.part.01 model.part.02 model.part.03 > model.parts.sha256
+          ls -lh *.tar.zst *.sha256 model.part.*
 
       - name: Upload Ollama CPU artifact
         uses: actions/upload-artifact@v4
@@ -211,13 +209,47 @@ jobs:
           compression-level: 0
           retention-days: 1
 
-      - name: Upload Qwen3 model artifact
+      - name: Upload Qwen model part 00
         uses: actions/upload-artifact@v4
         with:
-          name: semantic-qwen3-embedding-0.6b-model
+          name: semantic-qwen3-model-part-00
           path: |
-            ${{ runner.temp }}/qwen3-embedding-0.6b-ollama-model.tar.zst
-            ${{ runner.temp }}/model.sha256
+            ${{ runner.temp }}/model.part.00
+            ${{ runner.temp }}/model.full.sha256
+            ${{ runner.temp }}/model.parts.sha256
+          compression-level: 0
+          retention-days: 1
+
+      - name: Upload Qwen model part 01
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-qwen3-model-part-01
+          path: |
+            ${{ runner.temp }}/model.part.01
+            ${{ runner.temp }}/model.full.sha256
+            ${{ runner.temp }}/model.parts.sha256
+          compression-level: 0
+          retention-days: 1
+
+      - name: Upload Qwen model part 02
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-qwen3-model-part-02
+          path: |
+            ${{ runner.temp }}/model.part.02
+            ${{ runner.temp }}/model.full.sha256
+            ${{ runner.temp }}/model.parts.sha256
+          compression-level: 0
+          retention-days: 1
+
+      - name: Upload Qwen model part 03
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-qwen3-model-part-03
+          path: |
+            ${{ runner.temp }}/model.part.03
+            ${{ runner.temp }}/model.full.sha256
+            ${{ runner.temp }}/model.parts.sha256
           compression-level: 0
           retention-days: 1
 
