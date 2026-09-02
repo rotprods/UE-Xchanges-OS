@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ue-xchanges-os.local/schemas/agent-bootstrap-ack.schema.json",
+  "title": "UE-Xchanges Bootstrap Context Loaded Payload v1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "manifest_version",
+    "observed_main_sha",
+    "context_id",
+    "private_event_watermark",
+    "lease_scan_at",
+    "agent_id",
+    "session_id"
+  ],
+  "properties": {
+    "manifest_version": {"type": "string", "minLength": 1},
+    "observed_main_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "context_id": {"type": "string", "minLength": 1},
+    "public_read_set_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "public_read_set_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "public_read_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "private_event_watermark": {"type": "string", "minLength": 1},
+    "lease_scan_at": {"type": "string", "format": "date-time"},
+    "agent_id": {"type": "string", "minLength": 1},
+    "session_id": {"type": "string", "minLength": 1},
+    "command_center_watermark": {"type": "string"}
+  },
+  "allOf": [
+    {
+      "anyOf": [
+        {"required": ["public_read_set_sha256"]},
+        {"required": ["public_read_set_hash"]},
+        {"required": ["public_read_refs"]}
+      ]
+    }
+  ]
+}
