@@ -1,12 +1,17 @@
-# UE-Xchanges-OS — Agent Bootstrap Protocol v1
+# UE-Xchanges-OS — Agent Bootstrap Protocol v1.1
 
 ## Purpose
 
-Make zero-context recovery **mandatory and auditable** for every agent that can write to UE-Xchanges-OS.
+Make zero-context recovery **mandatory, fail-closed and auditable** for every agent that can write to UE-Xchanges-OS.
 
-The existence of recovery documents is not enough. A compliant writer must prove that it loaded current context before acquiring write authority.
+The existence of recovery documents is not enough. A compliant writer must prove that it loaded current context **and** that the generic writer-authorization broker approved one exact proposed lease before that lease is acquired.
 
 Machine-readable contract: `agent_context/bootstrap_manifest.json`.
+
+Supporting contracts:
+
+- `docs/WRITER_AUTHORIZATION_AND_RELIABILITY_WATCHDOG.md`
+- `docs/WRITER_AUTHORIZATION_RECEIPT.md`
 
 ## Authority model
 
@@ -25,6 +30,8 @@ Official source / organiser / contract / receipt
 
 `MEMORY.md` contains durable lessons only. `agent_context/**` is a derived recovery projection. Both lose to fresher authoritative evidence.
 
+A `WriterAuthorizationReceipt` is **coordination evidence only**. It never means a domain mutation, payment, authentication, browser/provider operation or Submit is permitted.
+
 ## Mandatory cold start
 
 Every writer must execute the bootstrap manifest before any write lease is acquired.
@@ -35,10 +42,12 @@ Every writer must execute the bootstrap manifest before any write lease is acqui
 2. Read `goal.md`.
 3. Read `AGENTS.md`.
 4. Read `MEMORY.md`.
-5. Read `LIVE-STATE-OVERRIDE.json`.
-6. Read current `STATE.md` and `HANDOFF.md`.
-7. Read `agent_context/README.md` and the required files declared in `bootstrap_manifest.json`.
-8. Read the newest relevant checkpoint.
+5. Read `agent_context/bootstrap_manifest.json`.
+6. Read `LIVE-STATE-OVERRIDE.json`.
+7. Read current `STATE.md` and `HANDOFF.md`.
+8. Read `agent_context/README.md` and the required files declared in the manifest.
+9. Read the writer-authorization contracts declared by the manifest.
+10. Read the newest relevant checkpoint.
 
 Do not assume counts embedded in old documents are live.
 
@@ -73,19 +82,68 @@ Append:
 - agent ID;
 - session ID.
 
-Only after that event may the session acquire a write lease.
+This acknowledgement establishes bootstrap compliance. It does **not** yet authorize a lease.
 
-## Lease acquisition law
+## Writer authorization law
 
-Immediately before lease acquisition:
+Immediately before a write lease is acquired:
 
 1. refresh current GitHub main if code/docs are in scope;
 2. refresh currently unexpired leases;
 3. refresh Event Bus tail;
-4. verify no overlapping active lease;
-5. acquire the smallest safe scope.
+4. produce/refresh a current `ControlPlaneHealthReport`;
+5. inventory explicit overlapping unexpired lease IDs for the proposed scope;
+6. construct the exact proposed lease identity/scope/intent;
+7. run generic `authorize_writer(...)`;
+8. if the decision is denied, remain read-only and do not acquire the lease;
+9. if allowed, issue one `UEX_WRITER_AUTHORIZATION_RECEIPT@1.0.0` bound to that exact proposal;
+10. append `WRITER_AUTHORIZATION_GRANTED` with the receipt payload;
+11. only then create/acquire the lease row/event.
+
+The subsequent `LEASE_ACQUIRED` evidence must reference:
+
+```text
+authorization_receipt_id
+authorization_decision_digest
+writer_authorization_receipt_version
+```
+
+Required order:
+
+```text
+SESSION_STARTED
+→ BOOTSTRAP_CONTEXT_LOADED
+→ PRELEASE REFRESH
+→ CONTROL-PLANE HEALTH
+→ WriterAuthorization(ALLOWED)
+→ WRITER_AUTHORIZATION_GRANTED
+→ LEASE_ACQUIRED
+→ bounded write
+```
+
+A receipt is one proposed lease only. Changing lease ID, session, agent, context, main SHA, scope, intent, health snapshot or decision requires a new authorization/receipt.
+
+## Receipt boundary
+
+Receipt invariants:
+
+```text
+coordination_allowed = true
+domain_authority      = false
+external_capability   = false
+```
+
+The receipt default acquisition TTL is short-lived. The lease must be acquired while the receipt is valid. Historical audit later checks that acquisition occurred inside that authorization window; the receipt does not need to remain unexpired for the entire lease lifetime.
+
+Do not add HMAC or browser credentials to the receipt. Browser/Form capability tokens remain a separate security boundary.
+
+`EXTERNAL_SIDE_EFFECT` remains denied by generic WriterAuthorization and requires a separately versioned capability contract.
+
+## Lease acquisition law
 
 A stale historical row containing the word `ACTIVE` is not enough to block forever. Status, expiry, heartbeat and later release/takeover events must be reconciled.
+
+The lease remains the actual fencing token after acquisition. The authorization receipt is proof that acquiring that fence was allowed; it is not a substitute for the fence.
 
 ## Write law
 
@@ -93,7 +151,7 @@ For every material transition:
 
 ```text
 READ CURRENT AUTHORITY
-→ CLAIM NARROW LEASE
+→ VERIFY VALID AUTHORIZATION RECEIPT / CLAIM NARROW LEASE
 → EXECUTE BOUNDED OPERATION
 → READ BACK EXACT TARGET
 → EMIT IDEMPOTENT EVENT
@@ -101,7 +159,16 @@ READ CURRENT AUTHORITY
 → RELEASE
 ```
 
-A writer may not silently widen its scope. Scope expansion requires an Event Bus record before touching the additional resource.
+A writer may not silently widen its scope. Scope expansion requires a new writer-authorization evaluation, a new receipt and an appropriately scoped lease before touching the additional resource.
+
+## Migration law
+
+Writer Authorization Receipt enforcement is **non-retroactive**.
+
+- leases acquired before bootstrap manifest v1.1 becomes authoritative are not violations merely because receipts did not yet exist;
+- already-running sessions must refresh the manifest before their **next lease acquisition**;
+- an already-acquired valid lease is not retroactively invalidated by the v1.1 release;
+- new post-v1.1 leases must follow the receipt sequence.
 
 ## Memory law
 
@@ -129,9 +196,9 @@ Volatile state belongs in Drive, `STATE.md`, `HANDOFF.md`, checkpoints and water
 
 An already-running session does not magically learn a repository update.
 
-Before each material mutation, it must refresh Event Bus + leases. If `AGENTS.md`, `MEMORY.md` or the bootstrap manifest materially changes during a long-running session, the session must refresh those contracts before continuing significant work.
+Before each material mutation it must refresh Event Bus + leases. If `AGENTS.md`, `MEMORY.md` or the bootstrap manifest materially changes during a long-running session, refresh those contracts before continuing significant work.
 
-A future dispatcher may emit `BOOTSTRAP_CONTRACT_UPDATED` to make this refresh explicit, but absence of that event does not remove the read-before-write duty.
+After v1.1, a session that bootstrapped under v1.0 may finish an already-acquired lease, but it must refresh v1.1 and issue `WRITER_AUTHORIZATION_GRANTED` before acquiring another write lease.
 
 ## Handoff law
 
@@ -148,12 +215,13 @@ Do not dump volatile state into `MEMORY.md` as a shortcut.
 
 ## Compliance
 
-`tests/test_agent_bootstrap_contract.py` enforces repository-level invariants:
+`tests/test_agent_bootstrap_contract.py` enforces repository-level invariants including:
 
 - mandatory files exist;
-- manifest is strict and declares `BOOTSTRAP_CONTEXT_LOADED`;
+- manifest version/sequence declares bootstrap ACK + WriterAuthorization + authorization receipt before lease;
 - AGENTS and HANDOFF reference the manifest/MEMORY/context pack;
 - MEMORY declares itself non-authoritative and forbids volatile counts;
-- required cold-start ordering markers remain present.
+- receipt contract is listed as a required read;
+- forbidden shortcuts explicitly reject post-v1.1 lease acquisition without receipt.
 
-CI cannot prove a remote agent actually read a file. The Event Bus handshake supplies the operational audit trail.
+CI cannot prove a remote agent actually read a file or emitted a real Event Bus event. The operational Event Bus sequence and later lease↔receipt audit supply that proof.

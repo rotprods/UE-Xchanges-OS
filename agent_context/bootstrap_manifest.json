@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contract": "UEX_AGENT_BOOTSTRAP",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "context_id": "CTX-UEX-GLOBAL-EXPANSION-INCOME-V1",
   "authority": "DERIVED_BOOTSTRAP_ROUTER_ONLY",
   "rules": {
@@ -11,6 +11,11 @@
     "must_refresh_before_every_write": true,
     "must_emit_bootstrap_ack_before_lease": true,
     "required_ack_event": "BOOTSTRAP_CONTEXT_LOADED",
+    "must_evaluate_writer_authorization_before_lease": true,
+    "must_emit_writer_authorization_receipt_before_lease": true,
+    "required_writer_authorization_event": "WRITER_AUTHORIZATION_GRANTED",
+    "writer_authorization_receipt_version": "1.0.0",
+    "external_side_effects_require_separate_capability": true,
     "never_reuse_session_id_for_writes": true
   },
   "required_public_reads": [
@@ -28,7 +33,9 @@
     "agent_context/session.md",
     "agent_context/runtimegraph.md",
     "agent_context/knowledge.md",
-    "agent_context/recovery.md"
+    "agent_context/recovery.md",
+    "docs/WRITER_AUTHORIZATION_AND_RELIABILITY_WATCHDOG.md",
+    "docs/WRITER_AUTHORIZATION_RECEIPT.md"
   ],
   "required_private_reads": [
     "Drive:Context_Registry",
@@ -45,6 +52,8 @@
     "re-read current GitHub main before mutation",
     "re-read unexpired Work_Leases immediately before mutation",
     "read Event Bus tail after the stored context/event watermark",
+    "generate or refresh ControlPlaneHealthReport before writer authorization",
+    "inventory explicit overlapping unexpired lease IDs for the proposed scope",
     "reconcile target projection before write",
     "read fresh Gmail/official evidence when the action depends on external state"
   ],
@@ -58,6 +67,26 @@
     "agent_id",
     "session_id"
   ],
+  "writer_authorization_receipt_required_fields": [
+    "receipt_id",
+    "issued_at",
+    "expires_at",
+    "session_id",
+    "agent_id",
+    "context_id",
+    "manifest_version",
+    "observed_main_sha",
+    "intent",
+    "proposed_lease_id",
+    "scope_sha256",
+    "authorization_decision_digest",
+    "health_report_sha256",
+    "prelease_event_watermark",
+    "prelease_lease_scan_at",
+    "coordination_allowed",
+    "domain_authority",
+    "external_capability"
+  ],
   "write_sequence": [
     "READ_BOOTSTRAP_MANIFEST",
     "READ_REQUIRED_PUBLIC_CONTEXT",
@@ -66,6 +95,9 @@
     "EMIT_SESSION_STARTED",
     "EMIT_BOOTSTRAP_CONTEXT_LOADED",
     "REFRESH_UNEXPIRED_LEASES_AND_EVENT_TAIL",
+    "EVALUATE_CONTROL_PLANE_HEALTH",
+    "EVALUATE_WRITER_AUTHORIZATION",
+    "EMIT_WRITER_AUTHORIZATION_GRANTED",
     "ACQUIRE_SMALLEST_SAFE_LEASE",
     "EXECUTE_BOUNDED_TRANSITION",
     "VERIFY_READ_BACK",
@@ -74,12 +106,27 @@
     "RELEASE_LEASE",
     "SESSION_COMPLETED"
   ],
+  "lease_acquired_required_authorization_refs": [
+    "authorization_receipt_id",
+    "authorization_decision_digest",
+    "writer_authorization_receipt_version"
+  ],
+  "migration": {
+    "receipt_enforcement": "NON_RETROACTIVE",
+    "pre_1_1_leases": "do not classify as receipt violations solely because the v1.1 receipt contract did not yet exist",
+    "existing_sessions": "refresh manifest before next lease acquisition; no existing lease is retroactively invalidated",
+    "external_side_effects": "remain outside generic writer authorization and require a separately versioned capability contract"
+  },
   "forbidden_bootstrap_shortcuts": [
     "write_from_chat_memory_only",
     "reuse_old_session_id",
     "treat_agent_context_as_live_authority",
     "treat_MEMORY.md_as_current_state",
     "trust_stale_ACTIVE_lease_without_expiry_event_reconciliation",
+    "acquire_post_v1_1_write_lease_without_positive_writer_authorization",
+    "acquire_post_v1_1_write_lease_without_WRITER_AUTHORIZATION_GRANTED_receipt",
+    "treat_writer_authorization_receipt_as_domain_authority",
+    "treat_writer_authorization_receipt_as_external_capability",
     "infer_submission_from_draft_task_open_form_or_route_query",
     "claim_merge_or_ci_without_github_evidence"
   ]
