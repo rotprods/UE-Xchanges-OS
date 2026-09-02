@@ -3,7 +3,7 @@
   "$id": "https://ue-xchanges-os.local/schemas/agent-bootstrap-ack.schema.json",
   "title": "UE-Xchanges Bootstrap Context Loaded Payload v1",
   "type": "object",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "required": [
     "manifest_version",
     "observed_main_sha",
