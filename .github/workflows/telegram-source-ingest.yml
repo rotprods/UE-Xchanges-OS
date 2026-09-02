@@ -1,0 +1,39 @@
+name: telegram-source-ingest
+
+on:
+  push:
+    branches:
+      - ops/telegram-doc2-ingest-20260902
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    name: telegram-batch-${{ matrix.batch }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        batch: [0, 1, 2, 3, 4, 5]
+    env:
+      BATCH: ${{ matrix.batch }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fetch public Telegram posts
+        run: node scripts/telegram-public-ingest.mjs
+      - name: Validate artifact structure
+        run: |
+          node -e "const fs=require('fs');const p='telegram-artifacts/batch-'+process.env.BATCH+'.json';const x=JSON.parse(fs.readFileSync(p));if(x.total!==10)process.exit(1);console.log(JSON.stringify({batch:x.batch_index,total:x.total,resolved:x.resolved,failed:x.failed}))"
+      - name: Upload batch artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: telegram-doc2-batch-${{ matrix.batch }}
+          path: telegram-artifacts/batch-${{ matrix.batch }}.json
+          if-no-files-found: error
+          retention-days: 2
