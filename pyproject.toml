@@ -12,5 +12,10 @@ dependencies = []
 [project.optional-dependencies]
 pdf = ["pypdf>=5,<6"]
 
+[project.scripts]
+uex-semantic = "uexchanges.semantic.cli:main"
+graphify = "uexchanges.semantic.cli:graphify_main"
+cos-graph-engine = "uexchanges.semantic.cli:cos_graph_main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
