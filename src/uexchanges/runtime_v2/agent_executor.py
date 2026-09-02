@@ -4,8 +4,9 @@ import hashlib
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Mapping
+from typing import Callable, Mapping
 
+from ..bootstrap_guard import GuardDecision
 from ..coordination import (
     AgentSession,
     LeaseAction,
@@ -25,6 +26,8 @@ from .action_handlers import (
 from .closed_loop import ClosedLoopRuntime
 from .dispatcher import AutonomousEventDispatcher, DispatchStatus
 
+BootstrapLeaseAuthorizer = Callable[[WorkLease, datetime], GuardDecision]
+
 
 class AgentExecutionStatus(str, Enum):
     COMPLETED = "completed"
@@ -32,6 +35,7 @@ class AgentExecutionStatus(str, Enum):
     RETRY_SCHEDULED = "retry_scheduled"
     FAILED = "failed"
     BLOCKED_SAFETY = "blocked_safety"
+    BLOCKED_BOOTSTRAP = "blocked_bootstrap"
     BLOCKED_LEASE = "blocked_lease"
     NO_HANDLER = "no_handler"
     NOT_READY = "not_ready"
@@ -64,22 +68,19 @@ class AgentExecutionCycle:
 
     @property
     def human_frontier_changed(self) -> bool:
-        # The executor itself never guesses this. Dispatcher results are applied
-        # before completion, and callers rebuild/self-heal the frontier afterwards.
         return any(item.dispatch_statuses for item in self.records)
 
 
 class AgentFrontierExecutor:
     """Execute only safe reversible AGENT actions from RuntimeGraph.
 
-    The executor is intentionally tool-agnostic: the current ChatGPT/Codex/runtime
-    environment supplies handlers that use Gmail/web/Drive/Form Gateway.  The
-    kernel owns safety, action selection, action-level lease fencing, retry budget,
-    evidence requirements and RuntimeGraph transitions.
+    The kernel owns safety, bootstrap authorization, action selection,
+    action-level lease fencing, retry budget, evidence requirements and
+    RuntimeGraph transitions.
 
-    `WorkLease.lease_id` is the fencing token.  A takeover always receives a new
-    lease ID, so stale writers cannot author a valid action transition with an old
-    token.
+    `WorkLease.lease_id` is the fencing token. Bootstrap authorization is
+    fail-closed: without a configured authorizer the executor may inspect the
+    frontier but cannot claim or execute an action.
     """
 
     def __init__(
@@ -89,6 +90,7 @@ class AgentFrontierExecutor:
         dispatcher: AutonomousEventDispatcher,
         session: AgentSession,
         handlers: HandlerRegistry,
+        bootstrap_authorizer: BootstrapLeaseAuthorizer | None = None,
         existing_action_leases: Mapping[str, WorkLease] | None = None,
         max_attempts: int = 3,
         lease_ttl: timedelta = timedelta(minutes=10),
@@ -106,6 +108,7 @@ class AgentFrontierExecutor:
         self.dispatcher = dispatcher
         self.session = session
         self.handlers = handlers
+        self.bootstrap_authorizer = bootstrap_authorizer
         self.max_attempts = max_attempts
         self.lease_ttl = lease_ttl
         self.retry_base = retry_base
@@ -143,17 +146,31 @@ class AgentFrontierExecutor:
             return self._record(action, AgentExecutionStatus.NO_HANDLER, None, reason="no registered safe handler")
 
         attempt = self.attempts.get(action_id, 0) + 1
-        self.attempts[action_id] = attempt
         lease_decision = self._claim_action_lease(action=action, now=now, attempt=attempt)
         if not lease_decision.allowed or lease_decision.lease is None:
             return self._record(
                 action,
                 AgentExecutionStatus.BLOCKED_LEASE,
                 lease_decision.lease,
-                attempts=attempt,
+                attempts=self.attempts.get(action_id, 0),
                 reason=lease_decision.reason,
             )
         lease = lease_decision.lease
+
+        bootstrap = self._authorize_bootstrap_lease(lease=lease, now=now)
+        if not bootstrap.allowed:
+            return self._record(
+                action,
+                AgentExecutionStatus.BLOCKED_BOOTSTRAP,
+                None,
+                attempts=self.attempts.get(action_id, 0),
+                reason=bootstrap.reason,
+            )
+
+        # Only a fully authorized claim consumes an execution attempt or becomes
+        # an active fencing token. Bootstrap denial therefore has zero graph,
+        # handler, retry-budget or action-lease side effects.
+        self.attempts[action_id] = attempt
         self.action_leases[action_id] = lease
 
         graph.claim(action_id, executor=ExecutorType.AGENT, now=now)
@@ -163,7 +180,7 @@ class AgentFrontierExecutor:
             ensure_result_scoped(request, result)
         except RuntimeError as exc:
             return self._handle_retryable_exception(action, lease, now, attempt, str(exc))
-        except Exception as exc:  # deterministic handler/scope contract failure
+        except Exception as exc:
             graph.fail(action_id, executor=ExecutorType.AGENT, now=now, reason=f"HANDLER_CONTRACT_FAILURE:{type(exc).__name__}")
             self._release(action_id, lease, now, "handler contract failure")
             return self._record(
@@ -193,12 +210,7 @@ class AgentFrontierExecutor:
         if result.disposition is HandlerDisposition.SUCCEEDED:
             for ref in result.evidence_refs:
                 graph.completed_evidence.add(ref)
-            graph.complete(
-                action_id,
-                executor=ExecutorType.AGENT,
-                now=now,
-                evidence_ref=result.evidence_refs[0],
-            )
+            graph.complete(action_id, executor=ExecutorType.AGENT, now=now, evidence_ref=result.evidence_refs[0])
             self.attempts.pop(action_id, None)
             self._release(action_id, lease, now, "action completed with durable evidence")
             return self._record(
@@ -212,12 +224,7 @@ class AgentFrontierExecutor:
             )
 
         if result.disposition is HandlerDisposition.WAITING:
-            graph.wait(
-                action_id,
-                executor=ExecutorType.AGENT,
-                now=now,
-                reason=result.reason_code or "WAITING_EXTERNAL_EVIDENCE",
-            )
+            graph.wait(action_id, executor=ExecutorType.AGENT, now=now, reason=result.reason_code or "WAITING_EXTERNAL_EVIDENCE")
             self._release(action_id, lease, now, "action waiting on external evidence")
             return self._record(
                 action,
@@ -230,21 +237,9 @@ class AgentFrontierExecutor:
             )
 
         if result.disposition is HandlerDisposition.RETRYABLE or result.retryable:
-            return self._schedule_retry(
-                action,
-                lease,
-                now,
-                attempt,
-                result.reason_code or "RETRYABLE_HANDLER_RESULT",
-                statuses,
-            )
+            return self._schedule_retry(action, lease, now, attempt, result.reason_code or "RETRYABLE_HANDLER_RESULT", statuses)
 
-        graph.fail(
-            action_id,
-            executor=ExecutorType.AGENT,
-            now=now,
-            reason=result.reason_code or "HANDLER_FAILED",
-        )
+        graph.fail(action_id, executor=ExecutorType.AGENT, now=now, reason=result.reason_code or "HANDLER_FAILED")
         self._release(action_id, lease, now, "handler returned failure")
         return self._record(
             action,
@@ -272,22 +267,22 @@ class AgentFrontierExecutor:
             expires_at=now + self.lease_ttl,
         )
 
-    def _handle_retryable_exception(
-        self,
-        action: ActionNode,
-        lease: WorkLease,
-        now: datetime,
-        attempt: int,
-        reason: str,
-    ) -> AgentExecutionRecord:
-        return self._schedule_retry(
-            action,
-            lease,
-            now,
-            attempt,
-            f"RETRYABLE_HANDLER_EXCEPTION:{reason[:160]}",
-            (),
-        )
+    def _authorize_bootstrap_lease(self, *, lease: WorkLease, now: datetime) -> "_BootstrapResult":
+        if self.bootstrap_authorizer is None:
+            return _BootstrapResult(False, "BOOTSTRAP_GUARD_NOT_CONFIGURED")
+        try:
+            decision = self.bootstrap_authorizer(lease, now)
+        except Exception as exc:
+            return _BootstrapResult(False, f"BOOTSTRAP_GUARD_FAILURE:{type(exc).__name__}")
+        if not isinstance(decision, GuardDecision):
+            return _BootstrapResult(False, "BOOTSTRAP_GUARD_CONTRACT_INVALID")
+        if not decision.allowed:
+            codes = ",".join(code.value for code in decision.codes)
+            return _BootstrapResult(False, f"BOOTSTRAP_DENIED:{codes or 'UNKNOWN'}")
+        return _BootstrapResult(True, "BOOTSTRAP_ALLOWED")
+
+    def _handle_retryable_exception(self, action: ActionNode, lease: WorkLease, now: datetime, attempt: int, reason: str) -> AgentExecutionRecord:
+        return self._schedule_retry(action, lease, now, attempt, f"RETRYABLE_HANDLER_EXCEPTION:{reason[:160]}", ())
 
     def _schedule_retry(
         self,
@@ -311,12 +306,7 @@ class AgentFrontierExecutor:
                 reason="RETRY_BUDGET_EXHAUSTED",
             )
 
-        wait_event = graph.wait(
-            action.action_id,
-            executor=ExecutorType.AGENT,
-            now=now,
-            reason=reason,
-        )
+        wait_event = graph.wait(action.action_id, executor=ExecutorType.AGENT, now=now, reason=reason)
         retry_at = now + self.retry_base * attempt
         waiting = graph.actions[action.action_id]
         graph.actions[action.action_id] = replace(
@@ -357,12 +347,7 @@ class AgentFrontierExecutor:
                 graph.resume_waiting(action_id, now=now)
 
     def _release(self, action_id: str, lease: WorkLease, now: datetime, reason: str) -> None:
-        released = release_lease(
-            lease,
-            requester_session_id=self.session.session_id,
-            at=now,
-            reason=reason,
-        )
+        released = release_lease(lease, requester_session_id=self.session.session_id, at=now, reason=reason)
         self.action_leases[action_id] = released
 
     def _record(
@@ -389,6 +374,12 @@ class AgentFrontierExecutor:
             reason=reason,
             retry_at=retry_at,
         )
+
+
+@dataclass(frozen=True)
+class _BootstrapResult:
+    allowed: bool
+    reason: str
 
 
 def _action_lease_id(session_id: str, action_id: str, now: datetime, attempt: int) -> str:

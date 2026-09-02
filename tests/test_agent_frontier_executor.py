@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime, timedelta, timezone
 
+from uexchanges.bootstrap_guard import GuardCode, GuardDecision
 from uexchanges.coordination import AgentSession, LeaseStatus, SessionStatus, WorkLease
 from uexchanges.runtime_graph import ActionNode, ActionState, ExecutorType, RuntimeGraph
 from uexchanges.runtime_v2.action_handlers import (
@@ -30,6 +31,10 @@ def session():
     )
 
 
+def allow_bootstrap(lease, now):
+    return GuardDecision(True, (GuardCode.COMPLIANT,))
+
+
 def graph_with(action_type="VERIFY_SOURCE", *, executor=ExecutorType.AGENT, application_id="app-1"):
     graph = RuntimeGraph()
     graph.add_action(
@@ -49,7 +54,7 @@ def graph_with(action_type="VERIFY_SOURCE", *, executor=ExecutorType.AGENT, appl
     return graph
 
 
-def executor_for(graph, registry, *, existing=None, max_attempts=3):
+def executor_for(graph, registry, *, existing=None, max_attempts=3, bootstrap_authorizer=allow_bootstrap):
     runtime = ClosedLoopRuntime(graph)
     dispatcher = AutonomousEventDispatcher(runtime=runtime, router=ExplicitEventRouter())
     return AgentFrontierExecutor(
@@ -57,6 +62,7 @@ def executor_for(graph, registry, *, existing=None, max_attempts=3):
         dispatcher=dispatcher,
         session=session(),
         handlers=registry,
+        bootstrap_authorizer=bootstrap_authorizer,
         existing_action_leases=existing,
         max_attempts=max_attempts,
         retry_base=timedelta(minutes=1),
@@ -91,13 +97,7 @@ class AgentFrontierExecutorTests(unittest.TestCase):
         registry = HandlerRegistry()
         registry.register_prefix(
             "VERIFY_",
-            static_handler(
-                AgentActionResult(
-                    HandlerDisposition.SUCCEEDED,
-                    observed_at=NOW,
-                    evidence_refs=("evidence:x",),
-                )
-            ),
+            static_handler(AgentActionResult(HandlerDisposition.SUCCEEDED, observed_at=NOW, evidence_refs=("evidence:x",))),
         )
         record = executor_for(graph, registry).execute_one(action_id="action:app-1:1", now=NOW)
         self.assertEqual(record.status, AgentExecutionStatus.BLOCKED_SAFETY)
@@ -106,8 +106,7 @@ class AgentFrontierExecutorTests(unittest.TestCase):
 
     def test_human_action_is_never_claimed(self):
         graph = graph_with("VERIFY_SOURCE", executor=ExecutorType.HUMAN)
-        registry = HandlerRegistry()
-        record = executor_for(graph, registry).execute_one(action_id="action:app-1:1", now=NOW)
+        record = executor_for(graph, HandlerRegistry()).execute_one(action_id="action:app-1:1", now=NOW)
         self.assertEqual(record.status, AgentExecutionStatus.BLOCKED_SAFETY)
 
     def test_missing_handler_fails_closed_without_claim(self):
@@ -132,10 +131,7 @@ class AgentFrontierExecutorTests(unittest.TestCase):
             last_heartbeat=NOW - timedelta(minutes=1),
         )
         registry = HandlerRegistry()
-        registry.register_prefix(
-            "VERIFY_",
-            static_handler(AgentActionResult(HandlerDisposition.SUCCEEDED, NOW, ("evidence:x",))),
-        )
+        registry.register_prefix("VERIFY_", static_handler(AgentActionResult(HandlerDisposition.SUCCEEDED, NOW, ("evidence:x",))))
         record = executor_for(graph, registry, existing={action_id: foreign}).execute_one(action_id=action_id, now=NOW)
         self.assertEqual(record.status, AgentExecutionStatus.BLOCKED_LEASE)
         self.assertEqual(record.lease_id, "LSE-FOREIGN")
@@ -157,10 +153,7 @@ class AgentFrontierExecutorTests(unittest.TestCase):
             last_heartbeat=NOW - timedelta(minutes=20),
         )
         registry = HandlerRegistry()
-        registry.register_prefix(
-            "VERIFY_",
-            static_handler(AgentActionResult(HandlerDisposition.SUCCEEDED, NOW, ("evidence:x",))),
-        )
+        registry.register_prefix("VERIFY_", static_handler(AgentActionResult(HandlerDisposition.SUCCEEDED, NOW, ("evidence:x",))))
         record = executor_for(graph, registry, existing={action_id: expired}).execute_one(action_id=action_id, now=NOW)
         self.assertEqual(record.status, AgentExecutionStatus.COMPLETED)
         self.assertNotEqual(record.fencing_token, "LSE-OLD")
@@ -178,11 +171,7 @@ class AgentFrontierExecutorTests(unittest.TestCase):
                     reason_code="TRANSIENT_PROVIDER_TIMEOUT",
                     retryable=True,
                 )
-            return AgentActionResult(
-                HandlerDisposition.SUCCEEDED,
-                request.observed_at,
-                evidence_refs=("official:retry-success",),
-            )
+            return AgentActionResult(HandlerDisposition.SUCCEEDED, request.observed_at, evidence_refs=("official:retry-success",))
 
         registry = HandlerRegistry()
         registry.register_prefix("VERIFY_", handler)
@@ -208,9 +197,8 @@ class AgentFrontierExecutorTests(unittest.TestCase):
         registry = HandlerRegistry()
         registry.register_prefix("VERIFY_", handler)
         executor = executor_for(graph, registry, max_attempts=3)
-        times = (NOW, NOW + timedelta(minutes=2), NOW + timedelta(minutes=5))
         records = []
-        for when in times:
+        for when in (NOW, NOW + timedelta(minutes=2), NOW + timedelta(minutes=5)):
             records.append(executor.run_cycle(now=when, max_actions=1).records[0])
         self.assertEqual(records[-1].status, AgentExecutionStatus.FAILED)
         self.assertEqual(graph.actions[records[-1].action_id].state, ActionState.FAILED)
