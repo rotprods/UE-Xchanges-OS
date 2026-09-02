@@ -1,0 +1,159 @@
+name: semantic-incremental
+
+on:
+  push:
+    branches:
+      - ops/semantic-incremental-20260902-1022
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  vectorize-added-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BASE_SHA: 5bb086b0adcaa1a22cb80fa0ad87836a00f015b8
+      TARGET_SHA: 5bd92696e3b9d04be9eda0c2a6e5dcb929235870
+      SOURCE_RUNTIME_RUN_ID: '33605026333'
+      OLLAMA_MODEL: qwen3-embedding:0.6b
+    steps:
+      - name: Checkout fixed target snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 2
+
+      - name: Verify additions-only delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          git cat-file -e "$BASE_SHA^{commit}"
+          mapfile -t changed < <(git diff --diff-filter=ACMRTUXB --name-only "$BASE_SHA" "$TARGET_SHA")
+          mapfile -t added < <(git diff --diff-filter=A --name-only "$BASE_SHA" "$TARGET_SHA")
+          printf '%s\n' "${added[@]}" | sed '/^$/d' > "$RUNNER_TEMP/added-paths.txt"
+          test "${#changed[@]}" -eq 8
+          test "${#added[@]}" -eq 8
+          test "${#changed[@]}" -eq "${#added[@]}"
+          echo "Added paths:"
+          cat "$RUNNER_TEMP/added-paths.txt"
+
+      - name: Install scanner PDF support
+        run: python -m pip install 'pypdf>=5,<6'
+
+      - name: Download verified CPU-only Ollama payload
+        uses: actions/download-artifact@v4
+        with:
+          name: semantic-ollama-cpu-linux-amd64-v0.33.2
+          path: ${{ runner.temp }}/ollama-artifact
+          github-token: ${{ github.token }}
+          repository: rotprods/UE-Xchanges-OS
+          run-id: ${{ env.SOURCE_RUNTIME_RUN_ID }}
+
+      - name: Download verified Qwen3 model payload
+        uses: actions/download-artifact@v4
+        with:
+          name: semantic-qwen3-embedding-0.6b-model
+          path: ${{ runner.temp }}/model-artifact
+          github-token: ${{ github.token }}
+          repository: rotprods/UE-Xchanges-OS
+          run-id: ${{ env.SOURCE_RUNTIME_RUN_ID }}
+
+      - name: Verify and unpack runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/ollama-artifact"
+          expected=$(awk 'NR==1{print $1}' ollama.sha256)
+          actual=$(sha256sum ollama-cpu-linux-amd64-v0.33.2.tar.zst | awk '{print $1}')
+          test "$actual" = "$expected"
+          mkdir -p "$RUNNER_TEMP/runtime"
+          tar --zstd -xf ollama-cpu-linux-amd64-v0.33.2.tar.zst -C "$RUNNER_TEMP/runtime"
+          cd "$RUNNER_TEMP/model-artifact"
+          expected=$(awk 'NR==1{print $1}' model.sha256)
+          actual=$(sha256sum qwen3-embedding-0.6b-ollama-model.tar.zst | awk '{print $1}')
+          test "$actual" = "$expected"
+          tar --zstd -xf qwen3-embedding-0.6b-ollama-model.tar.zst -C "$RUNNER_TEMP/runtime"
+          MODEL_BLOB="$(find "$RUNNER_TEMP/runtime/qwen-model/models/blobs" -type f -printf '%s %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+          test -s "$MODEL_BLOB"
+          echo "MODEL_BLOB=$MODEL_BLOB" >> "$GITHUB_ENV"
+
+      - name: Start direct embedding server
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LD_LIBRARY_PATH="$RUNNER_TEMP/runtime/ollama-cpu/lib/ollama${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          nohup "$RUNNER_TEMP/runtime/ollama-cpu/lib/ollama/llama-server" \
+            --model "$MODEL_BLOB" --host 127.0.0.1 --port 11436 \
+            --no-webui --offline --embedding -c 4096 -np 1 \
+            -t "$(nproc)" -tb "$(nproc)" -b 2048 -ub 2048 --flash-attn auto \
+            > "$RUNNER_TEMP/llama.log" 2>&1 &
+          for i in $(seq 1 120); do
+            curl -fsS http://127.0.0.1:11436/health >/dev/null 2>&1 && break
+            sleep .25
+          done
+          curl -fsS http://127.0.0.1:11436/health
+
+      - name: Vectorize only new chunks
+        env:
+          PYTHONPATH: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json, os, time, urllib.request
+          from uexchanges.semantic.chunking import scan_repository
+
+          added=set(Path(os.environ['RUNNER_TEMP'],'added-paths.txt').read_text(encoding='utf-8').splitlines())
+          chunks, stats=scan_repository(Path('.').resolve(), target_chars=3600, overlap_chars=420, max_file_bytes=2_000_000)
+          selected=[(i,c) for i,c in enumerate(chunks) if c.path in added]
+          if not selected:
+              raise RuntimeError('no new chunks selected')
+          out=Path(os.environ['RUNNER_TEMP'])/'incremental-vectors.jsonl'
+          started=time.perf_counter(); emitted=0
+          with out.open('w',encoding='utf-8') as fh:
+            for offset in range(0,len(selected),8):
+              batch=selected[offset:offset+8]
+              texts=[c.text for _,c in batch]
+              req=urllib.request.Request('http://127.0.0.1:11436/v1/embeddings',data=json.dumps({'input':texts}).encode(),headers={'Content-Type':'application/json'},method='POST')
+              with urllib.request.urlopen(req,timeout=300) as response:
+                data=json.load(response)
+              rows=sorted(data['data'],key=lambda x:x['index'])
+              if len(rows)!=len(batch): raise RuntimeError('embedding count mismatch')
+              for (global_index,chunk),row in zip(batch,rows,strict=True):
+                vector=row['embedding']
+                if len(vector)!=1024: raise RuntimeError(f'expected 1024D, got {len(vector)}')
+                fh.write(json.dumps({
+                  'global_index':global_index,'point_id':chunk.point_id,'path':chunk.path,
+                  'chunk_index':chunk.chunk_index,'line_start':chunk.line_start,'line_end':chunk.line_end,
+                  'text':chunk.text,'sha256':chunk.sha256,'embedding':vector,
+                },separators=(',',':'),ensure_ascii=False)+'\n')
+                emitted+=1
+              print(f'emitted={emitted}/{len(selected)}',flush=True)
+          elapsed=time.perf_counter()-started
+          meta={
+            'contract':'UEX_SEMANTIC_INCREMENTAL_V1','base_sha':os.environ['BASE_SHA'],'target_sha':os.environ['TARGET_SHA'],
+            'added_paths':sorted(added),'total_chunks_target':len(chunks),'incremental_chunks':len(selected),
+            'embedding_dimensions':1024,'embedding_model':'qwen3-embedding:0.6b',
+            'elapsed_seconds':round(elapsed,6),'chunks_per_second':round(len(selected)/elapsed,4) if elapsed else None,
+          }
+          Path(os.environ['RUNNER_TEMP'],'incremental.meta.json').write_text(json.dumps(meta,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(meta,indent=2))
+          PY
+          zstd -T0 -10 "$RUNNER_TEMP/incremental-vectors.jsonl"
+          sha256sum "$RUNNER_TEMP/incremental-vectors.jsonl.zst" > "$RUNNER_TEMP/incremental.sha256"
+
+      - name: Upload incremental vectors
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-incremental-5bd92696
+          path: |
+            ${{ runner.temp }}/incremental-vectors.jsonl.zst
+            ${{ runner.temp }}/incremental.meta.json
+            ${{ runner.temp }}/incremental.sha256
+            ${{ runner.temp }}/added-paths.txt
+          compression-level: 0
+          retention-days: 1
