@@ -1,0 +1,161 @@
+name: semantic-vector-shards
+
+on:
+  push:
+    branches:
+      - ops/semantic-vector-shards-20260902-1005
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  vectorize:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CORPUS_SHA: 5bb086b0adcaa1a22cb80fa0ad87836a00f015b8
+      SOURCE_RUNTIME_RUN_ID: '33605026333'
+      SHARD_COUNT: '8'
+      OLLAMA_MODEL: qwen3-embedding:0.6b
+    steps:
+      - name: Checkout fixed corpus snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CORPUS_SHA }}
+          fetch-depth: 1
+
+      - name: Install scanner PDF support
+        run: python -m pip install 'pypdf>=5,<6'
+
+      - name: Download verified CPU-only Ollama payload
+        uses: actions/download-artifact@v4
+        with:
+          name: semantic-ollama-cpu-linux-amd64-v0.33.2
+          path: ${{ runner.temp }}/ollama-artifact
+          github-token: ${{ github.token }}
+          repository: rotprods/UE-Xchanges-OS
+          run-id: ${{ env.SOURCE_RUNTIME_RUN_ID }}
+
+      - name: Download verified Qwen3 model payload
+        uses: actions/download-artifact@v4
+        with:
+          name: semantic-qwen3-embedding-0.6b-model
+          path: ${{ runner.temp }}/model-artifact
+          github-token: ${{ github.token }}
+          repository: rotprods/UE-Xchanges-OS
+          run-id: ${{ env.SOURCE_RUNTIME_RUN_ID }}
+
+      - name: Verify and unpack runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/ollama-artifact"
+          sha256sum -c ollama.sha256
+          mkdir -p "$RUNNER_TEMP/runtime"
+          tar --zstd -xf ollama-cpu-linux-amd64-v0.33.2.tar.zst -C "$RUNNER_TEMP/runtime"
+          cd "$RUNNER_TEMP/model-artifact"
+          sha256sum -c model.sha256
+          tar --zstd -xf qwen3-embedding-0.6b-ollama-model.tar.zst -C "$RUNNER_TEMP/runtime"
+          test -x "$RUNNER_TEMP/runtime/ollama-cpu/lib/ollama/llama-server"
+          MODEL_BLOB="$(find "$RUNNER_TEMP/runtime/qwen-model/models/blobs" -type f -printf '%s %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+          test -s "$MODEL_BLOB"
+          echo "MODEL_BLOB=$MODEL_BLOB" >> "$GITHUB_ENV"
+
+      - name: Start direct embedding server
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LD_LIBRARY_PATH="$RUNNER_TEMP/runtime/ollama-cpu/lib/ollama${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          nohup "$RUNNER_TEMP/runtime/ollama-cpu/lib/ollama/llama-server" \
+            --model "$MODEL_BLOB" --host 127.0.0.1 --port 11436 \
+            --no-webui --offline --embedding -c 4096 -np 1 \
+            -t "$(nproc)" -tb "$(nproc)" -b 2048 -ub 2048 --flash-attn auto \
+            > "$RUNNER_TEMP/llama.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/llama.pid"
+          for i in $(seq 1 120); do
+            curl -fsS http://127.0.0.1:11436/health >/dev/null 2>&1 && break
+            sleep .25
+          done
+          curl -fsS http://127.0.0.1:11436/health
+
+      - name: Vectorize shard
+        env:
+          SHARD_ID: ${{ matrix.shard }}
+          PYTHONPATH: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json, os, time, urllib.request
+          from uexchanges.semantic.chunking import scan_repository
+
+          shard_id=int(os.environ['SHARD_ID'])
+          shard_count=int(os.environ['SHARD_COUNT'])
+          corpus_sha=os.environ['CORPUS_SHA']
+          chunks, stats=scan_repository(Path('.').resolve(), target_chars=3600, overlap_chars=420, max_file_bytes=2_000_000)
+          selected=[(i,c) for i,c in enumerate(chunks) if i % shard_count == shard_id]
+          out=Path(os.environ['RUNNER_TEMP'])/f'vectors-shard-{shard_id:02d}.jsonl'
+          meta=Path(os.environ['RUNNER_TEMP'])/f'vectors-shard-{shard_id:02d}.meta.json'
+          started=time.perf_counter(); emitted=0
+          with out.open('w',encoding='utf-8') as fh:
+            for offset in range(0,len(selected),8):
+              batch=selected[offset:offset+8]
+              texts=[c.text for _,c in batch]
+              req=urllib.request.Request('http://127.0.0.1:11436/v1/embeddings',data=json.dumps({'input':texts}).encode(),headers={'Content-Type':'application/json'},method='POST')
+              with urllib.request.urlopen(req,timeout=300) as response:
+                data=json.load(response)
+              rows=sorted(data['data'],key=lambda x:x['index'])
+              if len(rows)!=len(batch): raise RuntimeError('embedding count mismatch')
+              for (global_index,chunk),row in zip(batch,rows,strict=True):
+                vector=row['embedding']
+                if len(vector)!=1024: raise RuntimeError(f'expected 1024D, got {len(vector)}')
+                record={
+                  'global_index':global_index,
+                  'point_id':chunk.point_id,
+                  'path':chunk.path,
+                  'chunk_index':chunk.chunk_index,
+                  'line_start':chunk.line_start,
+                  'line_end':chunk.line_end,
+                  'text':chunk.text,
+                  'sha256':chunk.sha256,
+                  'embedding':vector,
+                }
+                fh.write(json.dumps(record,separators=(',',':'),ensure_ascii=False)+'\n')
+                emitted+=1
+              print(f'shard={shard_id} emitted={emitted}/{len(selected)}',flush=True)
+          elapsed=time.perf_counter()-started
+          metadata={
+            'contract':'UEX_SEMANTIC_VECTOR_SHARD_V1',
+            'corpus_sha':corpus_sha,
+            'shard_id':shard_id,
+            'shard_count':shard_count,
+            'total_chunks':len(chunks),
+            'shard_chunks':len(selected),
+            'embedding_dimensions':1024,
+            'embedding_model':'qwen3-embedding:0.6b',
+            'elapsed_seconds':round(elapsed,6),
+            'chunks_per_second':round(len(selected)/elapsed,4) if elapsed else None,
+            'scan_stats':stats.__dict__ if hasattr(stats,'__dict__') else {k:getattr(stats,k) for k in stats.__slots__},
+          }
+          meta.write_text(json.dumps(metadata,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(metadata,indent=2))
+          PY
+          zstd -T0 -10 "$RUNNER_TEMP/vectors-shard-$(printf '%02d' "$SHARD_ID").jsonl"
+          sha256sum "$RUNNER_TEMP/vectors-shard-$(printf '%02d' "$SHARD_ID").jsonl.zst" > "$RUNNER_TEMP/vectors-shard-$(printf '%02d' "$SHARD_ID").sha256"
+
+      - name: Upload vector shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-vectors-shard-${{ matrix.shard }}
+          path: |
+            ${{ runner.temp }}/vectors-shard-*.jsonl.zst
+            ${{ runner.temp }}/vectors-shard-*.meta.json
+            ${{ runner.temp }}/vectors-shard-*.sha256
+          compression-level: 0
+          retention-days: 1
