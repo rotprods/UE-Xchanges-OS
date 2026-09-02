@@ -115,9 +115,9 @@ class BootstrapGuardCliTests(unittest.TestCase):
             self.assertEqual(module.main([str(good), "--fail-on-violation"]), 0)
             self.assertEqual(module.main([str(bad), "--fail-on-violation"]), 2)
 
-    def test_schema_is_present_and_requires_identity(self):
+    def test_schema_is_closed_and_requires_identity(self):
         schema = json.loads((ROOT / "schemas" / "agent-bootstrap-ack.schema.json").read_text())
-        self.assertFalse(schema["additionalProperties"] is False)
+        self.assertFalse(schema["additionalProperties"])
         required = set(schema["required"])
         self.assertTrue({"manifest_version", "observed_main_sha", "context_id", "agent_id", "session_id"} <= required)
         self.assertIn("allOf", schema)
