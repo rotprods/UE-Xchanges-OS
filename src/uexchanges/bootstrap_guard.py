@@ -1,13 +1,12 @@
 """Fail-closed bootstrap authorization and compliance auditing.
 
-This module turns the repository's manifest-led bootstrap contract into a
-pure, deterministic authorization primitive.  It intentionally has no Drive,
-GitHub, browser or network dependencies so every writer surface can reuse the
-same rules without duplicating policy.
+The repository contract requires a writer to load the bootstrap context before
+it can acquire a write lease.  This module turns that convention into a pure,
+deterministic authorization primitive with no Drive/GitHub/browser/network
+dependencies.
 
-The guard does not grant domain authority.  It answers a narrower question:
-"May this session acquire/use this write lease under the current bootstrap
-contract?"
+It does *not* grant domain authority.  It only answers whether a session is
+bootstrap-compliant for a particular write lease.
 """
 
 from __future__ import annotations
@@ -34,10 +33,11 @@ class GuardCode(str, Enum):
     ACK_IDENTITY_MISMATCH = "ACK_IDENTITY_MISMATCH"
     ACK_CONTEXT_MISMATCH = "ACK_CONTEXT_MISMATCH"
     STALE_MANIFEST_VERSION = "STALE_MANIFEST_VERSION"
-    ACK_MAIN_SHA_STALE = "ACK_MAIN_SHA_STALE"
-    PRELEASE_MAIN_SHA_STALE = "PRELEASE_MAIN_SHA_STALE"
+    ACK_READSET_TIMING_INVALID = "ACK_READSET_TIMING_INVALID"
     MISSING_PUBLIC_READ_PROOF = "MISSING_PUBLIC_READ_PROOF"
     MISSING_PRIVATE_EVENT_WATERMARK = "MISSING_PRIVATE_EVENT_WATERMARK"
+    MISSING_PRELEASE_REFRESH = "MISSING_PRELEASE_REFRESH"
+    PRELEASE_MAIN_SHA_STALE = "PRELEASE_MAIN_SHA_STALE"
     MISSING_PRELEASE_EVENT_WATERMARK = "MISSING_PRELEASE_EVENT_WATERMARK"
     LEASE_SCAN_BEFORE_ACK = "LEASE_SCAN_BEFORE_ACK"
     LEASE_SCAN_AFTER_ACQUIRE = "LEASE_SCAN_AFTER_ACQUIRE"
@@ -127,9 +127,10 @@ class BootstrapAckSnapshot:
         _aware(self.lease_scan_at, "lease_scan_at")
         if not self.context_id or not self.agent_id or not self.session_id:
             raise ValueError("bootstrap identity fields are required")
-        if self.public_read_set_sha256 is not None:
-            if not re.fullmatch(r"[0-9a-f]{64}", self.public_read_set_sha256):
-                raise ValueError("public_read_set_sha256 must be 64 lowercase hex chars")
+        if self.public_read_set_sha256 is not None and not re.fullmatch(
+            r"[0-9a-f]{64}", self.public_read_set_sha256
+        ):
+            raise ValueError("public_read_set_sha256 must be 64 lowercase hex chars")
         if not self.public_read_set_sha256 and not self.public_read_refs:
             raise ValueError("a public read-set hash or refs are required")
         if any(not ref for ref in self.public_read_refs):
@@ -143,10 +144,7 @@ class BootstrapAckSnapshot:
         event_at: datetime,
         payload: Mapping[str, object] | str,
     ) -> "BootstrapAckSnapshot":
-        if isinstance(payload, str):
-            loaded = json.loads(payload)
-        else:
-            loaded = dict(payload)
+        loaded = json.loads(payload) if isinstance(payload, str) else dict(payload)
         refs = loaded.get("public_read_refs", ())
         if refs is None:
             refs = ()
@@ -225,10 +223,7 @@ class GuardDecision:
         return self.codes[0]
 
     def as_dict(self) -> dict[str, object]:
-        return {
-            "allowed": self.allowed,
-            "codes": [code.value for code in self.codes],
-        }
+        return {"allowed": self.allowed, "codes": [code.value for code in self.codes]}
 
 
 @dataclass(frozen=True)
@@ -266,13 +261,15 @@ def authorize_lease(
     ack: BootstrapAckSnapshot | None,
     lease: LeaseSnapshot,
     now: datetime,
-    prelease: PreLeaseRefresh | None = None,
+    prelease: PreLeaseRefresh | None,
 ) -> GuardDecision:
-    """Return whether an existing/proposed lease satisfies bootstrap v1.
+    """Authorize a *live/proposed* write lease under the bootstrap contract.
 
-    ``prelease`` is the live refresh immediately before acquisition.  For
-    historical audit records that do not persist a separate refresh object,
-    the acknowledgement's recorded main/lease-scan/watermark may be used.
+    A full bootstrap acknowledgement may be older than the current Git commit
+    when the manifest version is unchanged.  The mandatory ``prelease`` refresh
+    is what proves the writer re-read current main + concurrency immediately
+    before acquisition.  This avoids forcing a full context reload for every
+    unrelated commit while remaining fail-closed on stale write attempts.
     """
 
     _aware(now, "now")
@@ -283,7 +280,6 @@ def authorize_lease(
 
     if session.status != "ACTIVE":
         codes.append(GuardCode.SESSION_NOT_ACTIVE)
-
     if lease.owner_session_id != session.session_id or lease.owner_agent_id != session.agent_id:
         codes.append(GuardCode.LEASE_OWNER_MISMATCH)
     if lease.context_id != session.context_id or lease.context_id != policy.context_id:
@@ -294,12 +290,6 @@ def authorize_lease(
         codes.append(GuardCode.LEASE_NOT_ACTIVE)
     if lease.expires_at <= now:
         codes.append(GuardCode.LEASE_EXPIRED)
-
-    # Closed historical leases from before bootstrap v1 are classified rather
-    # than retroactively treated as protocol violations.
-    if lease.acquired_at < policy.effective_at and lease.status != "ACTIVE":
-        historical = _dedupe_codes([GuardCode.LEGACY_PRE_CONTRACT, *codes])
-        return GuardDecision(False, historical)
 
     if ack is None:
         codes.append(GuardCode.MISSING_BOOTSTRAP_ACK)
@@ -315,37 +305,28 @@ def authorize_lease(
         codes.append(GuardCode.ACK_CONTEXT_MISMATCH)
     if ack.manifest_version != policy.manifest_version:
         codes.append(GuardCode.STALE_MANIFEST_VERSION)
-    if ack.observed_main_sha != policy.current_main_sha:
-        codes.append(GuardCode.ACK_MAIN_SHA_STALE)
     if not ack.public_read_set_sha256 and not ack.public_read_refs:
         codes.append(GuardCode.MISSING_PUBLIC_READ_PROOF)
     if not ack.private_event_watermark.strip():
         codes.append(GuardCode.MISSING_PRIVATE_EVENT_WATERMARK)
     if ack.lease_scan_at > ack.event_at:
-        # Initial bootstrap lease scan should be part of the read-set completed
-        # no later than the acknowledgement itself.
-        codes.append(GuardCode.LEASE_SCAN_AFTER_ACQUIRE)
+        codes.append(GuardCode.ACK_READSET_TIMING_INVALID)
 
-    refresh = prelease or PreLeaseRefresh(
-        observed_main_sha=ack.observed_main_sha,
-        lease_scan_at=ack.lease_scan_at,
-        private_event_watermark=ack.private_event_watermark,
-    )
-    if refresh.observed_main_sha != policy.current_main_sha:
-        codes.append(GuardCode.PRELEASE_MAIN_SHA_STALE)
-    if not refresh.private_event_watermark.strip():
-        codes.append(GuardCode.MISSING_PRELEASE_EVENT_WATERMARK)
-    if refresh.lease_scan_at < ack.event_at:
-        # Acknowledgement proves bootstrap; acquisition requires one more fresh
-        # concurrency/event-tail scan at or after the ack.
-        if prelease is not None:
-            codes.append(GuardCode.LEASE_SCAN_BEFORE_ACK)
-    if refresh.lease_scan_at > lease.acquired_at:
-        codes.append(GuardCode.LEASE_SCAN_AFTER_ACQUIRE)
+    if prelease is None:
+        codes.append(GuardCode.MISSING_PRELEASE_REFRESH)
     else:
-        age = lease.acquired_at - refresh.lease_scan_at
-        if age > policy.max_prelease_scan_age:
-            codes.append(GuardCode.LEASE_SCAN_STALE)
+        if prelease.observed_main_sha != policy.current_main_sha:
+            codes.append(GuardCode.PRELEASE_MAIN_SHA_STALE)
+        if not prelease.private_event_watermark.strip():
+            codes.append(GuardCode.MISSING_PRELEASE_EVENT_WATERMARK)
+        if prelease.lease_scan_at < ack.event_at:
+            codes.append(GuardCode.LEASE_SCAN_BEFORE_ACK)
+        if prelease.lease_scan_at > lease.acquired_at:
+            codes.append(GuardCode.LEASE_SCAN_AFTER_ACQUIRE)
+        else:
+            age = lease.acquired_at - prelease.lease_scan_at
+            if age > policy.max_prelease_scan_age:
+                codes.append(GuardCode.LEASE_SCAN_STALE)
 
     final = _dedupe_codes(codes)
     if final:
@@ -360,16 +341,17 @@ def audit_control_plane(
     acks: Sequence[BootstrapAckSnapshot],
     leases: Sequence[LeaseSnapshot],
     now: datetime,
+    prelease_by_lease: Mapping[str, PreLeaseRefresh] | None = None,
 ) -> tuple[ComplianceFinding, ...]:
-    """Audit session/lease bootstrap compliance from durable snapshots.
+    """Audit current control-plane bootstrap compliance.
 
-    The auditor is deliberately conservative.  It checks ACTIVE sessions and
-    all leases.  Historical pre-contract closed leases are reported as legacy,
-    while post-contract or currently-active leases require a valid bootstrap
-    acknowledgement that predates acquisition.
+    The default watchdog focuses on *currently active* sessions/leases. Closed
+    pre-contract history is classified as legacy rather than retroactively
+    judged by a contract that did not yet exist.
     """
 
     _aware(now, "now")
+    prelease_by_lease = prelease_by_lease or {}
     findings: list[ComplianceFinding] = []
 
     session_groups: dict[str, list[SessionSnapshot]] = {}
@@ -394,36 +376,47 @@ def audit_control_plane(
     for rows in ack_by_session.values():
         rows.sort(key=lambda value: value.event_at)
 
-    # An active post-contract session without any acknowledgement is already a
-    # protocol violation even before it acquires a lease.
     for session in sessions:
-        if session.session_id in reused_ids:
+        if session.session_id in reused_ids or session.status != "ACTIVE":
             continue
-        if session.status == "ACTIVE" and now >= policy.effective_at:
-            valid_identity_ack = any(
-                ack.event_at >= session.started_at
-                and ack.agent_id == session.agent_id
-                and ack.context_id == session.context_id
-                for ack in ack_by_session.get(session.session_id, ())
-            )
-            if not valid_identity_ack:
-                findings.append(
-                    ComplianceFinding(
-                        subject_type="session",
-                        subject_id=session.session_id,
-                        session_id=session.session_id,
-                        allowed=False,
-                        codes=(GuardCode.MISSING_BOOTSTRAP_ACK,),
-                    )
+        valid_identity_ack = any(
+            ack.event_at >= session.started_at
+            and ack.agent_id == session.agent_id
+            and ack.context_id == session.context_id
+            and ack.manifest_version == policy.manifest_version
+            for ack in ack_by_session.get(session.session_id, ())
+        )
+        if not valid_identity_ack and session.started_at >= policy.effective_at:
+            findings.append(
+                ComplianceFinding(
+                    subject_type="session",
+                    subject_id=session.session_id,
+                    session_id=session.session_id,
+                    allowed=False,
+                    codes=(GuardCode.MISSING_BOOTSTRAP_ACK,),
                 )
+            )
 
     session_by_id = {
-        sid: rows[0]
-        for sid, rows in session_groups.items()
-        if len(rows) == 1
+        sid: rows[0] for sid, rows in session_groups.items() if len(rows) == 1
     }
 
     for lease in leases:
+        # Historical closed leases remain useful for archaeology but are not an
+        # active authorization problem.  Record pre-contract history only.
+        if lease.status != "ACTIVE":
+            if lease.acquired_at < policy.effective_at:
+                findings.append(
+                    ComplianceFinding(
+                        subject_type="lease",
+                        subject_id=lease.lease_id,
+                        session_id=lease.owner_session_id,
+                        allowed=False,
+                        codes=(GuardCode.LEGACY_PRE_CONTRACT,),
+                    )
+                )
+            continue
+
         session = session_by_id.get(lease.owner_session_id)
         eligible_acks = [
             ack
@@ -437,7 +430,7 @@ def audit_control_plane(
             ack=ack,
             lease=lease,
             now=now,
-            prelease=None,
+            prelease=prelease_by_lease.get(lease.lease_id),
         )
         findings.append(
             ComplianceFinding(
