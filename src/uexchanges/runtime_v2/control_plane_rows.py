@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Iterable, Sequence
+from typing import Any, Callable, Sequence
 
 
 @dataclass(frozen=True)
@@ -37,7 +37,7 @@ def resolve_stable_row(
     """Resolve one mutable control-plane row by stable entity ID.
 
     Physical row numbers are provider layout details and must never be cached across
-    concurrent append writers.  Call this immediately before every mutable row
+    concurrent append writers. Call this immediately before every mutable row
     update and fail closed if the ID is missing or duplicated.
     """
     if not entity_id.strip():
@@ -85,7 +85,7 @@ def assert_row_identity(
 
 
 def resolve_then_verify(
-    read_rows: callable,
+    read_rows: Callable[[], Sequence[Sequence[Any]]],
     *,
     entity_id: str,
     id_column: int = 0,
@@ -93,7 +93,7 @@ def resolve_then_verify(
 ) -> StableRow:
     """Provider-neutral two-read guard used by connector-backed writers.
 
-    `read_rows` must perform a fresh provider read each time.  This intentionally
+    `read_rows` must perform a fresh provider read each time. This intentionally
     costs one extra read at mutation boundaries to eliminate cached-index races.
     """
     first = tuple(tuple(row) for row in read_rows())
@@ -111,7 +111,7 @@ def resolve_then_verify(
         first_row_number=first_row_number,
     )
     if fresh.row_number != resolved.row_number:
-        # Row movement is legitimate under concurrent append/insert.  The second
+        # Row movement is legitimate under concurrent append/insert. The second
         # location is the only valid mutation target.
         return fresh
     assert_row_identity(
