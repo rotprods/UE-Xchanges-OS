@@ -3,10 +3,9 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import time
 from pathlib import Path
 
-from .benchmark import run_projection_benchmark
+from .benchmark import run_live_retrieval_benchmark, run_projection_benchmark
 from .config import SemanticConfig
 from .cos20 import Cos20Projector
 from .graphify import CosGraphEngine
@@ -102,28 +101,28 @@ def command_graphify(args: argparse.Namespace) -> int:
 
 
 def command_benchmark(args: argparse.Namespace) -> int:
-    report: dict[str, object] = {"projection": run_projection_benchmark(source_dimensions=args.source_dimensions, vectors=args.vectors).to_dict()}
+    report: dict[str, object] = {
+        "projection": run_projection_benchmark(
+            source_dimensions=args.source_dimensions, vectors=args.vectors
+        ).to_dict()
+    }
     if args.live:
         config = SemanticConfig.from_env(args.repo)
         ollama, qdrant = _clients(config)
-        samples = [
-            "RuntimeGraph lease fencing and deterministic idempotency",
-            "Erasmus opportunity evidence and Spain eligibility",
-            "submission receipt authority and human frontier",
-            "Qdrant semantic repository search",
-        ]
-        started = time.perf_counter()
-        vectors = ollama.embed(samples)
-        embed_seconds = max(time.perf_counter() - started, 1e-9)
         qdrant_info = qdrant.doctor()
-        report["live"] = {
-            "ollama_model": config.ollama_model,
-            "embedding_dimensions": len(vectors[0]),
-            "embedding_batch_seconds": round(embed_seconds, 6),
-            "texts_per_second": round(len(samples) / embed_seconds, 3),
-            "qdrant": qdrant_info,
-            "note": "full index/query latency is reported by the index command and can be sampled after sync",
-        }
+        repo_id, _ = _repo_identity(config.repo_root)
+        live = run_live_retrieval_benchmark(
+            embedder=ollama,
+            qdrant=qdrant,
+            repo_id=repo_id,
+            semantic_vector_name=config.semantic_vector_name,
+            cos_vector_name=config.cos_vector_name,
+            projection_seed=config.projection_seed,
+            iterations=args.iterations,
+        )
+        live["ollama_model"] = config.ollama_model
+        live["qdrant"] = qdrant_info
+        report["live"] = live
     _json(report)
     return 0
 
@@ -161,6 +160,7 @@ def build_parser() -> argparse.ArgumentParser:
     bench.add_argument("--source-dimensions", type=int, default=1024)
     bench.add_argument("--vectors", type=int, default=72)
     bench.add_argument("--live", action="store_true")
+    bench.add_argument("--iterations", type=int, default=8, help="live benchmark iterations (minimum 3)")
     bench.set_defaults(func=command_benchmark)
     return parser
 

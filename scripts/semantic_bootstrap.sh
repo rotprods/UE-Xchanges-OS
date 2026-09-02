@@ -12,5 +12,5 @@ docker compose -f compose.semantic.yml up -d
 python -m pip install -e .
 uex-semantic --repo . doctor
 uex-semantic --repo . index
-uex-semantic --repo . benchmark --live
+uex-semantic --repo . benchmark --live --iterations "${SEMANTIC_BENCH_ITERATIONS:-12}"
 cos-graph-engine --repo . --output artifacts/semantic/cos20-graph.json

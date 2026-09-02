@@ -41,7 +41,7 @@ uex-semantic --repo . doctor
 uex-semantic --repo . index
 uex-semantic --repo . search "RuntimeGraph lease fencing and idempotency"
 cos-graph-engine --repo . --output artifacts/semantic/cos20-graph.json
-uex-semantic --repo . benchmark --live
+uex-semantic --repo . benchmark --live --iterations 12
 ```
 
 One-command equivalent:
@@ -60,7 +60,7 @@ One-command equivalent:
 
 `graphify` and `cos-graph-engine` are aliases for materialising the 20D neighbour graph from Qdrant. Graph construction uses Qdrant's batch query endpoint rather than one network request per node.
 
-`uex-semantic benchmark` runs a deterministic offline projection benchmark. `--live` additionally times an actual Ollama embedding batch and probes the live Qdrant service.
+`uex-semantic benchmark` runs a deterministic offline projection benchmark. `--live` additionally warms the local services and measures real Ollama embedding latency plus native-semantic and COS-20D Qdrant query latency with mean/p50/p95/min/max, throughput-at-mean and top-5 native↔COS overlap. `--iterations N` controls the live sample count (default 8, minimum 3).
 
 ## Environment
 
@@ -80,6 +80,7 @@ SEMANTIC_EMBED_BATCH=16
 SEMANTIC_UPSERT_BATCH=64
 SEMANTIC_MAX_FILE_BYTES=2000000
 SEMANTIC_ALLOW_REMOTE=0
+SEMANTIC_BENCH_ITERATIONS=12  # bootstrap-script live benchmark sample count
 ```
 
 ## Qdrant collection contract
@@ -105,10 +106,10 @@ The offline benchmark measures deterministic projection throughput, cosine mean 
 Production acceptance requires a local live run after indexing:
 
 ```bash
-uex-semantic --repo . benchmark --live
+uex-semantic --repo . benchmark --live --iterations 12
 uex-semantic --repo . search "evidence hierarchy and submission receipt"
 uex-semantic --repo . search "multi-agent lease fencing"
 uex-semantic --repo . search "RuntimeGraph dead letter source cursor"
 ```
 
-For retrieval quality, judge the native `semantic` space. COS-20D quality is diagnostic/topological; lower recall there does not justify replacing native retrieval or changing domain truth.
+For retrieval quality, judge the native `semantic` space. The live `semantic_cos20_overlap_at_5` metric is diagnostic only—not relevance ground truth. COS-20D quality is topological; lower recall/overlap there does not justify replacing native retrieval or changing domain truth. Inspect `probe_hits` to see the top repository paths returned by both spaces for canonical architecture/evidence queries.
