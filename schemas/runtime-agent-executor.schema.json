@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UE-Xchanges RuntimeGraph RG2.3 Agent Execution Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "action_id",
+    "application_id",
+    "status",
+    "attempts",
+    "evidence_refs",
+    "dispatch_statuses",
+    "reason"
+  ],
+  "properties": {
+    "action_id": {"type": "string", "minLength": 1},
+    "application_id": {"type": "string", "minLength": 1},
+    "status": {
+      "enum": [
+        "completed",
+        "waiting",
+        "retry_scheduled",
+        "failed",
+        "blocked_safety",
+        "blocked_lease",
+        "no_handler",
+        "not_ready"
+      ]
+    },
+    "lease_id": {"type": ["string", "null"]},
+    "fencing_token": {"type": ["string", "null"]},
+    "attempts": {"type": "integer", "minimum": 0, "maximum": 3},
+    "evidence_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "dispatch_statuses": {
+      "type": "array",
+      "items": {"enum": ["applied", "duplicate", "retry", "dead_letter", "unrouted"]}
+    },
+    "reason": {"type": "string", "maxLength": 512},
+    "retry_at": {"type": ["string", "null"], "format": "date-time"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "completed"}}},
+      "then": {
+        "properties": {"evidence_refs": {"minItems": 1}}
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"enum": ["completed", "waiting", "retry_scheduled", "failed"]}
+        }
+      },
+      "then": {
+        "required": ["lease_id", "fencing_token"],
+        "properties": {
+          "lease_id": {"type": "string", "minLength": 1},
+          "fencing_token": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  ]
+}
