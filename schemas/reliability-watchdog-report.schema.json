@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UEX Reliability Watchdog Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "version", "generated_at", "active_alert_count", "critical_active_count", "auto_remediation", "alerts"],
+  "properties": {
+    "contract": {"const": "UEX_RELIABILITY_WATCHDOG"},
+    "version": {"const": "1.0.0"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "active_alert_count": {"type": "integer", "minimum": 0},
+    "critical_active_count": {"type": "integer", "minimum": 0},
+    "auto_remediation": {"const": false},
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["alert_key", "source_kind", "source_code", "subject", "severity", "phase", "occurrence_count", "fingerprint", "detail", "repair_action", "reconciliation_plan_id"],
+        "properties": {
+          "alert_key": {"type": "string", "pattern": "^RAL-[0-9a-f]{20}$"},
+          "source_kind": {"type": "string", "minLength": 1},
+          "source_code": {"type": "string", "minLength": 1},
+          "subject": {"type": "string", "minLength": 1},
+          "severity": {"enum": ["INFO", "WARNING", "ERROR", "CRITICAL"]},
+          "phase": {"enum": ["NEW", "UPDATED", "PERSISTING", "RESOLVED"]},
+          "occurrence_count": {"type": "integer", "minimum": 1},
+          "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "detail": {"type": "string", "minLength": 1},
+          "repair_action": {"type": "string", "minLength": 1},
+          "reconciliation_plan_id": {"type": ["string", "null"], "pattern": "^RPL-[0-9a-f]{16}$"}
+        }
+      }
+    }
+  }
+}
