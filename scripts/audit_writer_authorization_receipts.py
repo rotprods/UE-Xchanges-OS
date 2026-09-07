@@ -14,6 +14,8 @@ from pathlib import Path
 
 from uexchanges.bootstrap_guard import LeaseSnapshot
 from uexchanges.writer_authorization import WriteIntent
+from uexchanges.writer_receipt_integrity import require_receipt_integrity
+from uexchanges.writer_receipt_payload import load_strict_json, require_valid_receipt_payload
 from uexchanges.writer_authorization_receipt import (
     WriterAuthorizationReceipt,
     audit_lease_receipt_bindings,
@@ -21,7 +23,7 @@ from uexchanges.writer_authorization_receipt import (
 
 
 def dt(value: str) -> datetime:
-    parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00").replace("z", "+00:00"))
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise ValueError("timestamps must be timezone-aware")
     return parsed
@@ -41,6 +43,7 @@ def lease_from_dict(raw: dict[str, object]) -> LeaseSnapshot:
 
 
 def receipt_from_dict(raw: dict[str, object]) -> WriterAuthorizationReceipt:
+    require_valid_receipt_payload(raw)
     if raw.get("contract") != "UEX_WRITER_AUTHORIZATION_RECEIPT":
         raise ValueError("unexpected receipt contract")
     if raw.get("version") != "1.0.0":
@@ -55,7 +58,7 @@ def receipt_from_dict(raw: dict[str, object]) -> WriterAuthorizationReceipt:
         raise ValueError("receipt must assert coordination_allowed=true")
     if raw.get("domain_authority") is not False or raw.get("external_capability") is not False:
         raise ValueError("receipt cannot assert domain/external authority")
-    return WriterAuthorizationReceipt(
+    receipt = WriterAuthorizationReceipt(
         receipt_id=str(raw["receipt_id"]),
         issued_at=dt(str(raw["issued_at"])),
         expires_at=dt(str(raw["expires_at"])),
@@ -76,6 +79,8 @@ def receipt_from_dict(raw: dict[str, object]) -> WriterAuthorizationReceipt:
         overlapping_lease_ids=tuple(overlaps),
         repair_plan_id=repair_plan,
     )
+    require_receipt_integrity(receipt)
+    return receipt
 
 
 def main() -> int:
@@ -84,7 +89,9 @@ def main() -> int:
     parser.add_argument("--fail-on-findings", action="store_true")
     args = parser.parse_args()
 
-    payload = json.loads(args.snapshot.read_text())
+    payload = load_strict_json(args.snapshot.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError("snapshot must be a JSON object")
     leases_raw = payload.get("leases", [])
     receipts_raw = payload.get("receipts", [])
     if not isinstance(leases_raw, list) or not isinstance(receipts_raw, list):
