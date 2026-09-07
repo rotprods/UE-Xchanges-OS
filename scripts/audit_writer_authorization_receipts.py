@@ -22,7 +22,7 @@ from uexchanges.writer_authorization_receipt import (
 
 
 def dt(value: str) -> datetime:
-    parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00").replace("z", "+00:00"))
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise ValueError("timestamps must be timezone-aware")
     return parsed
