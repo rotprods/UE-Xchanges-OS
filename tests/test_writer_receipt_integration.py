@@ -30,6 +30,7 @@ from uexchanges.writer_authorization_receipt import (
     ReceiptVerificationCode, issue_writer_authorization_receipt,
     verify_writer_authorization_receipt,
 )
+from uexchanges.writer_receipt_integrity import expected_receipt_id
 from uexchanges.writer_receipt_payload import ReceiptPayloadError, require_valid_receipt_payload
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -162,14 +163,15 @@ class RealReceiptIntegrationTests(unittest.TestCase):
                 prelease=self.prelease,health=self.health,manifest_version="1.1.0",observed_main_sha=self.sha,issued_at=self.now)
 
     def test_shape_valid_tampering_still_fails_full_verifier(self):
-        raw=self.receipt.as_dict();raw["scope_sha256"]="b"*64
-        require_valid_receipt_payload(raw)
-        result=self.verify(receipt=AUDITOR.receipt_from_dict(raw))
+        altered = replace(self.receipt, scope_sha256="b"*64)
+        altered = replace(altered, receipt_id=expected_receipt_id(altered))
+        result=self.verify(receipt=altered)
         self.assertIn(ReceiptVerificationCode.SCOPE_MISMATCH,result.codes)
 
     def test_full_verifier_denies_changed_decision_digest(self):
-        raw=self.receipt.as_dict();raw["authorization_decision_digest"]="b"*64
-        result=self.verify(receipt=AUDITOR.receipt_from_dict(raw))
+        altered = replace(self.receipt, authorization_decision_digest="b"*64)
+        altered = replace(altered, receipt_id=expected_receipt_id(altered))
+        result=self.verify(receipt=altered)
         self.assertIn(ReceiptVerificationCode.AUTHORIZATION_DIGEST_MISMATCH,result.codes)
 
     def test_full_verifier_denies_other_lease(self):
