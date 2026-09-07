@@ -107,6 +107,12 @@ class RealReceiptIntegrationTests(unittest.TestCase):
         self.assertEqual(reconstructed, self.receipt)
         self.assertTrue(self.verify(receipt=reconstructed).allowed)
 
+    def test_real_deserializer_accepts_schema_valid_lowercase_utc_suffix(self):
+        raw = self.receipt.as_dict()
+        raw["issued_at"] = raw["issued_at"].replace("+00:00", "z")
+        require_valid_receipt_payload(raw)
+        self.assertEqual(AUDITOR.receipt_from_dict(raw), self.receipt)
+
     def test_real_constructor_no_longer_accepts_coerced_identity(self):
         raw=self.receipt.as_dict(); raw["session_id"]=None
         with self.assertRaises(ReceiptPayloadError): AUDITOR.receipt_from_dict(raw)
