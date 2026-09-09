@@ -180,6 +180,7 @@ def _build(
 _HEALTH_MAPPING: dict[HealthCode, tuple[RepairOperation, RepairSurface, str]] = {
     HealthCode.SESSION_ID_REUSED: (RepairOperation.RECONCILE_SESSION_IDENTITY, RepairSurface.SESSION_ROW, "drive:Agent_Sessions:{subject_id}"),
     HealthCode.SESSION_HEARTBEAT_STALE: (RepairOperation.REFRESH_SESSION_HEARTBEAT_OR_CLOSE, RepairSurface.SESSION_ROW, "drive:Agent_Sessions:{subject_id}"),
+    HealthCode.NONTERMINAL_READ_ONLY_SESSION_STALE: (RepairOperation.REFRESH_SESSION_HEARTBEAT_OR_CLOSE, RepairSurface.SESSION_ROW, "drive:Agent_Sessions:{subject_id}"),
     HealthCode.ACTIVE_LEASE_EXPIRED_STALE_ROW: (RepairOperation.RECONCILE_LEASE_STATUS, RepairSurface.LEASE_ROW, "drive:Work_Leases:{subject_id}"),
     HealthCode.ACTIVE_LEASE_OWNER_MISSING: (RepairOperation.RECONSTRUCT_LEASE_OWNERSHIP, RepairSurface.LEASE_ROW, "drive:Work_Leases:{subject_id}+drive:Agent_Sessions"),
     HealthCode.ACTIVE_LEASE_OWNER_CLOSED: (RepairOperation.RECONCILE_LEASE_STATUS, RepairSurface.LEASE_ROW, "drive:Work_Leases:{subject_id}"),
