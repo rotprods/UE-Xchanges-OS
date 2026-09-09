@@ -28,6 +28,22 @@ class ReconciliationPlannerTests(unittest.TestCase):
         self.assertFalse(plan.auto_execute)
         self.assertFalse(plan.canonical_domain_mutation)
 
+    def test_stale_read_only_session_maps_to_close_or_refresh_plan_without_auto_execute(self):
+        finding = HealthFinding(
+            HealthCode.NONTERMINAL_READ_ONLY_SESSION_STALE,
+            HealthSeverity.WARNING,
+            "session",
+            "SES-READONLY-1",
+            "read-only heartbeat stale",
+            "close/supersede explicitly; never promote to ACTIVE",
+        )
+        plan = plan_health_finding(finding)
+        self.assertEqual(plan.operation, RepairOperation.REFRESH_SESSION_HEARTBEAT_OR_CLOSE)
+        self.assertEqual(plan.risk, RepairRisk.MEDIUM)
+        self.assertEqual(plan.required_lease_scope, "drive:Agent_Sessions:SES-READONLY-1")
+        self.assertFalse(plan.auto_execute)
+        self.assertFalse(plan.canonical_domain_mutation)
+
     def test_plan_id_is_deterministic(self):
         finding = HealthFinding(
             HealthCode.CONTEXT_REGISTRY_STALE,

@@ -78,6 +78,45 @@ class ControlPlaneHealthTests(unittest.TestCase):
         self.assertIn(HealthCode.ACTIVE_LEASE_OWNER_CLOSED, {item.code for item in report.findings})
         self.assertEqual(report.metrics["orphaned_active_lease_rows"], 1)
 
+    def test_active_read_only_never_becomes_writer_active(self):
+        read_only = session(status="ACTIVE_READ_ONLY")
+        self.assertFalse(read_only.active)
+        self.assertTrue(read_only.read_only_nonterminal)
+        self.assertEqual(
+            effective_lease_state(lease(), session=read_only, now=NOW),
+            EffectiveLeaseState.ORPHANED_OWNER_CLOSED,
+        )
+
+    def test_stale_active_read_only_session_is_visible_without_writer_promotion(self):
+        read_only = session(
+            status="ACTIVE_READ_ONLY",
+            started_at=NOW - timedelta(hours=2),
+            heartbeat=NOW - timedelta(hours=1),
+        )
+        report = evaluate_control_plane_health(now=NOW, sessions=(read_only,), leases=())
+        codes = {item.code for item in report.findings}
+        self.assertIn(HealthCode.NONTERMINAL_READ_ONLY_SESSION_STALE, codes)
+        self.assertNotIn(HealthCode.SESSION_HEARTBEAT_STALE, codes)
+        self.assertEqual(report.metrics["active_sessions"], 0)
+        self.assertEqual(report.metrics["stale_active_sessions"], 0)
+        self.assertEqual(report.metrics["stale_read_only_sessions"], 1)
+        self.assertEqual(report.overall, OverallHealth.AMBER)
+        hygiene = next(item for item in report.slos if item.name == "nonterminal_session_hygiene")
+        self.assertFalse(hygiene.passed)
+        self.assertEqual(hygiene.observed, 1)
+
+    def test_fresh_active_read_only_session_is_not_stale(self):
+        read_only = session(status="ACTIVE_READ_ONLY")
+        report = evaluate_control_plane_health(now=NOW, sessions=(read_only,), leases=())
+        self.assertNotIn(
+            HealthCode.NONTERMINAL_READ_ONLY_SESSION_STALE,
+            {item.code for item in report.findings},
+        )
+        self.assertEqual(report.metrics["active_sessions"], 0)
+        self.assertEqual(report.metrics["stale_read_only_sessions"], 0)
+        hygiene = next(item for item in report.slos if item.name == "nonterminal_session_hygiene")
+        self.assertTrue(hygiene.passed)
+
     def test_missing_owner_and_agent_mismatch_fail_fencing_slo(self):
         report = evaluate_control_plane_health(
             now=NOW,
