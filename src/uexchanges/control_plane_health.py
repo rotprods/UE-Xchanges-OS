@@ -37,6 +37,7 @@ class EffectiveLeaseState(str, Enum):
 class HealthCode(str, Enum):
     SESSION_ID_REUSED = "SESSION_ID_REUSED"
     SESSION_HEARTBEAT_STALE = "SESSION_HEARTBEAT_STALE"
+    NONTERMINAL_READ_ONLY_SESSION_STALE = "NONTERMINAL_READ_ONLY_SESSION_STALE"
     ACTIVE_LEASE_EXPIRED_STALE_ROW = "ACTIVE_LEASE_EXPIRED_STALE_ROW"
     ACTIVE_LEASE_OWNER_MISSING = "ACTIVE_LEASE_OWNER_MISSING"
     ACTIVE_LEASE_OWNER_CLOSED = "ACTIVE_LEASE_OWNER_CLOSED"
@@ -75,7 +76,19 @@ class SessionHealthRecord:
 
     @property
     def active(self) -> bool:
+        """Writer-active session state.
+
+        ACTIVE_READ_ONLY deliberately remains false here. Read-only lifecycle
+        visibility must never silently promote a session into writer authority.
+        """
+
         return self.status == "ACTIVE"
+
+    @property
+    def read_only_nonterminal(self) -> bool:
+        """True only for the explicit pre-writer/read-only nonterminal state."""
+
+        return self.status == "ACTIVE_READ_ONLY"
 
 
 @dataclass(frozen=True)
@@ -304,8 +317,10 @@ def evaluate_control_plane_health(
     }
 
     stale_active_sessions = 0
+    stale_read_only_sessions = 0
     for session in sessions:
-        if session.active and now - session.last_heartbeat > policy.session_heartbeat_max_age:
+        age = now - session.last_heartbeat
+        if session.active and age > policy.session_heartbeat_max_age:
             stale_active_sessions += 1
             findings.append(
                 HealthFinding(
@@ -313,8 +328,20 @@ def evaluate_control_plane_health(
                     HealthSeverity.WARNING,
                     "session",
                     session.session_id,
-                    f"last heartbeat is {(now - session.last_heartbeat).total_seconds():.0f}s old",
+                    f"last heartbeat is {age.total_seconds():.0f}s old",
                     "refresh heartbeat or close/supersede the session explicitly",
+                )
+            )
+        elif session.read_only_nonterminal and age > policy.session_heartbeat_max_age:
+            stale_read_only_sessions += 1
+            findings.append(
+                HealthFinding(
+                    HealthCode.NONTERMINAL_READ_ONLY_SESSION_STALE,
+                    HealthSeverity.WARNING,
+                    "session",
+                    session.session_id,
+                    f"ACTIVE_READ_ONLY session heartbeat is {age.total_seconds():.0f}s old",
+                    "close/supersede the stale read-only session explicitly; never promote it to ACTIVE as a repair",
                 )
             )
 
@@ -476,6 +503,7 @@ def evaluate_control_plane_health(
         "active_sessions": sum(1 for value in sessions if value.active),
         "duplicate_session_ids": duplicate_session_ids,
         "stale_active_sessions": stale_active_sessions,
+        "stale_read_only_sessions": stale_read_only_sessions,
         "leases": len(leases),
         "effective_active_leases": effective_active_leases,
         "stale_active_lease_rows": stale_active_lease_rows,
@@ -492,6 +520,7 @@ def evaluate_control_plane_health(
         SloResult("session_identity_uniqueness", duplicate_session_ids == 0, duplicate_session_ids, "0 reused session IDs"),
         SloResult("lease_fencing_integrity", lease_integrity_failures == 0 and orphaned_active_lease_rows == 0, lease_integrity_failures + orphaned_active_lease_rows, "0 orphaned/mismatched active leases"),
         SloResult("lease_row_hygiene", stale_active_lease_rows == 0, stale_active_lease_rows, "0 expired rows still marked ACTIVE"),
+        SloResult("nonterminal_session_hygiene", stale_active_sessions == 0 and stale_read_only_sessions == 0, stale_active_sessions + stale_read_only_sessions, "0 stale ACTIVE or ACTIVE_READ_ONLY sessions"),
         SloResult("context_freshness", stale_contexts == 0, stale_contexts, "0 ACTIVE contexts older than policy TTL"),
         SloResult("projection_freshness", stale_projections == 0, stale_projections, "0 projections older than policy SLA"),
         SloResult("dead_letter_budget", dead_letter_count == 0, dead_letter_count, "0 unresolved dead letters"),
