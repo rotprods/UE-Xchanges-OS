@@ -1,119 +1,87 @@
 # UE-Xchanges-OS — Knowledge / Evidence Map
 
-> Public, non-sensitive recovery summary. Private applicant facts/answers remain in Drive and authorised sources.
+Seal: `2026-09-10T14:46:00+02:00`
 
-## Knowledge classes
+> Public, non-sensitive recovery map. Private applicant values/answers remain in Drive and authorised sources.
 
-### A — Authoritative external evidence
-Examples:
-- official call page;
-- authorised form;
-- organiser email/thread;
-- contract;
-- payment/submission receipt;
-- portal confirmation.
+## Evidence classes
 
-These can change domain truth.
+### A — authoritative external evidence
+Official call/page, authorised form, organiser confirmation, contract, payment/submission receipt, provider confirmation.
 
-### B — Canonical private operational evidence
-Drive CRM, Event Bus, application rows, opportunity rows, evidence refs, receipts, sessions and leases.
+### B — canonical private operational evidence
+Drive CRM + EventBus + exact entity/application rows + receipts + sessions + leases.
 
-### C — Versioned public system knowledge
-GitHub policies, schemas, code, tests, architecture and non-sensitive recovery projections.
+### C — versioned public system knowledge
+GitHub code, policies, schemas, tests, runbooks and recovery projections.
 
-### D — Derived execution knowledge
-RuntimeGraph, Command Center, Notion, Todoist, HubSpot relationship projections.
+### D — derived navigation/execution knowledge
+RuntimeGraph, COS semantic graph, Command Center, Todoist/Notion/other projections.
 
-D never overrides A/B.
+D never overrides A/B. COS similarity never establishes a domain transition.
 
-## Known domain facts at snapshot
+## Known current infrastructure facts at seal
 
-### COMPASS
-- Historical application existence is proven by organiser outcome sequence.
-- #1 waitlist → selected after withdrawal.
-- Acceptance reply sent.
-- Confirmation still requires human payment/receipt/Tally.
-- Original submit timestamp/receipt remains unrecovered.
+- Baseline main: `349f63f2109e40ab6cba960c7311456a5d7ae906`.
+- PR67 receipt/integrity hardening is in lineage.
+- PR68 stale `ACTIVE_READ_ONLY` visibility is in lineage.
+- PR69 bounded current-writer health is current baseline.
+- Tiny native scheduler probe completed successfully.
+- Control-plane scheduler canary V3 completed successfully for receipt/lease/release lifecycle only.
+- Full RG2.2 scheduled production path has no proven PASS.
+- `UEX Runtime Dispatcher` is disabled.
+- PCV3, staged-A and PCV4 were reconciled FAILED and must not be reused.
+- CPR12/13/14 repair fences observed in the current recovery chain are released.
 
-### Step Into Paralympics
-- Normal participants can be disabled or non-disabled.
-- Normal participant route does not require youth-work experience.
-- Organiser extended deadline date to 1 Sep.
-- Official form was still live during 23:35 dispatcher scan.
-- Exact closing time remained unknown.
-- Human Frontier promoted to READY; no receipt yet.
+## Known uncertainty / verification debt
 
-### CIVIS LAB
-- Current youth-sector employment not mandatory.
-- Spanish route eligible.
-- Human payment/proof gate precedes participant-list inclusion.
-- Travel booking only after host authorisation.
+The following must be read live; do not recover from old snapshots:
 
-### SABER / Soilpunk
-- Official deadline passed historically.
-- Host explicitly authorised late application after Spanish cancellation.
-- Form/receipt state unresolved.
+- current opportunity/application counts;
+- current Human Frontier membership;
+- current strong receipt count;
+- current source cursors and continuation boundaries;
+- current Dead_Letters;
+- current organiser replies;
+- current official deadlines/form-open state;
+- current Form Gateway/provider capability ceiling;
+- exact Todoist `runtime_action_id → task_id` bindings;
+- whether CPR14 has a terminal EventBus event after `EVT-20260910T132147-CPR14-008`.
 
-### Game of Nature
-- Strong participant invitation.
-- Group-leader suggestion exists, but GL duties/requirements remain separate unresolved evidence.
+## Historical domain knowledge
 
-### I-PLAY
-- Sending organisation reported open places.
-- Current exact route/deadline/details require reconciliation.
+Older domain snapshots contained facts for COMPASS, Step Into Paralympics, CIVIS LAB, SABER, I-PLAY, Game of Nature and other opportunities. **Those are historical hints only at this seal.** Re-read current private Drive + organiser/official evidence before acting on any of them.
 
-### CONVIVIAL FOODSCAPES
-- Canonical row: `non_salto-convivial-foodscapes-2026`.
-- Priority P1.
-- Deadline 2026-09-15.
-- `AI_UNKNOWN` hard gate.
-- Full-November availability unconfirmed.
-- Not enqueued to Mass Apply while those gates remain open.
+## Current high-confidence architecture rules
 
-## Known infrastructure facts
-
-- Drive is canonical CRM/event authority.
-- `goal.md` carries canonical mission/policy but its numeric scale is historic.
-- Root `STATE.md/HANDOFF.md` were stale at the start of this snapshot; another active continuity session owns their refresh.
-- Current GitHub main: `d1d82b0dbb8d5712888cef7d247b2487f9fd7514`.
-- Browser Stack main CI: `33565691506` and `33565691512`, both SUCCESS.
-- Browser Worker bearer is memory-only.
-- Browser Relay local prefill uses plan/request-bound HMAC capability.
-- Browser Stack persists only a local 0600 capability-signing key; external targets and Submit remain unavailable.
-
-## Unknown / verification debt
-
-- Exact current deadline hour for Step unless a newer organiser/source event resolves it.
-- Submission receipts for current Human Frontier actions.
-- Original COMPASS receipt/submission time.
-- 60 Telegram post bodies.
-- CONVIVIAL AI policy.
-- CONVIVIAL full-November availability.
-- Some profile hard gates for professional/trainer calls.
-- HubSpot write reauthorisation if relationship projection is resumed.
+- `UNKNOWN` is verification debt.
+- `SubmissionAttempt != SubmissionReceipt`.
+- Gmail raw prose/absence is not receipt authority.
+- Exact IDs are required for state-changing routing.
+- Source cursors are ingestion high-watermarks, not source authority.
+- At-least-once + deterministic idempotency is the delivery model.
+- Historical stale rows belong to reconciliation; they do not automatically block a healthy normal writer.
+- A normal writer's bounded health is not a claim of global historical hygiene.
+- `ACTIVE_READ_ONLY` remains non-writer.
+- WriterAuthorizationReceipt grants no domain/external capability.
+- RG2.2 does not execute Agent_Next.
+- COS/embeddings/fuzzy similarity never authorize mutation.
 
 ## Forbidden inference
 
-Never infer:
-- disability/health;
+Never infer from absence, similarity, UI status or stale summaries:
+- application submission;
+- receipt confirmation;
+- eligibility/acceptance;
+- payment completion;
 - youth-worker/trainer status;
-- education;
-- safeguarding/first aid;
-- work rights beyond explicit legal/profile evidence;
-- submission success from prepared form/email/task;
-- payment success from payment instructions;
-- acceptance from invitation to apply.
+- education/CEFR/work rights;
+- health/disability/safeguarding facts;
+- external PREFILL/Submit capability;
+- writer authority.
 
 ## Knowledge update protocol
 
-Every material new fact should carry:
-- source/evidence ref;
-- fetched/received timestamp;
-- entity/opportunity/application ID;
-- previous state;
-- new state;
-- confidence/authority class;
-- next gate;
-- idempotency/event ref.
+Every material fact should carry source/evidence ref, observation timestamp, exact entity ID, previous/new state, authority class, next gate and event/idempotency evidence.
 
-If the fact changes domain truth, persist Drive first, then recompute RuntimeGraph/projections.
+If it changes domain truth, canonical evidence/Drive is updated first; RuntimeGraph/COS/projections follow.
