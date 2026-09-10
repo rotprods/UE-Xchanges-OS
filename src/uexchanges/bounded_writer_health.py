@@ -16,7 +16,14 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Sequence
 
-from .bootstrap_guard import GuardCode, GuardDecision
+from .bootstrap_guard import (
+    BootstrapAckSnapshot,
+    BootstrapPolicy,
+    LeaseSnapshot,
+    PreLeaseRefresh,
+    SessionSnapshot,
+    authorize_lease,
+)
 from .control_plane_health import (
     ControlPlaneHealthReport,
     LeaseHealthRecord,
@@ -50,7 +57,11 @@ def evaluate_bounded_writer_authorization_health(
     now: datetime,
     current_session_id: str,
     current_session_rows: Sequence[SessionHealthRecord],
-    bootstrap_decision: GuardDecision,
+    bootstrap_policy: BootstrapPolicy,
+    bootstrap_session: SessionSnapshot,
+    bootstrap_ack: BootstrapAckSnapshot | None,
+    proposed_lease: LeaseSnapshot,
+    prelease: PreLeaseRefresh | None,
     currently_unexpired_leases: Sequence[LeaseHealthRecord],
     live_owner_session_rows: Sequence[SessionHealthRecord] = (),
 ) -> BoundedWriterHealthEvidence:
@@ -61,15 +72,15 @@ def evaluate_bounded_writer_authorization_health(
     evaluator's ``session_identity_uniqueness`` SLO fail. Passing zero rows is
     rejected because absence must never be interpreted as uniqueness.
 
-    ``bootstrap_decision`` must be the real BootstrapGuard result for the exact
-    current session/ACK/proposed lease/prelease evidence. A caller cannot replace
-    it with a bare boolean. Only the canonical ``COMPLIANT`` decision counts as
-    bootstrap-compliant for this bounded report.
+    Bootstrap compliance is not accepted as a caller-provided boolean or
+    precomputed decision. This function invokes the canonical ``authorize_lease``
+    BootstrapGuard itself against the exact session/ACK/proposed lease/prelease
+    evidence that will be used by WriterAuthorization.
 
     ``currently_unexpired_leases`` is a provider-side bounded read contract. A
     caller that supplies an already-expired lease has violated that contract and
     is rejected rather than silently filtering it away. Exact owner rows for
-    active leases are included so orphan/mismatch fencing failures remain visible.
+    live leases are included so orphan/mismatch fencing failures remain visible.
 
     The result is *not* a statement that historical session/lease hygiene,
     context freshness, projection freshness, or dead-letter budget is globally
@@ -83,12 +94,27 @@ def evaluate_bounded_writer_authorization_health(
         raise ValueError("exact current-session lookup returned no rows")
     if any(row.session_id != current_session_id for row in current_session_rows):
         raise ValueError("current_session_rows contains a different session_id")
-    if not isinstance(bootstrap_decision, GuardDecision):
-        raise TypeError("bootstrap_decision must be a GuardDecision")
+    if bootstrap_session.session_id != current_session_id:
+        raise ValueError("bootstrap_session does not match current_session_id")
+    if any(
+        row.agent_id != bootstrap_session.agent_id
+        or row.context_id != bootstrap_session.context_id
+        for row in current_session_rows
+    ):
+        raise ValueError("current-session registry identity disagrees with bootstrap session")
     if any(lease.expires_at <= now for lease in currently_unexpired_leases):
         raise ValueError("currently_unexpired_leases contains an expired lease")
 
-    # Preserve duplicate current-session rows so the underlying deterministic
+    bootstrap_decision = authorize_lease(
+        policy=bootstrap_policy,
+        session=bootstrap_session,
+        ack=bootstrap_ack,
+        lease=proposed_lease,
+        now=now,
+        prelease=prelease,
+    )
+
+    # Preserve duplicate current-session rows so the deterministic health
     # evaluator can fail session_identity_uniqueness. Dedupe only byte-for-byte
     # equivalent owner observations to avoid manufacturing duplicates when the
     # same exact owner row is requested for more than one live lease.
@@ -97,15 +123,11 @@ def evaluate_bounded_writer_authorization_health(
         if owner not in sessions:
             sessions.append(owner)
 
-    bootstrap_compliant = (
-        bootstrap_decision.allowed
-        and bootstrap_decision.codes == (GuardCode.COMPLIANT,)
-    )
     report = evaluate_control_plane_health(
         now=now,
         sessions=tuple(sessions),
         leases=tuple(currently_unexpired_leases),
-        bootstrap_noncompliant_count=0 if bootstrap_compliant else 1,
+        bootstrap_noncompliant_count=0 if bootstrap_decision.allowed else 1,
     )
     return BoundedWriterHealthEvidence(
         report=report,
