@@ -10,6 +10,7 @@ from uexchanges.bootstrap_guard import (
 )
 from uexchanges.bounded_writer_health import (
     BOUNDED_WRITER_HEALTH_SCOPE,
+    LiveWriterBootstrapEvidence,
     evaluate_bounded_writer_authorization_health,
 )
 from uexchanges.control_plane_health import LeaseHealthRecord, SessionHealthRecord
@@ -57,6 +58,16 @@ def live_health_lease(
     )
 
 
+def policy(context_id: str = "CTX-1") -> BootstrapPolicy:
+    return BootstrapPolicy(
+        manifest_version="1.1.0",
+        current_main_sha=MAIN,
+        context_id=context_id,
+        effective_at=NOW - timedelta(days=1),
+        max_prelease_scan_age_seconds=120,
+    )
+
+
 def bootstrap_evidence(
     *,
     session_id: str = "SES-CURRENT",
@@ -66,13 +77,6 @@ def bootstrap_evidence(
     prelease_scan_at: datetime | None = None,
     proposed_owner_session_id: str | None = None,
 ):
-    policy = BootstrapPolicy(
-        manifest_version="1.1.0",
-        current_main_sha=MAIN,
-        context_id=context_id,
-        effective_at=NOW - timedelta(days=1),
-        max_prelease_scan_age_seconds=120,
-    )
     session = SessionSnapshot(
         session_id=session_id,
         agent_id=agent_id,
@@ -111,7 +115,50 @@ def bootstrap_evidence(
         expires_at=NOW + timedelta(minutes=20),
         status="ACTIVE",
     )
-    return policy, session, ack_snapshot, proposed, prelease
+    return session, ack_snapshot, proposed, prelease
+
+
+def live_bootstrap_evidence(
+    health_lease: LeaseHealthRecord,
+    *,
+    session_status: str = "ACTIVE",
+    prelease_main: str = MAIN,
+) -> LiveWriterBootstrapEvidence:
+    session = SessionSnapshot(
+        session_id=health_lease.owner_session_id,
+        agent_id=health_lease.owner_agent_id,
+        context_id=health_lease.context_id,
+        started_at=health_lease.acquired_at - timedelta(minutes=2),
+        status=session_status,
+    )
+    ack = BootstrapAckSnapshot(
+        event_id=f"EVT-BOOT-{health_lease.lease_id}",
+        event_at=health_lease.acquired_at - timedelta(seconds=30),
+        manifest_version="1.1.0",
+        observed_main_sha=MAIN,
+        context_id=health_lease.context_id,
+        agent_id=health_lease.owner_agent_id,
+        session_id=health_lease.owner_session_id,
+        private_event_watermark="EVT-LIVE-WM",
+        lease_scan_at=health_lease.acquired_at - timedelta(seconds=40),
+        public_read_refs=("goal.md", "AGENTS.md"),
+    )
+    lease_snapshot = LeaseSnapshot(
+        lease_id=health_lease.lease_id,
+        owner_session_id=health_lease.owner_session_id,
+        owner_agent_id=health_lease.owner_agent_id,
+        context_id=health_lease.context_id,
+        scope=health_lease.scope,
+        acquired_at=health_lease.acquired_at,
+        expires_at=health_lease.expires_at,
+        status=health_lease.status,
+    )
+    prelease = PreLeaseRefresh(
+        observed_main_sha=prelease_main,
+        lease_scan_at=health_lease.acquired_at - timedelta(seconds=10),
+        private_event_watermark="EVT-LIVE-WM-2",
+    )
+    return LiveWriterBootstrapEvidence(session, ack, lease_snapshot, prelease)
 
 
 def evaluate(
@@ -122,8 +169,9 @@ def evaluate(
     proposed_owner_session_id: str | None = None,
     unexpired=(),
     owners=(),
+    live_bootstrap=(),
 ):
-    policy, bootstrap_session, bootstrap_ack, proposed, prelease = bootstrap_evidence(
+    bootstrap_session, bootstrap_ack, proposed, prelease = bootstrap_evidence(
         ack=ack,
         prelease_scan_at=prelease_scan_at,
         proposed_owner_session_id=proposed_owner_session_id,
@@ -132,13 +180,14 @@ def evaluate(
         now=NOW,
         current_session_id="SES-CURRENT",
         current_session_rows=(health_session(),) if rows is None else rows,
-        bootstrap_policy=policy,
+        bootstrap_policy=policy(),
         bootstrap_session=bootstrap_session,
         bootstrap_ack=bootstrap_ack,
         proposed_lease=proposed,
         prelease=prelease,
         currently_unexpired_leases=unexpired,
         live_owner_session_rows=owners,
+        live_writer_bootstrap_evidence=live_bootstrap,
     )
 
 
@@ -156,6 +205,7 @@ class BoundedWriterHealthTests(unittest.TestCase):
         self.assertEqual(evidence.scope, BOUNDED_WRITER_HEALTH_SCOPE)
         self.assertFalse(evidence.historical_hygiene_evaluated)
         self.assertEqual(evidence.bootstrap_codes, ("COMPLIANT",))
+        self.assertEqual(evidence.bootstrap_noncompliant_session_ids, ())
 
     def test_missing_current_session_row_fails_closed_instead_of_looking_unique(self):
         with self.assertRaisesRegex(ValueError, "no rows"):
@@ -169,6 +219,7 @@ class BoundedWriterHealthTests(unittest.TestCase):
         evidence = evaluate(ack=False)
         self.assertFalse(slo_map(evidence)["bootstrap_compliance"])
         self.assertIn("MISSING_BOOTSTRAP_ACK", evidence.bootstrap_codes)
+        self.assertEqual(evidence.bootstrap_noncompliant_session_ids, ("SES-CURRENT",))
 
     def test_stale_prelease_is_computed_by_real_guard_and_fails_bootstrap_slo(self):
         evidence = evaluate(prelease_scan_at=NOW - timedelta(seconds=121))
@@ -184,20 +235,77 @@ class BoundedWriterHealthTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "registry identity"):
             evaluate(rows=(health_session(agent_id="AGT-WRONG"),))
 
-    def test_unexpired_lease_with_closed_owner_fails_fencing_slo(self):
+    def test_active_unexpired_lease_requires_exact_bootstrap_evidence(self):
+        live = live_health_lease()
+        with self.assertRaisesRegex(ValueError, "match ACTIVE lease IDs exactly"):
+            evaluate(
+                unexpired=(live,),
+                owners=(health_session("SES-OWNER", agent_id="AGT-OWNER"),),
+            )
+
+    def test_extra_live_bootstrap_evidence_is_rejected(self):
+        live = live_health_lease()
+        with self.assertRaisesRegex(ValueError, "match ACTIVE lease IDs exactly"):
+            evaluate(live_bootstrap=(live_bootstrap_evidence(live),))
+
+    def test_unexpired_lease_with_closed_owner_fails_fencing_and_bootstrap_slos(self):
+        live = live_health_lease()
         evidence = evaluate(
-            unexpired=(live_health_lease(),),
+            unexpired=(live,),
             owners=(health_session("SES-OWNER", agent_id="AGT-OWNER", status="COMPLETED"),),
+            live_bootstrap=(live_bootstrap_evidence(live, session_status="COMPLETED"),),
         )
         self.assertFalse(slo_map(evidence)["lease_fencing_integrity"])
+        self.assertFalse(slo_map(evidence)["bootstrap_compliance"])
+        self.assertEqual(evidence.bootstrap_noncompliant_session_ids, ("SES-OWNER",))
 
-    def test_unexpired_lease_with_matching_active_owner_preserves_fencing_pass(self):
+    def test_unexpired_lease_with_matching_active_owner_preserves_required_slos(self):
+        live = live_health_lease()
         evidence = evaluate(
-            unexpired=(live_health_lease(),),
+            unexpired=(live,),
             owners=(health_session("SES-OWNER", agent_id="AGT-OWNER"),),
+            live_bootstrap=(live_bootstrap_evidence(live),),
         )
         self.assertTrue(slo_map(evidence)["lease_fencing_integrity"])
+        self.assertTrue(slo_map(evidence)["bootstrap_compliance"])
         self.assertEqual(evidence.report.metrics["effective_active_leases"], 1)
+
+    def test_live_owner_stale_main_prelease_fails_bootstrap_slo(self):
+        live = live_health_lease()
+        evidence = evaluate(
+            unexpired=(live,),
+            owners=(health_session("SES-OWNER", agent_id="AGT-OWNER"),),
+            live_bootstrap=(live_bootstrap_evidence(live, prelease_main="b" * 40),),
+        )
+        self.assertFalse(slo_map(evidence)["bootstrap_compliance"])
+        self.assertEqual(evidence.bootstrap_noncompliant_session_ids, ("SES-OWNER",))
+
+    def test_live_lease_identity_drift_between_health_and_bootstrap_is_rejected(self):
+        live = live_health_lease()
+        evidence = live_bootstrap_evidence(live)
+        drifted_lease = LeaseSnapshot(
+            lease_id=evidence.lease.lease_id,
+            owner_session_id=evidence.lease.owner_session_id,
+            owner_agent_id=evidence.lease.owner_agent_id,
+            context_id=evidence.lease.context_id,
+            scope="different-scope",
+            acquired_at=evidence.lease.acquired_at,
+            expires_at=evidence.lease.expires_at,
+            status=evidence.lease.status,
+        )
+        with self.assertRaisesRegex(ValueError, "disagrees with health lease"):
+            evaluate(
+                unexpired=(live,),
+                owners=(health_session("SES-OWNER", agent_id="AGT-OWNER"),),
+                live_bootstrap=(
+                    LiveWriterBootstrapEvidence(
+                        evidence.session,
+                        evidence.ack,
+                        drifted_lease,
+                        evidence.prelease,
+                    ),
+                ),
+            )
 
     def test_expired_row_is_rejected_from_unexpired_input_contract(self):
         expired = live_health_lease(expires_delta=timedelta(seconds=-1))
