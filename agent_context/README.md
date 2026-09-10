@@ -15,7 +15,7 @@ Current zero-context continuation: [`NEXT.md`](NEXT.md).
 
 Current context seal: [`../checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md`](../checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md).
 
-Every writer still follows the bootstrap manifest and current `AGENTS.md`; this pack does not bypass WriterAuthorization or leases.
+Every writer still follows the bootstrap manifest and current `AGENTS.md`; this pack does not bypass WriterAuthorization or leases. A WriterAuthorization receipt is coordination evidence only; it is not domain authority or external capability.
 
 ## Current navigation
 
@@ -65,7 +65,8 @@ CURRENT_GITHUB_MAIN_SHA
 → SESSION_STARTED
 → BOOTSTRAP_CONTEXT_LOADED
 → bounded current-writer health
-→ real WriterAuthorization
+→ WriterAuthorization(ALLOWED)
+→ WRITER_AUTHORIZATION_GRANTED(receipt)
 → canonical receipt
 → immediate narrow lease
 → bounded work
