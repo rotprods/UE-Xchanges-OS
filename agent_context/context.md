@@ -1,102 +1,73 @@
 # UE-Xchanges-OS — Agent Context Snapshot
 
-Snapshot started: 2026-09-02 00:22 Europe/Madrid
-Refreshed: 2026-09-02 00:29 Europe/Madrid
-Session: `SES-UEX-CHATGPT-20260902T002200-31`
+Seal: `2026-09-10T14:46:00+02:00`
 Context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`
-Current GitHub main observed: `d72369366396e97cf532f9c7a462df3cfdc9b79e`
-Browser Stack release ancestor: `d1d82b0dbb8d5712888cef7d247b2487f9fd7514`
+Baseline main: `349f63f2109e40ab6cba960c7311456a5d7ae906`
+Observed EventBus lower-bound watermark: `EVT-20260910T132147-CPR14-008`
 
-> DERIVED RECOVERY PROJECTION. This file never overrides `goal.md`, `AGENTS.md`, official/organiser evidence, private Drive CRM/Event Bus, active leases, or a newer checkpoint.
+> DERIVED RECOVERY PROJECTION. Fresh official/provider evidence, private Drive canonical state, current GitHub main/contracts and current unexpired leases override this file.
 
 ## Mission
 
-Operate a persistent global mobility / paid-role / trainer opportunity system under `APPLY EVERYTHING VIABLE`: discover, verify, prepare and execute every legitimate Spain-compatible route without fabricating eligibility, submissions, receipts or sensitive facts.
+Operate `APPLY EVERYTHING VIABLE` as an evidence-first global mobility / paid-role / trainer pipeline. The goal is receipt-backed outcomes, not activity metrics or infrastructure for its own sake.
 
-## Truth precedence
+## Current system situation
 
-1. Current official source / authorised form / organiser confirmation / contract / receipt.
-2. Private Drive CRM + `Agent_Event_Bus` + evidence graph.
-3. GitHub policies/schemas/code/recovery artifacts.
-4. RuntimeGraph derived read models.
-5. Notion/Todoist/HubSpot/TickTick projections.
-6. Chat memory.
+The active engineering problem is RG2.2 scheduled-production reliability.
 
-## Current canonical scale
+Current evidence:
 
-- Canonical opportunities: **176** after `non_salto-convivial-foodscapes-2026` was verified as existing row 178 and continuity was sealed (`EVT-20260902T002700-HOFF-003`).
-- `Dashboard` was last read stale at 175 and reconciled at 2026-09-01 16:48; do not use it as a fresh count until recomputed.
-- Mass Apply / application nodes: **164** at last confirmed control-plane read. CONVIVIAL is intentionally not enqueued while AI policy + full-November availability gates remain unresolved.
-- Submission receipts: **0**.
-- Dashboard `Applications submitted = 1` is not equivalent to a receipt-backed current submission.
-- Historical application proven by downstream organiser outcome: COMPASS; original submit timestamp/receipt unrecovered.
-- Telegram unresolved: **60**, source-access blocked.
+- PR67 hardened WriterAuthorization receipts/integrity.
+- PR68 made stale `ACTIVE_READ_ONLY` sessions observable without granting writer authority.
+- CPR12 reconciled the orphaned lease class that broke live fencing semantics.
+- PR69 added bounded normal-writer health over the exact current session and actually-unexpired lease set.
+- Tiny native Scheduled Tasks probe completed successfully.
+- Control-plane canary V3 completed a receipt/lease/release lifecycle.
+- No full production-path canary PASS is proven.
+- `UEX Runtime Dispatcher` remains disabled.
 
-## Current human frontier
+## Terminal canary debt already reconciled
 
-Latest completed dispatcher materialisation (`EVT-20260901T234155-DSPC-008`):
+- `SES-UEX-AUTO-20260910T010530-RG22-PCV3-001` → FAILED via CPR13.
+- `SES-UEX-AUTO-20260910T113308-RG22-SCA-001` → FAILED via CPR13 after unconsumed staged-bootstrap handoff expiry.
+- `SES-UEX-AUTO-20260910T115630-RG22-PCV4-001` → FAILED via CPR14; no own lease/source/RuntimeGraph/provider mutation.
 
-1. Step Into Paralympics — HUMAN READY; organiser-confirmed extension-date form was still live at 23:35 on 1 Sep; exact closing time unknown.
-2. COMPASS — selected; email acceptance sent; human payment → receipt → Tally gate remains.
-3. CIVIS LAB — eligible/place route; payment/proof remains human.
-4. SABER — host-authorised late application; human form submit/receipt remains unresolved.
+Never reuse these Session IDs.
 
-No receipt was created by that dispatcher cycle.
+## Current uncertainty
 
-## Form Execution Gateway
+This seal intentionally did not refresh the full opportunity/application domain, Human Frontier, source cursors, Dead Letters or Gmail/official sources. Historical counts from 2026-09-02 must not be treated as current.
 
-Released stack:
+A successor must read Drive and RuntimeGraph before making any domain/frontier claim.
 
-- Browser Worker v1: PR #47 / `ba79fe5c…`
-- MCP Relay v1: PR #48 / `c10c7a44…`
-- Browser Stack Supervisor v1: PR #49 / `d1d82b0d…`
-- Main CI after PR #49: `33565691506` test SUCCESS; `33565691512` browser-stack SUCCESS.
+## Current authority topology
 
-Current capability ceiling:
+```text
+Official/provider/receipt evidence
+            ↓
+Private Drive canonical CRM + Agent_Event_Bus
+            ↓
+CGEV2 control/provenance layer
+       ↙                 ↘
+RuntimeGraph exact-ID      COS semantic/20D retrieval
+execution projection       navigation/topology only
+       ↘                 ↙
+Human / Agent / System frontier
+```
 
-- one-command local MCP stack: YES
-- dedicated persistent Chromium: YES
-- local value-free inspect: YES
-- local HMAC-gated prefill: YES
-- local validate/diff: YES
-- worker bearer persisted: NO (memory only)
-- external provider inspect: NO
-- external provider prefill: NO
-- Submit: NO
-- upload/payment: NO
-- cookie/storage/password/OTP export: NO
+COS similarity never authorises a state-changing route.
 
-Next capability promotion is **provider certification**, not Submit.
+## Canonical resources
 
-## RuntimeGraph
-
-- RG2 closed-loop: released.
-- RG2.1 event dispatcher: released; hourly condition-watch exists.
-- Latest completed live dispatch added Step Into Paralympics to Human Frontier.
-- RG2.2 source adapters + projection self-heal is ACTIVE under `SES-UEX-CHATGPT-20260902T001630-27` and lease `LSE-UEX-RUNTIMEGRAPH-ADAPTERS-20260902T001630-27`.
-- A new recovery-only RG2.1 handoff sealer is ACTIVE at refresh under `SES-UEX-CHATGPT-20260902T002900-32`; it owns recovery files, not this `agent_context/**` scope.
-- RuntimeGraph is derived-only; canonical application truth stays in Drive/evidence.
-
-## Concurrent writers at refresh
-
-- `SES-UEX-CHATGPT-20260902T001630-27` — RG2.2 source adapters/self-heal — ACTIVE.
-- `SES-UEX-CHATGPT-20260902T002900-32` — RG2.1 recovery/handoff sealer — ACTIVE.
-- Current session `SES-UEX-CHATGPT-20260902T002200-31` — owns only `agent_context/**`.
-- Prior continuity sealer `SES-UEX-CHATGPT-20260902T002030-30` is now COMPLETED/RELEASED and advanced root recovery state to `d7236936…`.
-
-A coordination discrepancy was last observed for Browser Stack: owning session `SES-UEX-CHATGPT-20260902T000500-29` is COMPLETED and PR #49 is merged/green, while its Work_Lease row had previously remained `ACTIVE`. Re-read/reconcile lease state before overlapping Browser Stack mutation.
-
-## Durable resources
-
-- CRM: `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`
-- RuntimeGraph read model: `16QcHOWoBD1ixstPkhivftuyqmQdhtZj6`
-- RuntimeGraph machine snapshot: `1iVyNAZWmURTdK8wZyYjYxyYDh9Djik3P`
-- Runtime Command Center: `1OtSLFI4VHW6aSne1YjtRykRsN4j4G4OcEGSCXVDLwbM`
-- Private recovery pack: `19tM23N37cqweaWPSoVMxEECZhfOSrEJPGj_nRJB71q4`
+- Private CRM: `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`
+- RuntimeGraph V2 Command Center: `1OtSLFI4VHW6aSne1YjtRykRsN4j4G4OcEGSCXVDLwbM`
 - GitHub: `rotprods/UE-Xchanges-OS`
-- Todoist project: `6hCjVwH7R6hq49G3`
-- W9 control: `6hPPRQrhG6cmhh3V`
+- Current runbook: `RUNBOOKS/RG22_SCHEDULED_CANARY.md`
+- Current checkpoint: `checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md`
+- Continuation directive: `agent_context/NEXT.md`
 
-## Immediate recovery rule
+## Immediate target
 
-If this snapshot conflicts with newer official evidence, Drive Event Bus, active lease or later checkpoint, **the newer authoritative evidence wins**.
+`SCHEDULER_PRODUCTION_CANARY_PASS #1` on current main, using bounded writer health and one source micro-batch.
+
+Then a second independent clean canary. Only then may recurring RG2.2 be considered for re-enable.
