@@ -35,11 +35,22 @@ BOUNDED_WRITER_HEALTH_SCOPE = "CURRENT_WRITER_AND_UNEXPIRED_LEASES"
 
 
 @dataclass(frozen=True)
+class LiveWriterBootstrapEvidence:
+    """Exact bootstrap evidence for one already-live ACTIVE lease."""
+
+    session: SessionSnapshot
+    ack: BootstrapAckSnapshot | None
+    lease: LeaseSnapshot
+    prelease: PreLeaseRefresh | None
+
+
+@dataclass(frozen=True)
 class BoundedWriterHealthEvidence:
     """Scoped evidence plus the report consumed by WriterAuthorization."""
 
     report: ControlPlaneHealthReport
     bootstrap_codes: tuple[str, ...]
+    bootstrap_noncompliant_session_ids: tuple[str, ...]
     scope: str = BOUNDED_WRITER_HEALTH_SCOPE
     historical_hygiene_evaluated: bool = False
 
@@ -48,8 +59,29 @@ class BoundedWriterHealthEvidence:
             "scope": self.scope,
             "historical_hygiene_evaluated": self.historical_hygiene_evaluated,
             "bootstrap_codes": list(self.bootstrap_codes),
+            "bootstrap_noncompliant_session_ids": list(
+                self.bootstrap_noncompliant_session_ids
+            ),
             "report": self.report.as_dict(),
         }
+
+
+def _assert_same_live_lease(
+    health: LeaseHealthRecord,
+    bootstrap: LeaseSnapshot,
+) -> None:
+    comparable = (
+        "lease_id",
+        "owner_session_id",
+        "owner_agent_id",
+        "context_id",
+        "scope",
+        "acquired_at",
+        "expires_at",
+        "status",
+    )
+    if any(getattr(health, field) != getattr(bootstrap, field) for field in comparable):
+        raise ValueError("live lease bootstrap evidence disagrees with health lease")
 
 
 def evaluate_bounded_writer_authorization_health(
@@ -64,6 +96,7 @@ def evaluate_bounded_writer_authorization_health(
     prelease: PreLeaseRefresh | None,
     currently_unexpired_leases: Sequence[LeaseHealthRecord],
     live_owner_session_rows: Sequence[SessionHealthRecord] = (),
+    live_writer_bootstrap_evidence: Sequence[LiveWriterBootstrapEvidence] = (),
 ) -> BoundedWriterHealthEvidence:
     """Build fail-closed health evidence for one proposed normal writer.
 
@@ -74,8 +107,9 @@ def evaluate_bounded_writer_authorization_health(
 
     Bootstrap compliance is not accepted as a caller-provided boolean or
     precomputed decision. This function invokes the canonical ``authorize_lease``
-    BootstrapGuard itself against the exact session/ACK/proposed lease/prelease
-    evidence that will be used by WriterAuthorization.
+    BootstrapGuard for the proposed writer and for every already-live ACTIVE
+    lease. The live evidence set must match the ACTIVE/unexpired lease IDs exactly;
+    missing, extra, duplicate, or identity-drifted evidence is rejected.
 
     ``currently_unexpired_leases`` is a provider-side bounded read contract. A
     caller that supplies an already-expired lease has violated that contract and
@@ -105,7 +139,7 @@ def evaluate_bounded_writer_authorization_health(
     if any(lease.expires_at <= now for lease in currently_unexpired_leases):
         raise ValueError("currently_unexpired_leases contains an expired lease")
 
-    bootstrap_decision = authorize_lease(
+    current_bootstrap = authorize_lease(
         policy=bootstrap_policy,
         session=bootstrap_session,
         ack=bootstrap_ack,
@@ -113,6 +147,41 @@ def evaluate_bounded_writer_authorization_health(
         now=now,
         prelease=prelease,
     )
+
+    active_health_by_id = {
+        lease.lease_id: lease
+        for lease in currently_unexpired_leases
+        if lease.status == "ACTIVE"
+    }
+    evidence_by_id: dict[str, LiveWriterBootstrapEvidence] = {}
+    for item in live_writer_bootstrap_evidence:
+        lease_id = item.lease.lease_id
+        if lease_id in evidence_by_id:
+            raise ValueError("duplicate live writer bootstrap evidence")
+        evidence_by_id[lease_id] = item
+
+    if set(evidence_by_id) != set(active_health_by_id):
+        raise ValueError("live writer bootstrap evidence must match ACTIVE lease IDs exactly")
+
+    noncompliant_sessions: set[str] = set()
+    if not current_bootstrap.allowed:
+        noncompliant_sessions.add(bootstrap_session.session_id)
+
+    for lease_id, item in evidence_by_id.items():
+        health_lease = active_health_by_id[lease_id]
+        _assert_same_live_lease(health_lease, item.lease)
+        if item.session.session_id != health_lease.owner_session_id:
+            raise ValueError("live bootstrap session does not own health lease")
+        decision = authorize_lease(
+            policy=bootstrap_policy,
+            session=item.session,
+            ack=item.ack,
+            lease=item.lease,
+            now=now,
+            prelease=item.prelease,
+        )
+        if not decision.allowed:
+            noncompliant_sessions.add(item.session.session_id)
 
     # Preserve duplicate current-session rows so the deterministic health
     # evaluator can fail session_identity_uniqueness. Dedupe only byte-for-byte
@@ -127,9 +196,10 @@ def evaluate_bounded_writer_authorization_health(
         now=now,
         sessions=tuple(sessions),
         leases=tuple(currently_unexpired_leases),
-        bootstrap_noncompliant_count=0 if bootstrap_decision.allowed else 1,
+        bootstrap_noncompliant_count=len(noncompliant_sessions),
     )
     return BoundedWriterHealthEvidence(
         report=report,
-        bootstrap_codes=tuple(code.value for code in bootstrap_decision.codes),
+        bootstrap_codes=tuple(code.value for code in current_bootstrap.codes),
+        bootstrap_noncompliant_session_ids=tuple(sorted(noncompliant_sessions)),
     )
