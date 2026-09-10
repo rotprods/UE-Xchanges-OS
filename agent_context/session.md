@@ -1,83 +1,83 @@
 # UE-Xchanges-OS — Session / Lease Snapshot
 
-Snapshot started: 2026-09-02 00:22 Europe/Madrid
-Refreshed: 2026-09-02 00:29 Europe/Madrid
+Seal: `2026-09-10T14:46:00+02:00`
+Baseline main: `349f63f2109e40ab6cba960c7311456a5d7ae906`
 
-## Current session
+> Derived snapshot. Never reuse any Session ID below for writes. Re-read current `Agent_Sessions`, currently-unexpired `Work_Leases` and EventBus before mutation.
+
+## Current known terminal reliability sessions
+
+### Scheduler control-plane canary V3
+- Session: `SES-UEX-AUTO-20260909T134553-CANV3-001`
+- Status: `COMPLETED`.
+- Lease: `LSE-UEX-SCHEDULER-CANARY-V3-20260909T140041-001` → `RELEASED`.
+- Meaning: proves scheduler control-plane receipt/lease/release lifecycle only.
+- Source/RuntimeGraph/Todoist/domain mutation: none.
+
+### Production canary V3
+- Session: `SES-UEX-AUTO-20260910T010530-RG22-PCV3-001`
+- Status: `FAILED` after CPR13 reconciliation.
+- Own RG2.2 lease: none observed.
+- Production PASS: no.
+
+### Staged production canary A
+- Session: `SES-UEX-AUTO-20260910T113308-RG22-SCA-001`
+- Status: `FAILED` after CPR13 reconciliation.
+- Stage A did reach `STAGED_BOOTSTRAP_READY`, but its handoff expired unconsumed.
+- WriterAuthorization/lease: none.
+
+### Production canary V4
+- Session: `SES-UEX-AUTO-20260910T115630-RG22-PCV4-001`
+- Status: `FAILED` after CPR14/RPL `RPL-d21dbdcfd1227f0e`.
+- It referenced superseded main `801a3c7c...` and made no later progress.
+- Own RG2.2 lease/source/RuntimeGraph/provider mutation: none.
+
+## Repair sessions
+
+### CPR12
+- Session: `SES-UEX-CHATGPT-20260909T175507-CPR12`.
+- Status: `COMPLETED`.
+- 31 own repair leases recorded `RELEASED`.
+- Material outcome: orphaned-owner stale lease class reconciled and live fencing integrity restored.
+
+### CPR13
+- Session: `SES-UEX-CHATGPT-20260910T124209-CPR13`.
+- Status: `COMPLETED`.
+- Reconciled PCV3 and staged-A; repair fences released.
+
+### CPR14
+- Session: `SES-UEX-CHATGPT-20260910T131121-CPR14`.
+- `Agent_Sessions` status observed: `COMPLETED`, heartbeat `2026-09-10T13:23:16+02:00`.
+- Repair lease: `LSE-UEX-CPR-20260910T131920-PCV4` → `RELEASED`.
+- EventBus lower-bound observed through `EVT-20260910T132147-CPR14-008` (`LEASE_RELEASED`).
+- Verify whether a later `SESSION_COMPLETED` event exists; if absent, preserve as event/session divergence.
+
+## Current scheduler
+
+`UEX Runtime Dispatcher` is disabled at seal.
+
+Do not infer writer concurrency from scheduler enabled/disabled state. Only current unexpired leases are write fences.
+
+## Recent lease observation
+
+The current-day exact repair/merge rows inspected for this seal were `RELEASED`. No actually-unexpired overlapping writer was observed in the recent scan. This is not durable permission; a successor must scan again immediately before authorization/mutation.
+
+## Session law for successor
 
 ```text
-Session ID:  SES-UEX-CHATGPT-20260902T002200-31
-Agent ID:    AGT-AGENT-CONTEXT-SURVIVAL-SEALER
-Context ID:  CTX-UEX-GLOBAL-EXPANSION-INCOME-V1
-Wave:        CGEV2_AGENT_CONTEXT_SURVIVAL
-Node:        AGENT_CONTEXT_PACK_BUILD
-Lease:       LSE-UEX-AGENT-CONTEXT-20260902T002200-31
-Scope:       github:agent_context/**
-Authority:   DERIVED CONTINUITY ONLY
+NEW unique session ID
+→ SESSION_STARTED
+→ mandatory bootstrap
+→ BOOTSTRAP_CONTEXT_LOADED
+→ refresh current main/EventBus/unexpired leases
+→ bounded current-writer health
+→ real WriterAuthorization
+→ canonical receipt
+→ exact narrow lease
+→ bounded work
+→ exact readback
+→ release
+→ terminal session
 ```
 
-This session must not mutate domain applications, payments, submissions, RuntimeGraph adapter projections, or root recovery files owned by other writers.
-
-## Active concurrent sessions at refresh
-
-### RG2.2 source adapters / self-heal
-- Session: `SES-UEX-CHATGPT-20260902T001630-27`
-- Agent: `AGT-RUNTIMEGRAPH-SOURCE-ADAPTERS-SELFHEAL`
-- Lease: `LSE-UEX-RUNTIMEGRAPH-ADAPTERS-20260902T001630-27`
-- Status: ACTIVE.
-- Owns `runtime_v2/adapters/**`, projection health/repair code and derived Command Center projection tabs.
-- Canonical application truth remains read-only.
-
-### RG2.1 repo handoff sealer
-- Session: `SES-UEX-CHATGPT-20260902T002900-32`
-- Agent: `AGT-RUNTIMEGRAPH-HANDOFF-SEALER`
-- Status: ACTIVE.
-- Purpose: seal dispatcher-cycle facts into versioned recovery state after the prior continuity lease released.
-- Explicitly yields RG2.2 and `agent_context/**`.
-
-## Recently completed sessions
-
-### Continuity handoff sealer
-- Session: `SES-UEX-CHATGPT-20260902T002030-30`
-- COMPLETED / lease RELEASED at 00:27.
-- Advanced root recovery state to `main=d72369366396e97cf532f9c7a462df3cfdc9b79e` and sealed CONVIVIAL P1 continuity.
-
-### Browser Stack Supervisor
-- Session: `SES-UEX-CHATGPT-20260902T000500-29`
-- Node: `BROWSER_STACK_SUPERVISOR_V1_RELEASED`
-- PR #49 merged.
-- Release ancestor: `d1d82b0dbb8d5712888cef7d247b2487f9fd7514`.
-- CI: `33565691506`, `33565691512` SUCCESS.
-
-Coordination caveat: owning session is COMPLETED but its Work_Lease row was previously observed ACTIVE. Re-read the lease before overlapping Browser Stack mutation.
-
-### Browser Relay MCP
-- Session: `SES-UEX-CHATGPT-20260901T234518-28`
-- COMPLETED / lease RELEASED.
-
-### Browser Worker
-- Session: `SES-UEX-CHATGPT-20260901T232100-27`
-- COMPLETED / lease RELEASED.
-
-### RuntimeGraph dispatcher live cycle
-- Session: `SES-UEX-AUTO-20260901T233539-28`
-- COMPLETED / lease RELEASED.
-- Human Frontier after cycle: STEP, COMPASS, CIVIS LAB, SABER.
-
-## Multi-agent write protocol
-
-Before any canonical write:
-
-1. Register a unique `Agent_Sessions` row.
-2. Read active, unexpired `Work_Leases`.
-3. Acquire smallest non-overlapping lease.
-4. Emit idempotent Event Bus events.
-5. Verify output/read-back.
-6. Recompute projections only after authority changes.
-7. Release lease with explicit handoff.
-
-Unregistered sessions are read-only.
-
-## Session resumption rule
-
-A successor must never reuse this session ID for writing. It creates a fresh session, references this session as parent/input, reads events after this snapshot watermark, and acquires a new lease.
+Historical canary/repair Session IDs are evidence only, never resumable write identities.
