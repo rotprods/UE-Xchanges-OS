@@ -1,132 +1,131 @@
 # UE-Xchanges-OS — RuntimeGraph Recovery Map
 
-> RuntimeGraph is a derived execution read model, never a second source of domain truth.
+Seal: `2026-09-10T14:46:00+02:00`
+Baseline main: `349f63f2109e40ab6cba960c7311456a5d7ae906`
 
-## Execution law
+> RuntimeGraph is a derived execution read model, never canonical domain truth.
 
-```text
-READ AUTHORITY
-→ NORMALIZE EVENT
-→ REDUCE STATE
-→ RECOMPUTE FRONTIERS
-→ CLAIM READY ACTION UNDER LEASE
-→ EXECUTE BOUNDED ACTION
-→ VERIFY EVIDENCE
-→ EMIT IDEMPOTENT EVENT
-→ RECOMPUTE
-```
-
-## Released layers
-
-### RG2 closed loop
-Components released:
-- incremental reducer;
-- Evidence → Claim registry;
-- Form Gateway read bridge;
-- receipt reconciler;
-- Human Command Center.
-
-### RG2.1 event dispatcher
-Released as commit lineage containing `6c23c9b6a70f33a7cb1eb780c54e49ebf5cf0d16`.
-Capabilities:
-- normalized ingress;
-- explicit routing;
-- at-least-once idempotency;
-- monotonic source cursors;
-- bounded retries;
-- dead-letter isolation;
-- frontier-change projection;
-- strong receipt authority binding.
-
-First live cycle ended at `EVT-20260901T234155-DSPC-008` with Human Frontier:
-- STEP;
-- COMPASS;
-- CIVIS LAB;
-- SABER.
-
-Receipts: 0.
-
-### RG2.2 adapters / self-heal
-Status at snapshot: ACTIVE.
-Session: `SES-UEX-CHATGPT-20260902T001630-27`.
-Lease: `LSE-UEX-RUNTIMEGRAPH-ADAPTERS-20260902T001630-27`.
-
-Scope:
-- Gmail/Form/official-source/receipt adapters;
-- value-safe `NormalizedIngress`;
-- deterministic projection health;
-- derived projection repair.
-
-Exclusions:
-- raw NLP authority;
-- canonical application writes;
-- payment/auth;
-- browser Submit/PREFILL;
-- secret/PII persistence.
-
-## Runtime resources
-
-- RuntimeGraph read model: `16QcHOWoBD1ixstPkhivftuyqmQdhtZj6`
-- Machine snapshot: `1iVyNAZWmURTdK8wZyYjYxyYDh9Djik3P`
-- Command Center: `1OtSLFI4VHW6aSne1YjtRykRsN4j4G4OcEGSCXVDLwbM`
-- Canonical CRM/Event Bus: `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`
-
-## Form execution bridge
-
-RuntimeGraph decides **what action is eligible to run**.
-The Form Execution Gateway decides **what browser/form capability exists and what gates it requires**.
-
-Current Form stack:
+## Current execution split
 
 ```text
-RuntimeGraph / MCP host
-        ↓ stdio
-Browser Stack Supervisor
-        ↓
-MCP Relay
-        ↓ loopback bearer HTTP
-Browser Worker
-        ↓
-Dedicated Chromium
+CGEV2 control/provenance
+    |
+    +--> RG2.2 = source observation + deterministic derived reconciliation
+    |
+    +--> RG2.3 = reversible Agent_Next action execution
+    |
+    +--> Human = irreversible/sensitive actions
+    |
+    +--> COS = semantic retrieval/topology only
 ```
 
-Current browser capability ceiling:
-- local status: yes;
-- local inspect: yes;
-- local validate: yes;
-- local prefill: HMAC capability + explicit Worker start gate;
-- external inspect: no;
-- external prefill: no;
-- submit: no.
+RG2.2 must never execute Agent_Next.
 
-The Browser Stack Supervisor PR #49 is merged on `d1d82b0d…` and its main test/browser-stack workflows passed.
+## Current reliability stack
 
-## Authority boundary
+### Writer authorization
+PR67 established strict canonical WriterAuthorizationReceipt validation/integrity. A receipt is coordination evidence only.
 
-RuntimeGraph may never convert these without canonical evidence:
+### Lifecycle health
+PR68 detects stale `ACTIVE_READ_ONLY` sessions without granting writer authority.
 
-- `ROUTE_QUERY_SENT → APPLICATION_SUBMITTED`;
-- `ELIGIBLE → SELECTED`;
-- `INVITED_TO_APPLY → ACCEPTED`;
-- `PAYMENT_REQUIRED → CONFIRMED`;
-- `SubmissionAttempt → SubmissionReceipt`.
+### Bounded normal-writer health
+PR69 added `evaluate_bounded_writer_authorization_health`.
 
-## Frontier semantics
+For normal `DERIVED_PROJECTION` authorization, use:
+- exact stable-ID rows for the new current session;
+- real BootstrapGuard for that session/ACK/proposed lease/prelease evidence;
+- currently-unexpired leases only;
+- exact owner-session + bootstrap evidence for any actually-live ACTIVE leases.
 
-- HUMAN: login/MFA/CAPTCHA, identity/sensitive input, payments, applicant-owned final wording where required, irreversible Submit until separately certified.
-- AGENT: reversible verification, form capture, evidence mapping, QA, safe factual preparation, projections.
-- SYSTEM: deterministic reductions, cursor/idempotency/reconciliation work.
+Do not feed unrelated historical hygiene into the writer critical path and do not claim historical hygiene is green.
 
-## Recovery procedure
+## Scheduled production runbook
 
-A new RuntimeGraph agent must:
-1. read current official/Drive authority;
-2. inspect active leases;
-3. read source cursors/dead letters;
-4. ingest events after last cursor;
-5. recompute frontiers;
-6. never trust a stored frontier after material domain change without recomputation.
+Canonical runbook: `RUNBOOKS/RG22_SCHEDULED_CANARY.md`.
 
-## Current coordination debt
+Production canary hard path:
 
-The Browser Stack owner session is complete but its Work_Lease row was last observed ACTIVE. That is coordination-state debt, not code-state debt. Do not mutate Browser Stack paths until the lease is reconciled or objectively expired/taken over with an event.
+```text
+NEW SESSION
+→ full bootstrap
+→ exact session uniqueness
+→ current main/EventBus/unexpired leases
+→ bounded health
+→ real WriterAuthorization
+→ content-addressed receipt
+→ persist WRITER_AUTHORIZATION_GRANTED
+→ immediately acquire exact lease
+→ exact-ID ACTIVE readback
+→ select ONE due adapter slice
+→ <=5 candidates
+→ <=2 exact subgraphs
+→ deterministic derived reconciliation
+→ readback
+→ exact lease RELEASED
+→ terminal session
+→ SESSION_COMPLETED
+→ SCHEDULER_PRODUCTION_CANARY_PASS
+```
+
+## Current scheduler state
+
+- Tiny native Scheduled Tasks probe: PASS.
+- Scheduler control-plane canary V3: PASS for receipt/lease/release lifecycle only.
+- Production-path canary PASS: NOT PROVEN.
+- Recurring `UEX Runtime Dispatcher`: DISABLED.
+
+PCV3, staged-A and PCV4 are terminal `FAILED` after separate control-plane repairs. Do not resume them.
+
+## Source adapter law
+
+During canary/initial production:
+
+1. select at most one adapter slice per activation;
+2. canonical strong-receipt inbox first if nonempty; otherwise oldest/most-overdue due cursor among Gmail organiser replies, Form Gateway safe evidence and authoritative official source;
+3. inspect <=5 candidates;
+4. route <=2 exact application/opportunity subgraphs;
+5. do not scan a second adapter;
+6. preserve continuation boundary; never advance cursor past unprocessed evidence.
+
+State-changing facts require explicit adapter-contract evidence + exact `application_id`/`opportunity_id`.
+
+Never use:
+- fuzzy title match;
+- embeddings/COS similarity;
+- absence of email;
+- raw provider prose alone;
+- open form alone;
+- transient browser state alone.
+
+## Receipt law
+
+Gmail cannot directly become a receipt. Strong receipt confirmation requires canonical evidence bound to exact submission identity.
+
+`SubmissionAttempt != SubmissionReceipt`.
+
+## Derived self-heal allowlist
+
+RG2.2 may self-heal actual mismatches only on:
+- Command_Center;
+- Human_Now;
+- Agent_Next projection only;
+- Claim_Registry;
+- Dispatcher_State;
+- Source_Cursors;
+- Dead_Letters;
+- Todoist runtime projection only with exact persisted `runtime_action_id → task_id` binding.
+
+Never self-heal canonical Opportunities, Applications, Mass_Apply_Queue, Execution_Log, Agent_Event_Bus, Agent_Sessions, Work_Leases, Autofill_Profile or Human_Gates as a RuntimeGraph projection repair.
+
+## Closure law
+
+Reserve final activation budget for closure. Once closure begins, start no new source/provider/projection operation.
+
+Success requires exact read-back, own lease release, `RELEASED` verification, terminal session and terminal event evidence.
+
+## Immediate next milestone
+
+`SCHEDULER_PRODUCTION_CANARY_PASS #1` on current main.
+
+Then second independent clean canary → bounded hourly dispatcher → at least 3 clean recurrent cycles → `RG2.2_SCHEDULED_PRODUCTION_STABLE`.
