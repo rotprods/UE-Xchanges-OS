@@ -1,69 +1,46 @@
 # UE-Xchanges-OS — Agent Context Pack
 
-This directory is a **derived zero-context recovery projection**. It exists so a new agent can orient quickly without using chat memory.
+Current seal: `2026-09-10T14:46:00+02:00`
+Baseline main at seal: `349f63f2109e40ab6cba960c7311456a5d7ae906`
 
-It never overrides canonical authorities.
+This directory is a **derived zero-context recovery projection**. It exists so a new agent can recover the system without this chat. It never overrides current official/provider evidence, private Drive canonical state, current GitHub contracts, or current unexpired leases.
 
 ## Mandatory bootstrap
 
-Machine-readable contract: `bootstrap_manifest.json`.
+Machine-readable contract: [`bootstrap_manifest.json`](bootstrap_manifest.json).
 
-Slow-changing semantic memory: [`../MEMORY.md`](../MEMORY.md).
+Stable semantic memory: [`../MEMORY.md`](../MEMORY.md).
 
-Every compliant writer must:
+Current zero-context continuation: [`NEXT.md`](NEXT.md).
 
-1. follow `bootstrap_manifest.json`;
-2. read the required public/private context;
-3. create a fresh Session ID;
-4. emit `SESSION_STARTED`;
-5. emit `BOOTSTRAP_CONTEXT_LOADED` with the manifest version, observed main SHA and private watermark;
-6. refresh current main, currently unexpired leases, Event Bus tail and control-plane health;
-7. evaluate generic `WriterAuthorization` for the exact proposed lease/scope/intent;
-8. only after a positive decision, emit `WRITER_AUTHORIZATION_GRANTED` carrying one `UEX_WRITER_AUTHORIZATION_RECEIPT@1.0.0` bound to that exact lease;
-9. only then acquire the write lease, referencing the receipt ID + authorization decision digest;
-10. execute within the lease and release it durably.
+Current context seal: [`../checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md`](../checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md).
 
-A Writer Authorization Receipt is coordination evidence only. It is **not** domain authority, browser/provider capability, payment permission, authentication authority or Submit permission.
+Every writer still follows the bootstrap manifest and current `AGENTS.md`; this pack does not bypass WriterAuthorization or leases. A WriterAuthorization receipt is coordination evidence only; it is not domain authority or external capability.
 
-The pack is navigation. `MEMORY.md` is semantic memory. Neither is live domain authority.
+## Current navigation
 
-## Files
+- `context.md` — current public/non-sensitive snapshot and authority map.
+- `progress.md` — completed reliability milestones, current blockers and promotion ladder.
+- `checkpoints.md` — checkpoint/release/event index.
+- `session.md` — current known canary/repair lifecycle snapshot.
+- `runtimegraph.md` — current RG2.2 scheduler/runtime topology and limits.
+- `knowledge.md` — known/unknown facts and inference boundaries.
+- `recovery.md` — zero-context recovery algorithm.
+- `CGEV2_COS.md` — explicit responsibility/authority split between CGEV2, COS and RuntimeGraph.
+- `REGRESSION.md` — scheduler/runtime incident regression history and falsified hypotheses.
+- `LEARNINGS.md` — durable engineering lessons and required regression tests.
+- `CONSCIOUSNESS_ACT.md` — operational awareness: knowns, unknowns, stop-lines and dominant risk.
+- `NEXT.md` — exact next-agent directive and DoD.
 
-- `bootstrap_manifest.json` — mandatory machine-readable read/handshake/authorization/write order.
-- `context.md` — watermarked non-sensitive project snapshot and authority map.
-- `progress.md` — completed milestones, active work, debt and next milestones.
-- `goals.md` — concise goal projection; canonical authority remains `../goal.md`.
-- `checkpoints.md` — checkpoint/event/release index.
-- `session.md` — snapshot of agent sessions/leases.
-- `runtimegraph.md` — RuntimeGraph + Form Gateway execution topology.
-- `knowledge.md` — known facts, unknowns and forbidden inference rules.
-- `recovery.md` — cold-start algorithm.
+## Current critical state
 
-Additional mandatory coordination contracts are declared by the manifest, including:
-
-- `../docs/WRITER_AUTHORIZATION_AND_RELIABILITY_WATCHDOG.md`
-- `../docs/WRITER_AUTHORIZATION_RECEIPT.md`
-
-## Authority rule
-
-If this pack conflicts with a newer official source, organiser/receipt, Drive Event Bus, current unexpired lease, root checkpoint, or current GitHub main, **this pack loses**.
-
-## Snapshot watermark
-
-The Markdown files in this directory are snapshots and may age independently of the manifest/bootstrap contract.
-
-Always read their own watermark and then refresh live authorities.
-
-The original survival-pack snapshot was:
-
-```text
-2026-09-02 00:22 Europe/Madrid
-session: SES-UEX-CHATGPT-20260902T002200-31
-baseline main: d1d82b0dbb8d5712888cef7d247b2487f9fd7514
-observed event watermark: EVT-20260902T002200-HOFF-002
-```
-
-Do not treat that watermark as current state.
+- `UEX Runtime Dispatcher` is disabled.
+- Simple Scheduled Tasks dispatch is proven by a tool-free probe; that does not certify RG2.2.
+- Control-plane canary V3 proved receipt→lease→release lifecycle only.
+- Full production-path canary PASS has **not** been proven.
+- PCV3, staged-A and PCV4 stale sessions were reconciled `FAILED` by CPR13/CPR14; never reuse them.
+- PR69 on the baseline main introduced bounded normal-writer health based on exact current session + BootstrapGuard + currently-unexpired leases/live owners.
+- Historical hygiene remains a separate `CONTROL_PLANE_REPAIR`/watchdog concern.
 
 ## Fast cold start
 
@@ -73,21 +50,31 @@ CURRENT_GITHUB_MAIN_SHA
 → AGENTS.md
 → MEMORY.md
 → agent_context/bootstrap_manifest.json
-→ required writer-authorization contracts
 → LIVE-STATE-OVERRIDE.json
-→ newest STATE.md / HANDOFF.md / checkpoint
-→ agent_context watermarked navigation files
-→ Drive Context_Registry / Agent_Sessions / unexpired Work_Leases / Event Bus tail
-→ RuntimeGraph Command Center + cursors + dead letters
-→ fresh Gmail / official sources when relevant
+→ STATE.md
+→ HANDOFF.md
+→ newest checkpoint
+→ this pack, especially NEXT.md + CONSCIOUSNESS_ACT.md + REGRESSION.md
+→ Drive Context_Registry
+→ exact current/new Agent_Sessions
+→ currently UNEXPIRED Work_Leases only
+→ Agent_Event_Bus after live watermark
+→ RuntimeGraph Command_Center/Human_Now/Agent_Next/Source_Cursors/Dead_Letters
+→ fresh provider evidence when action depends on it
 → NEW session
 → SESSION_STARTED
 → BOOTSTRAP_CONTEXT_LOADED
-→ refresh main + leases + events + health
+→ bounded current-writer health
 → WriterAuthorization(ALLOWED)
 → WRITER_AUTHORIZATION_GRANTED(receipt)
-→ acquire fresh narrow lease referencing receipt
-→ execute
+→ canonical receipt
+→ immediate narrow lease
+→ bounded work
+→ exact readback
+→ release
+→ terminal session
 ```
 
-Never reuse the snapshot session ID for writes. Never reuse one authorization receipt for a different lease or changed scope.
+## Authority rule
+
+If any snapshot in this directory conflicts with fresher authoritative evidence, **the snapshot loses**. Never “repair” authority to match this documentation.

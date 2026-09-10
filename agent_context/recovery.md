@@ -1,127 +1,122 @@
 # UE-Xchanges-OS — Zero-Context Recovery Procedure
 
-Use this when an agent starts with no trusted chat memory.
+Current seal: `2026-09-10T14:46:00+02:00`
 
-## 1. Establish authority
+Use this when a new agent starts with no trusted chat memory.
 
-Read in this order:
+## 1. Establish current Git authority
+
+Read current `main` first. Historical baseline for this seal is `349f63f2109e40ab6cba960c7311456a5d7ae906`; a later main supersedes it.
+
+Then read:
 
 1. `../goal.md`
-2. `../LIVE-STATE-OVERRIDE.json`
-3. newest root `STATE.md`
-4. `../AGENTS.md`
-5. `../ARCHITECTURE.md`
-6. newest root `HANDOFF.md`
-7. newest root checkpoint under `../checkpoints/`
-8. this `agent_context/` pack as a derived navigation aid
-9. private Drive `Context_Registry`, `Agent_Sessions`, `Work_Leases`, tail of `Agent_Event_Bus`
-10. fresh Gmail/official sources since the latest event watermark
+2. `../AGENTS.md`
+3. `../MEMORY.md`
+4. `bootstrap_manifest.json`
+5. `../LIVE-STATE-OVERRIDE.json`
+6. `../STATE.md`
+7. `../HANDOFF.md`
+8. `../checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md`
+9. this directory's current navigation files, ending with `NEXT.md`
+10. current writer-authorization/bootstrap/runbook files required by the manifest and by the intended operation.
 
-If these disagree, higher/newer authoritative evidence wins.
+## 2. Reconstruct private control plane
 
-## 2. Verify live code state
+Read:
 
-Read current `main` rather than trusting a checkpoint SHA.
-At this snapshot baseline:
+- `Context_Registry`;
+- exact/new `Agent_Sessions`;
+- currently **UNEXPIRED** `Work_Leases` only for live fencing;
+- `Agent_Event_Bus` after the live watermark;
+- RuntimeGraph `Command_Center`, `Human_Now`, `Agent_Next`, `Source_Cursors`, `Dead_Letters`.
 
-```text
-main = d1d82b0dbb8d5712888cef7d247b2487f9fd7514
-PR #49 = merged
-main test = 33565691506 SUCCESS
-main browser-stack = 33565691512 SUCCESS
-```
+Seal lower-bound EventBus watermark: `EVT-20260910T132147-CPR14-008`.
 
-A later main supersedes these values.
+Do not assume this is the current tail. Read every later event.
 
-## 3. Verify concurrency
+## 3. Reconcile scheduler/canary lifecycle
 
-Before any write:
+At seal:
 
-- list ACTIVE sessions;
-- list unexpired ACTIVE leases;
-- inspect their resource IDs/scopes;
-- acquire a new narrow lease only if disjoint or after explicit takeover/release event.
+- `UEX Runtime Dispatcher` disabled;
+- simple tool-free scheduler probe succeeded;
+- control-plane canary V3 completed exact receipt/lease/release lifecycle;
+- no full production-path PASS;
+- PCV3, staged-A and PCV4 are terminal FAILED after CPR13/14 and are never reusable.
 
-At this snapshot, RG2.2 adapters and a root continuity sealer are active. Do not overwrite their paths.
+Verify whether CPR14 has a later `SESSION_COMPLETED` EventBus event. If its session row and event chain disagree, create a finding/RPL; do not invent event history.
 
-## 4. Reconstruct domain state
+## 4. Reconstruct domain state fresh
 
-Read Drive opportunity/application rows and Event Bus; do not use Dashboard counts blindly.
-At snapshot:
+This seal intentionally does not assert current opportunities, applications, Human Frontier, receipts, deadlines or source cursors.
 
-- latest canonical opportunity count signal: 176;
-- Mass Apply/application nodes: 164;
-- receipts: 0;
-- Human Frontier: STEP, COMPASS, CIVIS LAB, SABER.
+Read canonical Drive and fresh provider evidence before any domain/frontier claim.
 
-Dashboard was stale at 175 opportunities.
+## 5. Normal writer authorization
 
-## 5. Reconstruct RuntimeGraph
-
-- load current source cursors / dead letters;
-- apply events after cursor;
-- recompute derived state/frontiers;
-- do not mutate canonical truth from a derived projection.
-
-If RG2.2 is still ACTIVE, respect its lease and read its latest handoff before projection writes.
-
-## 6. Reconstruct Form Execution capability
-
-Current baseline stack:
+Use current PR69 architecture when still present on main:
 
 ```text
-MCP Host
-→ Browser Stack Supervisor
-→ Browser Relay MCP
-→ loopback Browser Worker
-→ dedicated Chromium
+exact new current session rows
++ exact BootstrapGuard evidence
++ currently-unexpired leases
++ exact live lease owners/bootstrap evidence
+→ bounded writer health
+→ WriterAuthorization
+→ canonical receipt
+→ immediate exact lease acquisition
 ```
 
-Baseline capability ceiling:
+`historical_hygiene_evaluated=false` means exactly that. Do not pretend it is a global-green report.
+
+## 6. Execute only one RG2.2 micro-batch
+
+For scheduled canary/initial production:
+
+- one adapter slice;
+- <=5 new/late-unique candidates;
+- <=2 exact application/opportunity subgraphs;
+- no second adapter in the same activation;
+- preserve continuation boundary;
+- never advance cursor beyond unprocessed evidence.
+
+Exact-ID explicit adapter facts only.
+
+## 7. Preserve authority boundaries
+
+- Gmail cannot directly become receipt.
+- COS/fuzzy/title/embedding similarity cannot authorize mutation.
+- RuntimeGraph cannot self-heal canonical domain state.
+- RG2.2 cannot execute Agent_Next.
+- Todoist mutation requires exact persisted binding.
+- payments/auth/credentials/OTP/cookies/external PREFILL/Submit remain outside generic execution.
+
+## 8. Closure is mandatory
+
+Reserve activation budget for:
+
+- exact read-back;
+- release all own leases by stable ID;
+- verify `RELEASED`;
+- close session terminally;
+- emit terminal event evidence;
+- persist changed STATE/HANDOFF/NEXT/checkpoint only when state materially changed.
+
+## 9. Promotion sequence
 
 ```text
-local inspect        YES
-local validate       YES
-local prefill        HMAC-gated
-external inspect     NO
-external prefill     NO
-submit               NO
-upload/payment       NO
-cookie/storage leak  NO
+SCHEDULER_PRODUCTION_CANARY_PASS #1
+→ independent PASS #2
+→ enable bounded hourly dispatcher
+→ 3 consecutive clean recurrent cycles
+→ RG2.2_SCHEDULED_PRODUCTION_STABLE
+→ safe self-heal subset
+→ RG2.3 reversible execution
+→ provider Form Gateway certification
+→ receipt-backed application throughput
 ```
 
-Do not add Submit as part of recovery.
+## 10. End every session durably
 
-## 7. Search fresh external evidence
-
-At each cycle:
-
-- search Gmail for organiser replies after checkpoint;
-- read full threads;
-- check deadline-critical official forms/pages;
-- reconcile reply → opportunity/application;
-- persist truth in Drive;
-- recompute RuntimeGraph;
-- notify only genuinely new human-critical action.
-
-## 8. Resume highest-value work
-
-Default order unless new evidence changes it:
-
-1. deadline/receipt-critical Human Frontier;
-2. reversible Agent Frontier with deadline impact;
-3. source adapters/cursor health;
-4. paid trainer/facilitator/professional lanes;
-5. provider certification for Form Gateway;
-6. lower-priority source backlog.
-
-## 9. End every session durably
-
-Before exit:
-
-- update session heartbeat/status;
-- emit final idempotent events;
-- verify read-back;
-- release all owned leases;
-- leave concise handoff with exact main SHA/event watermark/next action;
-- never rely on chat text as sole state.
+Before exit, persist exact main SHA, private watermark, own session/lease lifecycle, tests/read-backs, blockers, next transition and handoff. Chat text is never the sole continuity layer.

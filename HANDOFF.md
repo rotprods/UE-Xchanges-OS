@@ -1,206 +1,191 @@
 # UE-Xchanges-OS — HANDOFF
 
-Checkpoint: 2026-09-02 00:30 Europe/Madrid
+Checkpoint: `2026-09-10T14:46:00+02:00`
+Context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`
+Baseline main observed before this handoff branch: `349f63f2109e40ab6cba960c7311456a5d7ae906`
+Private EventBus lower-bound observed: `EVT-20260910T132147-CPR14-008`
 
-Purpose: allow a zero-context agent to recover current execution without relying on chat memory.
+Purpose: allow a fresh agent to recover the current UE-Xchanges-OS operating state without relying on this chat.
 
-> **Bootstrap overlay:** this file is a watermarked handoff snapshot. The mandatory cross-session bootstrap contract is `AGENTS.md` + `agent_context/bootstrap_manifest.json`; durable semantic memory is `MEMORY.md`. Newer Drive/Event Bus/official evidence and later checkpoints override snapshot details below.
+> This is a watermarked public recovery projection. Fresh official/provider evidence, private Drive canonical state, current GitHub main/contracts and current unexpired leases override it.
 
-## Cold start — mandatory order
+## Mandatory cold start
 
-1. Read current GitHub `main` and record its SHA.
+1. Read current GitHub `main` and record SHA.
 2. Read `goal.md`.
 3. Read `AGENTS.md`.
 4. Read `MEMORY.md`.
-5. Read `agent_context/bootstrap_manifest.json` and follow its required public/private read sets.
-6. Read active `LIVE-STATE-OVERRIDE.json`.
-7. Read current `STATE.md` and this `HANDOFF.md`.
-8. Read `agent_context/README.md`, `context.md`, `progress.md`, `checkpoints.md`, `session.md`, `runtimegraph.md`, `knowledge.md` and `recovery.md` as watermarked navigation.
-9. Read `docs/MULTI_AGENT_CONTROL_PLANE.md` and `docs/AGENT_BOOTSTRAP_PROTOCOL.md`.
-10. Read current RuntimeGraph/Form Gateway docs and the newest relevant checkpoint.
-11. Read private Drive CRM `Context_Registry`, `Agent_Sessions`, **currently unexpired** `Work_Leases`, and the tail of `Agent_Event_Bus`; never reuse an old session ID.
-12. Read RuntimeGraph V2 Command Center tabs `Command_Center`, `Human_Now`, `Agent_Next`, `Receipt_Inbox`, `Dispatcher_State`, `Source_Cursors` and `Dead_Letters`.
-13. Read only source deltas after stored cursors; late unique events may still be processed idempotently.
-14. Register a fresh Session ID and emit `SESSION_STARTED`.
-15. Emit `BOOTSTRAP_CONTEXT_LOADED` with manifest version, observed main SHA, context ID, read-set refs/hash, private event watermark and lease-scan timestamp.
-16. Refresh unexpired leases + Event Bus tail immediately before mutation.
-17. Only after the bootstrap acknowledgement may the session acquire a fresh narrow lease; runtime-action mutation requires the exact action lease/fencing token.
-18. Persist external evidence/gate changes to canonical Drive evidence first, then apply/recompute only the affected application subgraph and downstream projections.
+5. Read `agent_context/bootstrap_manifest.json` and obey its required public/private read sets.
+6. Read `LIVE-STATE-OVERRIDE.json`, `STATE.md`, this file and the newest checkpoint.
+7. Read `agent_context/README.md`, `context.md`, `progress.md`, `checkpoints.md`, `session.md`, `runtimegraph.md`, `knowledge.md`, `recovery.md`, `CGEV2_COS.md`, `REGRESSION.md`, `LEARNINGS.md`, `CONSCIOUSNESS_ACT.md`, and finally `NEXT.md`.
+8. Read private Drive `Context_Registry`, exact/new `Agent_Sessions`, currently **UNEXPIRED** `Work_Leases`, and `Agent_Event_Bus` after the current watermark.
+9. Read RuntimeGraph V2 Command Center `Command_Center`, `Human_Now`, `Agent_Next`, `Source_Cursors` and `Dead_Letters`.
+10. Read fresh Gmail/official/Form/receipt evidence only when the next operation depends on it.
+11. Register a **new** Session ID. Never reuse any historical Session ID below for writes.
+12. Emit `SESSION_STARTED`, then `BOOTSTRAP_CONTEXT_LOADED`.
+13. Refresh current main + current EventBus + currently-unexpired leases immediately before WriterAuthorization.
+14. Acquire only the smallest exact lease after a real positive authorization and canonical receipt.
 
-A registered session without `BOOTSTRAP_CONTEXT_LOADED` is read-only. `BOOTSTRAP_CONTEXT_LOADED` must precede `LEASE_ACQUIRED` for compliant writers.
+## Reliability lineage now in code
 
-## Canonical resources
+### PR67 — WriterAuthorization receipt integrity
 
-- Drive CRM: `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`
-- Drive handoff folder: `1T8EW70y2Clfhnug3vRqRhtTtqDqvQPid`
-- RuntimeGraph V2 Command Center: `1OtSLFI4VHW6aSne1YjtRykRsN4j4G4OcEGSCXVDLwbM`
-- Legacy RuntimeGraph v1 read model: `16QcHOWoBD1ixstPkhivftuyqmQdhtZj6`
-- Legacy machine snapshot: `1iVyNAZWmURTdK8wZyYjYxyYDh9Djik3P`
-- Private recovery pack: `19tM23N37cqweaWPSoVMxEECZhfOSrEJPGj_nRJB71q4`
-- Todoist project: `6hCjVwH7R6hq49G3`
-- Todoist W9 control: `6hPPRQrhG6cmhh3V`
-- GitHub repo: `rotprods/UE-Xchanges-OS`
+Established strict canonical receipt payload validation, duplicate JSON-key rejection, content-addressed `receipt_id`, exact decision/session/context/main/lease/scope/health/prelease binding, authorization-timestamp integrity, and fail-closed audit/gate behavior.
 
-## Snapshot semantics
+### PR68 — stale `ACTIVE_READ_ONLY` visibility
 
-All counts, frontiers, cursors and concurrent-lease statements below are historical values captured at the checkpoint time. **Never treat them as current without refreshing Drive/Event Bus/current main.**
+Made stale nonterminal read-only sessions visible to health/reconciliation while preserving `ACTIVE_READ_ONLY` as non-writer.
 
-## Aggregate state at checkpoint
+### CPR12 — live fencing recovery
 
-- Canonical opportunities: **176**.
-- Mass Apply / application nodes: **164**.
-- Organisations: **30**.
-- Current-wave authoritatively confirmed receipts: **0**.
-- Telegram unique unresolved: **60** / source-access blocked.
+Reconciled the orphaned-owner stale lease class under narrow evidence-backed RPLs. Material result: live `lease_fencing_integrity` was restored. Historical hygiene was deliberately not treated as a normal-writer critical-path blocker.
 
-`non_salto-convivial-foodscapes-2026` was the 176th canonical opportunity at this checkpoint. It is P1, deadline `2026-09-15`, state `POLICY_GATE_PENDING`, and intentionally remained outside `Mass_Apply_Queue` while `AI_POLICY_UNKNOWN` and `FULL_NOVEMBER_AVAILABILITY_UNCONFIRMED` were unresolved. Read newer Event Bus/opportunity state before acting.
+### PR69 — bounded normal-writer health
 
-## RuntimeGraph V2.1 — checkpoint runtime
+Current baseline main includes `uexchanges.bounded_writer_health.evaluate_bounded_writer_authorization_health` and `RUNBOOKS/RG22_SCHEDULED_CANARY.md`.
 
-Dispatcher release SHA: `6c23c9b6a70f33a7cb1eb780c54e49ebf5cf0d16`.
+Normal `DERIVED_PROJECTION` authorization must evaluate:
 
-Completed material cycle:
+- exact stable-ID matches for the current new session;
+- the real BootstrapGuard for this current writer;
+- currently-unexpired leases only;
+- exact owner/bootstrap evidence for every actually-live lease.
 
-- session: `SES-UEX-AUTO-20260901T233539-28`
-- completion event: `EVT-20260901T234155-DSPC-008`
-- Human Frontier: **3 → 4**
-- confirmed receipts: **0**
-- dead letters: **0**
-- Gmail new relevant observations: **0**
-- safe Form Gateway observations: **0**
-- official-source material observations: **1**
-- projection repair: `EVT-20260901T233800-DSPC-004`, immediate column-offset correction, no domain/payment/submission/receipt state change.
+The resulting report explicitly does **not** claim historical hygiene was evaluated globally.
 
-Delivery contract:
-
-`AT_LEAST_ONCE + DETERMINISTIC_IDEMPOTENCY + MONOTONIC_CURSORS + MAX_3_SAME_STRATEGY_RETRIES + DEAD_LETTER_ISOLATION`.
-
-Never claim exactly-once semantics.
-
-### Source cursors at cycle close
-
-| Source | State | Last item | Last observed | Revision |
-|---|---|---|---|---|
-| `gmail:organiser-replies` | ACTIVE | `1a05eb5b1861284d` | `2026-09-01T22:42:26+02:00` | `1` |
-| `receipt:reconciler` | BOOTSTRAP | `none` | `2026-09-01T22:30:00+02:00` | `0` |
-| `form:gateway` | BOOTSTRAP | `none` | `2026-09-01T22:30:00+02:00` | `0` |
-| `source:official` | ACTIVE | `step-form-live-20260901` | `2026-09-01T23:35:39+02:00` | `1` |
-
-Cursors are ingestion high-watermarks, not source authority. Do not move them backwards; late unique events may still apply if their deterministic idempotency key has not been processed.
-
-## Human Frontier — checkpoint projected READY set
-
-1. `app-step-paralympics-v1` — **Step Into Paralympics**: complete private/applicant-owned fields/text personally, submit personally, capture confirmation/receipt. Form reverified live at `2026-09-01T23:35:39+02:00` on organiser-confirmed extension date `2026-09-01`; exact close time unknown. Stale deadline and `2025` transport-date text remained in form. Application action was READY; travel booking remained blocked pending written 2026 transport-date clarification. No submission/receipt existed at checkpoint.
-2. `app-compass-bregal-2026-v1` — **COMPASS**: decide/execute human €30 payment, capture receipt, then complete Tally. Not confirmed at checkpoint.
-3. `app-salto-listing-2026-08-31-civis-lab-v1` — **CIVIS LAB**: human approve/decline; if approved, €50 payment and proof. Travel sequence separately gated.
-4. `app-non_salto-saber-2026-v1` — **SABER — Soilpunk Youth Exchange**: human login, review private fields, irreversible submit, capture receipt under host-authorised late route.
-
-Human-only: authentication/MFA/CAPTCHA, identity/sensitive values, payment, applicant-owned final wording where required, personal video and irreversible submit unless a later versioned capability contract explicitly changes a specific boundary.
-
-## Agent Frontier — checkpoint reversible/evidence work
-
-1. Step Into Paralympics — ingest organiser transport-date reply when received; this reply was non-blocking for the application but blocks travel purchase.
-2. I-PLAY — ingest Ticket2Europe route/details reply when received.
-3. Game of Nature — ingest group-leader follow-up; do not contaminate the proven participant route with unproven GL status.
-4. Building With Our Hands — verify authoritative receipt or authorised late route after deadline.
-5. Receipt sweep — after human actions, bind candidate confirmations to exact `application_id` and submission identity before any submitted/receipt transition.
-6. CONVIVIAL FOODSCAPES — resolve AI-policy evidence and full-November availability before any application preparation/queue promotion.
-
-## Runtime action protocol
+## Scheduler state at this checkpoint
 
 ```text
-READ CURRENT MAIN / BOOTSTRAP CONTRACT / CONTROL-PLANE WATERMARK
-→ READ UNEXPIRED LEASES
-→ READ COMMAND CENTER + SOURCE CURSORS + DEAD LETTERS
-→ READ ONLY NEW SOURCE DELTAS
-→ NORMALIZE EXPLICIT FACTS WITH EXACT IDS
-→ DEDUPE BY DETERMINISTIC IDEMPOTENCY KEY
-→ REGISTER NEW SESSION
-→ BOOTSTRAP_CONTEXT_LOADED
-→ ACQUIRE NARROW LEASE
-→ APPLY ONLY AFFECTED SUBGRAPH/SCOPE
-→ VERIFY EVIDENCE / READ BACK
-→ APPEND EVENTBUS EVIDENCE
-→ ADVANCE CURSOR MONOTONICALLY
-→ RECOMPUTE HUMAN/AGENT FRONTIERS
-→ RELEASE LEASE
+Native Scheduled Tasks tool-free dispatch probe   PASS
+Control-plane canary V3 receipt/lease lifecycle   PASS
+Full RG2.2 scheduled production path              NOT YET PASS
+UEX Runtime Dispatcher recurring                   DISABLED
 ```
 
-Retry the same transient strategy at most 3 times; then dead-letter. Notify Roberto only if Human Frontier changes, a receipt becomes authoritatively confirmed, a P0/P1 status/blocker changes materially, or a dead letter needs human attention.
+A scheduler probe does not certify RuntimeGraph. A control-plane canary does not certify source dispatch.
 
-## Hard evidence rules
+## Reconciled failed canaries
 
-- Raw prose is not a state transition.
-- Normalize state-changing evidence only with exact `application_id` or exact `opportunity_id` mapping.
-- `ROUTE_QUERY_SENT != APPLICATION_SUBMITTED`.
-- `ELIGIBLE != SELECTED`.
-- `INVITED_TO_APPLY != ACCEPTED`.
-- `PAYMENT_REQUIRED_FOR_PLACE != CONFIRMED`.
-- `CLICK_SUBMIT != SUBMITTED_CONFIRMED`.
-- `SubmissionAttempt != SubmissionReceipt`.
-- No `APPLICATION_SUBMITTED` or receipt state without authoritative confirmation bound to the exact application/submission identity.
-- Latest authoritative organiser/official-source evidence overrides older summaries.
-- Todoist/Notion/HubSpot/RuntimeGraph are projections, never receipt authority.
+### Production canary V3
 
-## Form / browser boundary
+`SES-UEX-AUTO-20260910T010530-RG22-PCV3-001` → `FAILED` through CPR13. No own RG2.2 lease/source-path success claimed.
 
-RuntimeGraph decides what action is ready. Form Gateway represents typed fields/ownership/auth/attempts/receipts. Browser Worker/Relay/Stack are local execution infrastructure only.
+### Staged canary A
 
-Capability state is versioned and must be read from current code/recovery artifacts. Authentication never implies PREFILL; PREFILL never implies Submit.
+`SES-UEX-AUTO-20260910T113308-RG22-SCA-001` completed cold bootstrap and created a bounded handoff, but Stage B did not consume it before expiry. CPR13 reconciled the session `FAILED`. No WriterAuthorization receipt/lease existed.
 
-At this checkpoint the hard ceiling remained:
+### Production canary V4
 
+`SES-UEX-AUTO-20260910T115630-RG22-PCV4-001` registered against superseded main `801a3c7ca9a8e517de56b0bb402acf59f9299bd5`, acquired no own lease, made no source/RuntimeGraph/provider mutation, and was reconciled `FAILED` by CPR14 using `RPL-d21dbdcfd1227f0e`.
+
+Never reuse these Session IDs.
+
+## CPR14 terminal-evidence caveat
+
+`Agent_Sessions` showed `SES-UEX-CHATGPT-20260910T131121-CPR14` as `COMPLETED` with heartbeat `2026-09-10T13:23:16+02:00`.
+
+The EventBus search performed while sealing this handoff observed CPR14 through:
+
+- `EVT-20260910T132051-CPR14-006` — target repair ACTIVE→FAILED;
+- `EVT-20260910T132147-CPR14-007` — target finding cleared;
+- `EVT-20260910T132147-CPR14-008` — repair lease ACTIVE→RELEASED.
+
+It did not expose a later CPR14 `SESSION_COMPLETED` event in that search. A successor must read the EventBus tail after `...CPR14-008`; if terminal event evidence is still absent, preserve this as coordination/event divergence and use the reconciliation planner rather than fabricating history.
+
+## RuntimeGraph production-canary contract
+
+The immediate milestone is **`SCHEDULER_PRODUCTION_CANARY_PASS #1`**.
+
+Use the current scheduled-canary runbook and keep one activation deliberately small:
+
+```text
+NEW SESSION
+→ full manifest bootstrap
+→ exact current-session lookup
+→ current main/EventBus/unexpired leases refresh
+→ bounded writer health
+→ real WriterAuthorization
+→ canonical content-addressed receipt
+→ persist WRITER_AUTHORIZATION_GRANTED
+→ immediate exact lease acquisition
+→ exact-ID ACTIVE readback
+→ ONE adapter slice
+→ <=5 source candidates
+→ <=2 exact application/opportunity subgraphs
+→ deterministic derived reconciliation only
+→ exact readback
+→ exact lease RELEASED
+→ terminal session
+→ SESSION_COMPLETED
+→ SCHEDULER_PRODUCTION_CANARY_PASS
+```
+
+No second adapter and no backlog drain in the canary.
+
+## Source / receipt rules
+
+- explicit adapter-contract facts only;
+- exact `application_id` / `opportunity_id` for state-changing routing;
+- fuzzy title matching, similarity and COS/embeddings never authorise mutation;
+- Gmail raw prose or absence is never receipt authority;
+- strong receipt requires canonical evidence bound to exact submission identity;
+- at-least-once delivery + deterministic idempotency + monotonic cursors;
+- same transient strategy max 3;
+- poison/unroutable normalized events → `Dead_Letters`;
+- preserve continuation boundary; never advance cursor past unprocessed evidence.
+
+## Derived self-heal boundary
+
+RG2.2 may repair only actual deterministic mismatches on its current derived allowlist. It must never use projection repair to rewrite canonical `Opportunities`, `Applications`, `Mass_Apply_Queue`, `Execution_Log`, `Agent_Event_Bus`, `Agent_Sessions`, `Work_Leases`, `Autofill_Profile` or `Human_Gates`.
+
+Control-plane lifecycle repair requires its own evidence-backed `CONTROL_PLANE_REPAIR` RPL.
+
+## Absolute boundaries
+
+- RG2.2 never executes `Agent_Next`;
 - no payment;
-- no credential/cookie/storage export;
-- no external provider PREFILL certification;
-- no irreversible Submit by agent;
-- no inference of sensitive/private applicant values.
+- no generic-agent login/MFA/CAPTCHA handling;
+- no credentials/OTP/cookies export or use;
+- no inferred external PREFILL certification;
+- no irreversible Submit;
+- no historical `COMPLETED` invented for dashboard cleanliness.
 
-A later versioned contract may promote a bounded capability only after its own gate/CI/evidence; this historical handoff does not grant it.
+## CGEV2 / COS split
 
-## CONVIVIAL FOODSCAPES P1 at checkpoint
+- **CGEV2** = continuity, provenance, exact identity, sessions, leases, EventBus, checkpoints, reconciliation and zero-context recovery.
+- **COS** = semantic retrieval, 20D topology, graph navigation and candidate relation discovery.
+- **RuntimeGraph** = exact-ID deterministic execution/read projection.
+- **Provider/Drive authority** = truth.
 
-- ID: `non_salto-convivial-foodscapes-2026`
-- role: visual artist
-- host/location: Quinta das Relvas x CONVIVIUM, Branca, Portugal
-- residency: `2026-11-01` → `2026-11-30`
-- deadline: `2026-09-15`
-- Spain gate: PASS
-- hard gates at capture: `AI_POLICY_UNKNOWN`, `FULL_NOVEMBER_AVAILABILITY_UNCONFIRMED`
-- next gate: `VERIFY_AI_POLICY_AND_NOVEMBER_AVAILABILITY_THEN_PREPARE`
-- Mass Apply at capture: not enqueued
-- official source: `https://quintadasrelvas.pt/convivialfoodscapes/`
+COS may suggest what to inspect. It may never decide what state to mutate.
 
-Do not infer these gates are still unresolved; refresh current evidence first.
+## Deliberately not asserted here
 
-## Concurrent work at this seal
+This seal did not refresh the whole domain. Do not reuse old 2026-09-02 counts/frontiers/deadlines as current.
 
-At `2026-09-02 00:30 Europe/Madrid` two disjoint leases were observed active. This is historical concurrency context only.
+The next agent must reconstruct live:
 
-Every successor must re-read `Work_Leases` and use **currently unexpired** overlapping leases as the write fence.
+- opportunities/applications;
+- Human Frontier;
+- strong receipts;
+- Source_Cursors;
+- Dead_Letters;
+- organiser replies;
+- official deadlines/forms;
+- Todoist exact bindings.
 
-## Projection status
+## Promotion ladder
 
-- Drive CRM + Event Bus: canonical operational truth/provenance.
-- RuntimeGraph V2 Command Center: derived execution frontier.
-- Notion: reconstructible projection.
-- Todoist: human/control action projection only; never receipt evidence.
-- HubSpot: organisation/contact/paid-relationship graph only; participant mobility applications are never Deals.
-- TickTick: daily-focus mirror only.
-- `MEMORY.md`: slow-changing semantic memory only.
-- `agent_context/**`: watermarked recovery/navigation only.
+1. `SCHEDULER_PRODUCTION_CANARY_PASS #1`.
+2. Independent clean PASS #2.
+3. Enable bounded hourly `UEX Runtime Dispatcher` only after two PASSes.
+4. Observe at least 3 consecutive clean recurrent cycles.
+5. Declare `RG2.2_SCHEDULED_PRODUCTION_STABLE` only with read-back evidence.
+6. Continue historical hygiene separately through watchdog/RPL queue.
+7. Resume RG2.3 reversible execution.
+8. Provider-specific Form Gateway certification.
+9. Receipt-backed application throughput.
 
-## Next safe continuation
+## Fast continuation
 
-1. Follow `agent_context/bootstrap_manifest.json`.
-2. Reconstruct current main, EventBus watermark, unexpired leases, Command Center, cursors and DLQ.
-3. Reconcile any later RuntimeGraph/source-adapter/executor releases before touching projections.
-4. Process only new source deltas after cursors plus late unique items idempotently.
-5. Prioritise authoritative receipt reconciliation after human actions.
-6. Surface only materially changed Human Frontier/P0-P1/DLQ states.
-7. Select current work from live frontiers rather than this historical list.
-8. Keep every state transition evidence-backed and receipt-disciplined.
-
-## Whole-project state
-
-This handoff made the RuntimeGraph V2.1 material cycle recoverable without chat. It is **not** the final project state. Current truth must be rebuilt from current main + bootstrap contract + Drive/Event Bus + official evidence.
+Read [`agent_context/NEXT.md`](agent_context/NEXT.md) and execute exactly one next promotion wave. It contains the copy/paste `/next` directive.

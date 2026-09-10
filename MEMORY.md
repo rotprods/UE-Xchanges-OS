@@ -116,6 +116,32 @@ Current capability state must always be read from current code/recovery artifact
 9. **A capability is not a credential** — local HMAC authorization may permit one bounded operation but must not expose browser secrets.
 10. **Volatile facts in stable docs rot quickly** — stable contracts point to live state instead of embedding current counts.
 
+## 2026-09-10 — durable scheduler / CGEV2 / COS learnings
+
+These lessons survived the RG2.2 Scheduled Tasks recovery and should remain across sessions:
+
+- **Normal writer health is bounded; historical hygiene is separate.** A healthy new writer should be authorised from its exact session/bootstrap plus currently-unexpired live leases/owners. Full historical stale-session/expired-lease archaeology belongs to watchdog/`CONTROL_PLANE_REPAIR`. A bounded report must state that historical hygiene was not evaluated rather than pretending global green.
+- **`ACTIVE_READ_ONLY` must be visible but never promoted to writer.** Stale read-only sessions are lifecycle debt, not hidden debt and not write authority.
+- **WriterAuthorization is a critical-section protocol.** Do expensive reads before authorization. After a canonical receipt is persisted, acquire the exact proposed lease immediately; never interleave unrelated work. A stale/failed receipt is discarded and never reused.
+- **Do not invent stricter operational thresholds than current versioned policy.** Extra-conservative prompt rules can create availability bugs. If policy should change, change code/contracts + tests.
+- **A scheduler probe and a RuntimeGraph canary prove different things.** A tiny task proves native dispatch; a control-plane canary proves receipt/lease lifecycle; only a full production-path canary proves RG2.2 scheduled operation.
+- **Scheduled RG2.2 needs an explicit micro-budget.** Initial production should process one adapter slice, a small bounded candidate set and a small exact-ID subgraph set, then close. Backlog draining and canary certification are different jobs.
+- **Closure is a first-class phase.** Reserve time for read-back, lease release and terminal session evidence. Hard-killed tasks cannot rely on `finally`; independent watchdog/reconciliation must exist.
+- **Expired textual `ACTIVE` rows are not perpetual locks.** Live fencing depends on unexpired lease identity/owner/context/scope and current policy. Historical rows remain evidence/hygiene debt.
+- **Control-plane repair preserves uncertainty.** Never label an interrupted/stale historical session `COMPLETED` merely to clean the dashboard. Use deterministic RPL + narrow repair lease + exact-ID read-back.
+- **CGEV2, COS and RuntimeGraph must not impersonate one another.** CGEV2 is control/provenance/continuity; COS-20D is semantic retrieval/topology; RuntimeGraph is exact-ID deterministic execution projection. Embeddings/fuzzy similarity may generate candidates but never authorise state mutation.
+- **Session registry and EventBus are separate evidence surfaces.** A terminal session row without corresponding expected event evidence is a divergence to investigate, not permission to fabricate a missing event.
+
+Canonical extended explanations live in:
+
+- [`agent_context/LEARNINGS.md`](agent_context/LEARNINGS.md)
+- [`agent_context/CGEV2_COS.md`](agent_context/CGEV2_COS.md)
+- [`agent_context/REGRESSION.md`](agent_context/REGRESSION.md)
+- [`agent_context/CONSCIOUSNESS_ACT.md`](agent_context/CONSCIOUSNESS_ACT.md)
+- [`agent_context/NEXT.md`](agent_context/NEXT.md)
+
+These files are navigation/learning artifacts; current operational truth still requires fresh authority reconstruction.
+
 ## Memory write policy
 
 Add something to `MEMORY.md` only when all are true:

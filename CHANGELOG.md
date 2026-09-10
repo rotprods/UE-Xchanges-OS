@@ -1,5 +1,20 @@
 # UE-Xchanges-OS — CHANGELOG
 
+## 2026-09-10 — CGEV2 + COS + RuntimeGraph zero-context recovery seal
+
+- Sealed the current RG2.2 Scheduled Tasks reliability work into durable repo artifacts before chat-context exhaustion.
+- Recorded current baseline main `349f63f2109e40ab6cba960c7311456a5d7ae906`, containing PR69 bounded normal-writer health.
+- Preserved the reliability lineage: PR67 strict WriterAuthorizationReceipt/integrity; PR68 stale `ACTIVE_READ_ONLY` visibility without writer promotion; CPR12 live fencing restoration; PR69 bounded current-writer health.
+- Recorded scheduler distinction: native tool-free Scheduled Tasks probe PASS; control-plane receipt/lease lifecycle canary V3 PASS; full RG2.2 scheduled production-path PASS still unproven; recurring `UEX Runtime Dispatcher` remains disabled.
+- Preserved failed production canaries as terminal evidence rather than rewriting them as success: PCV3 and staged-A reconciled `FAILED` through CPR13; PCV4 reconciled `FAILED` through CPR14 / `RPL-d21dbdcfd1227f0e` with no own lease/source/RuntimeGraph/provider mutation.
+- Captured private EventBus lower-bound watermark `EVT-20260910T132147-CPR14-008` and the caveat that CPR14 appears `COMPLETED` in `Agent_Sessions` while the EventBus search used for this seal exposed its chain only through repair-lease release. Successor must search later events and preserve divergence if terminal event evidence remains absent.
+- Added `agent_context/NEXT.md`, `CONSCIOUSNESS_ACT.md`, `LEARNINGS.md`, `CGEV2_COS.md`, `REGRESSION.md` and checkpoint `checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md`.
+- Refreshed `STATE.md`, `HANDOFF.md`, `MEMORY.md` and the derived `agent_context/**` navigation to eliminate dependence on this conversation.
+- Clarified authority boundaries: CGEV2 = continuity/control/provenance; COS = semantic retrieval/topology; RuntimeGraph = exact-ID deterministic execution projection. COS/fuzzy/embedding similarity never authorises state mutation.
+- Preserved the scheduled-canary micro-budget: one adapter slice, <=5 candidates, <=2 exact subgraphs, deterministic idempotency, monotonic cursors, bounded retry, Dead_Letter isolation and closure-first release/readback.
+- Did not refresh or reassert historical opportunity/application/Human Frontier counts in this seal. Live domain state must be reconstructed from private Drive and current provider evidence.
+- No payment, authentication, credentials/OTP/cookies, external PREFILL, irreversible Submit, Agent_Next execution or canonical domain mutation occurred as part of this documentation seal.
+
 ## 2026-09-02 — RuntimeGraph V2.1 dispatch-cycle recovery seal
 
 - Promoted RuntimeGraph V2.1, release `6c23c9b6a70f33a7cb1eb780c54e49ebf5cf0d16`, to the current versioned recovery surface; legacy RuntimeGraph v1 frontier counts are now explicitly historical.

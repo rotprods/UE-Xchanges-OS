@@ -1,153 +1,157 @@
 # UE-Xchanges-OS — STATE
 
-Updated: 2026-09-02 00:30 Europe/Madrid
+Updated: `2026-09-10T14:46:00+02:00`
+Context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`
+Baseline GitHub main observed: `349f63f2109e40ab6cba960c7311456a5d7ae906`
+Private EventBus lower-bound observed: `EVT-20260910T132147-CPR14-008`
+
+> Current public recovery projection. It intentionally avoids asserting volatile opportunity/application/frontier counts that were not re-read during this seal. Current official/provider evidence and private Drive canonical state always win.
+
+## North Star
+
+Operate `APPLY EVERYTHING VIABLE` as an evidence-first system that converts legitimate Spain-compatible opportunities into verified, receipt-backed outcomes while keeping irreversible/sensitive actions human-gated and making all agent work recoverable without chat.
 
 ## Authority
 
-Current official source / organiser confirmation / authoritative receipt > private Drive CRM + `Agent_Event_Bus` > active `LIVE-STATE-OVERRIDE.json` for aggregate domain state > GitHub versioned contracts/checkpoints > RuntimeGraph/Notion/Todoist projections > chat memory.
+`official/organiser/receipt → private Drive CRM + EventBus → current GitHub policy/code/recovery → RuntimeGraph derived state → COS/task/UI projections → chat`.
 
-RuntimeGraph is **not** a second source of opportunity truth. It is a deterministic execution/read model over canonical evidence.
+COS/semantic similarity is never mutation authority.
 
-## Live canonical scale
+## Current reliability release
 
-- Opportunities: **176**
-- Application nodes / Mass Apply rows: **164**
-- Organisations: **30**
-- Current-wave authoritatively confirmed receipts: **0**
-- Historical applications proven by later outcome evidence: **1** (`COMPASS`; original historical receipt unrecovered)
-- Verified TOY-qualifying trainer references: **0**
-- Telegram unique unresolved: **60**, source-access blocked
-- Active program: **W9 — Controlled Submission Baseline**, stop `2026-09-04 22:00 Europe/Madrid`
+Current baseline main: `349f63f2109e40ab6cba960c7311456a5d7ae906`.
 
-Private canonical CRM: `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`.
+Relevant lineage:
 
-The 176th opportunity is `non_salto-convivial-foodscapes-2026`. It is P1 and canonical but intentionally not an application/Mass Apply node while its AI-policy and full-November-availability hard gates remain unresolved.
+- PR67 — strict WriterAuthorizationReceipt shape/integrity, content address, duplicate-key rejection, decision/timestamp binding and fail-closed gate/audit.
+- PR68 — stale `ACTIVE_READ_ONLY` lifecycle visibility without granting writer authority.
+- CPR12 — reconciled orphaned-owner stale lease class and restored live fencing semantics.
+- PR69 — bounded normal-writer health over the exact current session + BootstrapGuard + currently-unexpired leases/live owners. Historical hygiene remains separate.
 
-## RuntimeGraph V2.1 — current execution surface
+Current runbook: `RUNBOOKS/RG22_SCHEDULED_CANARY.md`.
 
-State: `LIVE_DERIVED_PROJECTION`.
+## Scheduler / RG2.2 promotion state
 
-Dispatcher release: `6c23c9b6a70f33a7cb1eb780c54e49ebf5cf0d16`.
+```text
+Native Scheduled Tasks dispatch probe       PASS
+Control-plane receipt/lease canary V3       PASS
+Full scheduled RG2.2 production path        NOT YET PASS
+UEX Runtime Dispatcher recurring             DISABLED
+```
 
-Private RuntimeGraph V2 Command Center: Drive `1OtSLFI4VHW6aSne1YjtRykRsN4j4G4OcEGSCXVDLwbM`.
+The simple probe proves only native task dispatch. The control-plane canary proves only coordination lifecycle. Neither certifies source-dispatch/projection production.
 
-Dispatcher law:
+## Failed production canaries already reconciled
 
-`READ CURRENT MAIN + EVENT WATERMARK + LEASES + COMMAND CENTER + CURSORS + DEAD LETTERS → READ SOURCE DELTAS AFTER CURSORS → NORMALIZE EXPLICIT EXACT-ID FACTS → IDEMPOTENT ROUTE/DISPATCH → APPLY AFFECTED APPLICATION SUBGRAPH → APPEND EVIDENCE → ADVANCE CURSOR → RECOMPUTE FRONTIERS`.
+- `SES-UEX-AUTO-20260910T010530-RG22-PCV3-001` → `FAILED` under CPR13. No own RG2.2 lease/source-path success claimed.
+- `SES-UEX-AUTO-20260910T113308-RG22-SCA-001` → `FAILED` under CPR13 after Stage-A bootstrap handoff expired unconsumed. No WriterAuthorization/lease had been acquired.
+- `SES-UEX-AUTO-20260910T115630-RG22-PCV4-001` → `FAILED` under CPR14 / `RPL-d21dbdcfd1227f0e`; no own lease/source/RuntimeGraph/provider mutation; no production PASS inferred.
 
-Delivery semantics are **at-least-once + deterministic idempotency**, never exactly-once. The same transient strategy may retry at most **3** times before dead-letter isolation.
+These Session IDs are historical evidence and must never be reused for writes.
 
-Completed material dispatcher cycle:
+## Recent control-plane repair state
 
-- cycle session: `SES-UEX-AUTO-20260901T233539-28`
-- completion watermark: `EVT-20260901T234155-DSPC-008`
-- Human Frontier: **3 → 4**
-- authoritative receipts confirmed: **0**
-- dead letters: **0**
-- new relevant Gmail organiser/receipt observations in that cycle: **0**
-- new safe Form Gateway observations in that cycle: **0**
-- authoritative official-source material observations: **1**
-- no payment, auth, credentials/OTP/cookies, external PREFILL certification or irreversible submit occurred.
+### CPR12
+`SES-UEX-CHATGPT-20260909T175507-CPR12` → `COMPLETED`.
 
-### Current Human Frontier
+Material outcome: the orphaned-owner `ACTIVE` lease class that broke live fencing semantics was reconciled in narrow RPL waves. Its own repair leases were observed `RELEASED`.
 
-1. **Step Into Paralympics** — `app-step-paralympics-v1`: human completes private/applicant-owned fields and text, submits personally, captures confirmation/receipt. Official form was reverified live at `2026-09-01T23:35:39+02:00` on the organiser-confirmed extension date `2026-09-01`; exact closing time remains unknown. The form still contained stale `18/08/2026` deadline text and stale `2025` transport dates. Application may proceed; **travel booking remains blocked** until written 2026 transport-date clarification.
-2. **COMPASS** — `app-compass-bregal-2026-v1`: human €30 payment decision/execution and receipt capture, then Tally. Selection/acceptance email is not payment receipt and does not mean `CONFIRMED`.
-3. **CIVIS LAB** — `app-salto-listing-2026-08-31-civis-lab-v1`: human approve/decline; if approved, €50 payment and proof. Do not purchase travel until host-authorised sequence allows it.
-4. **SABER — Soilpunk Youth Exchange** — `app-non_salto-saber-2026-v1`: human login/private-field review/irreversible submit/receipt capture under host-authorised late route.
+### CPR13
+`SES-UEX-CHATGPT-20260910T124209-CPR13` → `COMPLETED`; PCV3 + Stage-A repaired to `FAILED`, exact repair fences released.
 
-### Source cursors captured by completed cycle
+### CPR14
+`SES-UEX-CHATGPT-20260910T131121-CPR14` was observed `COMPLETED` in `Agent_Sessions` with heartbeat `2026-09-10T13:23:16+02:00`.
 
-- `gmail:organiser-replies`: ACTIVE; last item `1a05eb5b1861284d`; last observed `2026-09-01T22:42:26+02:00`; revision `1`.
-- `receipt:reconciler`: bootstrap/none; confirmed current-wave receipts `0`.
-- `form:gateway`: bootstrap/none; external PREFILL/Submit not certified.
-- `source:official`: ACTIVE; last item `step-form-live-20260901`; last observed `2026-09-01T23:35:39+02:00`; revision `1`.
+Observed EventBus chain through:
+- `EVT-20260910T132051-CPR14-006` repair target ACTIVE→FAILED;
+- `EVT-20260910T132147-CPR14-007` target health finding cleared;
+- `EVT-20260910T132147-CPR14-008` repair lease ACTIVE→RELEASED.
 
-Late unique events remain processable; cursors are ingestion high-watermarks, not authority.
+The EventBus search used for this seal did not expose a later CPR14 `SESSION_COMPLETED` event. Successor must search later events; if absent, treat as coordination/event divergence rather than inventing history.
 
-A projection-column offset incident on the Step application row was immediately corrected and logged as `EVT-20260901T233800-DSPC-004`; it changed no payment, submission or receipt state.
+## Current concurrency statement
 
-### Current Agent Frontier snapshot
+Current-day repair/merge rows inspected during this seal were `RELEASED`. No actually-unexpired overlapping writer was observed in the recent scan.
 
-The V2 Command Center projected these top reversible/evidence actions after the cycle:
+This is a snapshot, not durable permission. Before any write, re-read **all currently-unexpired** leases relevant to the proposed scope.
 
-1. Step Into Paralympics — ingest organiser transport-date reply when received; non-blocking for the application itself.
-2. I-PLAY — ingest Ticket2Europe route/details reply when received.
-3. Game of Nature — ingest group-leader follow-up while keeping participant route separate.
-4. Building With Our Hands — verify receipt or sourced late route after deadline.
-5. Portfolio — receipt sweep after human actions, binding any candidate evidence to exact application/submission identity.
+## RuntimeGraph operating law
 
-## RuntimeGraph v1 — historical compile baseline
+Normal `DERIVED_PROJECTION` writer authorization now uses the PR69 bounded health path:
 
-Compiler release baseline: `80d31479d2bb8572623d9b4a385e457d49761c11`.
+```text
+exact new current session
++ exact BootstrapGuard evidence
++ currently-unexpired leases only
++ exact live owners/bootstrap evidence
+→ bounded ControlPlaneHealthReport
+→ WriterAuthorization
+→ canonical WriterAuthorizationReceipt
+→ immediate exact lease acquisition
+```
 
-The legacy 164-row compile produced 177 atomic actions, 656 gates and 1,211 edges. Its old `Human READY 1 / Agent READY 145 / System READY 10 / Waiting 8` frontier is **historical** and must not override RuntimeGraph V2.1 Command Center state.
+`historical_hygiene_evaluated=false` is not a global-green claim.
 
-Legacy private artifacts remain useful for archaeology only:
+Scheduled canary/initial production micro-budget:
 
-- read model: Drive `16QcHOWoBD1ixstPkhivftuyqmQdhtZj6`
-- machine snapshot: Drive `1iVyNAZWmURTdK8wZyYjYxyYDh9Djik3P`
+- exactly one adapter slice maximum;
+- at most 5 new/late-unique candidates;
+- at most 2 exact application/opportunity subgraphs;
+- no second adapter in the same activation;
+- monotonic cursor with continuation boundary;
+- at-least-once + deterministic idempotency;
+- same transient strategy max 3;
+- poison/unroutable normalized events → Dead_Letters.
 
-## Runtime safeguards
+## Self-heal boundary
 
-- `UNKNOWN` is verification debt.
-- Raw prose does not establish eligibility, submission, receipt or confirmation.
-- Normalize state-changing observations only with explicit exact `application_id` or exact `opportunity_id` mapping.
-- `ROUTE_QUERY_SENT != APPLICATION_SUBMITTED`.
-- `ELIGIBLE != SELECTED`.
-- `INVITED_TO_APPLY != ACCEPTED`.
-- `PAYMENT_REQUIRED_FOR_PLACE != CONFIRMED`.
-- `SubmissionAttempt != SubmissionReceipt`.
-- No application becomes submitted without authoritative receipt/confirmation bound to the application/submission identity.
-- Expired deadlines require authoritative extension/late/open evidence before irreversible action.
-- Human owns authentication/MFA/CAPTCHA, identity/sensitive values, payment, applicant-owned final wording where required, personal video and irreversible submit.
-- Todoist/Notion/HubSpot/RuntimeGraph are projections, never receipt authority.
+RG2.2 may repair actual deterministic mismatches only on derived RuntimeGraph surfaces allowed by current runbook/policy. It must never use projection repair to rewrite canonical Opportunities, Applications, Mass_Apply_Queue, Execution_Log, Agent_Event_Bus, Agent_Sessions, Work_Leases, Autofill_Profile or Human_Gates.
 
-## Form execution boundary
+Control-plane lifecycle changes require their own coordination operation or separate evidence-backed `CONTROL_PLANE_REPAIR` RPL.
 
-Read `docs/RUNTIMEGRAPH_FORM_GATEWAY.md`, `docs/RUNTIMEGRAPH_V2_CLOSED_LOOP.md` and `docs/RUNTIMEGRAPH_V2_1_EVENT_DISPATCHER.md` before operating forms/runtime events.
+## External/sensitive boundary
 
-The local Browser Worker / Relay / Stack may support safe local tooling, but current repository ceilings still do **not** authorise external provider certification, external PREFILL, credentials/cookies/storage export, payment or Submit.
+- RG2.2 never executes `Agent_Next`.
+- Gmail raw prose/absence cannot directly establish receipt.
+- A strong receipt must bind to exact submission identity.
+- No fuzzy/title/embedding route may cause a state mutation.
+- No payment.
+- No authentication/MFA/CAPTCHA handling by generic agent.
+- No credentials/OTP/cookies export/use.
+- No external PREFILL certification by inference.
+- No irreversible Submit.
 
-## Current P0/P1 truth
+## Volatile domain state
 
-Domain truth still comes from Drive/Gmail/official evidence, not from this summary.
+Not refreshed in this seal. Do **not** treat 2026-09-02 counts/frontiers/deadlines as current.
 
-- **Step Into Paralympics** — form live observed on the organiser-confirmed extension date; Human READY; exact close time unknown; transport-year conflict unresolved; travel booking blocked; no submission/receipt claimed.
-- **COMPASS** — selected after waitlist; place accepted by email; €30 payment → receipt → Tally still required; not confirmed.
-- **CIVIS LAB** — eligible; sending-org payment/proof gate remains human.
-- **SABER** — host-authorised late route; human submit/receipt gate remains.
-- **I-PLAY** — open places confirmed; route/detail evidence still requires reconciliation.
-- **Game of Nature** — participant route pass; group-leader status remains separate/unproven.
-- **CONVIVIAL FOODSCAPES** — P1 visual-artist residency, Branca (Portugal), `2026-11-01` → `2026-11-30`, deadline `2026-09-15`. Spain passes. Hard gates remain `AI_POLICY_UNKNOWN` and `FULL_NOVEMBER_AVAILABILITY_UNCONFIRMED`; do not enqueue/recommend submit before both resolve. See `checkpoints/2026-09-02-convivial-foodscapes-p1-handoff.md`.
-- Professional lanes such as UNICEF/European Youth Forum remain hard-gate verification work, not automatic applications.
+A successor must reconstruct:
 
-## Projections and concurrent work
+- canonical opportunity/application state;
+- Human Frontier;
+- strong receipt count;
+- Source_Cursors;
+- Dead_Letters;
+- organiser replies;
+- authoritative official deadlines/forms;
+- Todoist exact bindings;
 
-- RuntimeGraph V2 Command Center: private derived execution cockpit; current dispatcher cycle frontier is 4 Human READY.
-- Notion: one-way human cockpit; last reconciled opportunity count was 175, so stale by one until refreshed from Drive.
-- Todoist: human/control action queue only; never evidence.
-- HubSpot: organisation/contact/paid-relationship graph only; participant mobility applications are never Deals.
-- TickTick: daily-focus mirror only while timezone control remains applicable.
+from private Drive/RuntimeGraph/provider evidence.
 
-At this seal, the RuntimeGraph V2.2 source-adapter/self-heal lease and a disjoint `agent_context/**` survival-pack lease were active. A successor must **re-read `Work_Leases`**, not assume these leases remain active or expired.
+## Immediate next milestone
 
-## Source state
+`SCHEDULER_PRODUCTION_CANARY_PASS #1` on current main using `RUNBOOKS/RG22_SCHEDULED_CANARY.md`.
 
-- SALTO paid trainer/facilitator watch remains active; no newly verified open trajectory-changing paid call crossed the alert threshold in the latest recorded scan.
-- Telegram 60/60 remains unresolved because source bodies are unavailable to the current tool stack; do not mark processed.
-- New provider/email/official-source evidence must update canonical Drive evidence/gates first, then RuntimeGraph is incrementally recomputed.
+Promotion ladder:
 
-## Recovery
+`PASS #1 → independent PASS #2 → enable bounded hourly RG2.2 → 3 clean recurrent cycles → RG2.2_SCHEDULED_PRODUCTION_STABLE → safe self-heal subset → RG2.3 → provider certification → receipt-backed throughput`.
 
-Cold start from `HANDOFF.md`, `LIVE-STATE-OVERRIDE.json`, `docs/RUNTIMEGRAPH_V2_CLOSED_LOOP.md`, `docs/RUNTIMEGRAPH_V2_1_EVENT_DISPATCHER.md`, `RUNBOOKS/RUNTIMEGRAPH_RECOVERY.md`, the newest checkpoint, and then the private Drive control-plane tail.
+## Recovery pointers
 
-Private zero-context pack: Drive `19tM23N37cqweaWPSoVMxEECZhfOSrEJPGj_nRJB71q4`.
-
-RuntimeGraph V2 Command Center: Drive `1OtSLFI4VHW6aSne1YjtRykRsN4j4G4OcEGSCXVDLwbM`.
-
-Dispatcher-cycle recovery checkpoint: `checkpoints/2026-09-02-runtimegraph-v2-1-dispatch-cycle-close.md`.
-
-## Non-claims
-
-This recovery seal executes no payment, authenticated external application submission or external PREFILL. Current-wave authoritative receipts remain **0**. Never infer sensitive attributes, youth-worker/trainer status, education, work rights, safeguarding or experience when evidence is absent.
+- `HANDOFF.md`
+- `agent_context/NEXT.md`
+- `agent_context/CONSCIOUSNESS_ACT.md`
+- `agent_context/REGRESSION.md`
+- `agent_context/LEARNINGS.md`
+- `agent_context/CGEV2_COS.md`
+- `checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md`
