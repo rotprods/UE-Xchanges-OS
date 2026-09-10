@@ -1,99 +1,74 @@
 # UE-Xchanges-OS — Progress
 
-Snapshot started: 2026-09-02 00:22 Europe/Madrid
-Refreshed: 2026-09-02 00:29 Europe/Madrid
-Authority: derived only; live evidence/Drive Event Bus wins.
+Seal: `2026-09-10T14:46:00+02:00`
+Baseline main: `349f63f2109e40ab6cba960c7311456a5d7ae906`
+Authority: derived only; live GitHub/Drive/provider evidence wins.
 
 ## Completed durable milestones
 
-### Core control plane
-- Multi-agent sessions, Event Bus, leases, inbox and context registry exist in Drive.
-- Truth hierarchy and `APPLY EVERYTHING VIABLE` policy are canonical in `goal.md` / `AGENTS.md`.
-- Zero-context recovery artifacts exist in root GitHub + private Drive.
+### CGEV2 continuity
+- Root `STATE.md`, `HANDOFF.md`, `CHANGELOG.md` and checkpoints exist.
+- Private Drive carries canonical sessions, leases and EventBus.
+- Chat is explicitly non-authoritative and disposable.
 
-### CRM / projections
-- Drive remains canonical operational CRM.
-- Notion is one-way executive projection.
-- Todoist is action projection only.
-- HubSpot is reserved for organisations/contacts/paid relationships, not participant applications.
+### RuntimeGraph reliability hardening
+- PR67: strict WriterAuthorization receipt payload/integrity boundary.
+- PR68: stale `ACTIVE_READ_ONLY` health visibility without writer promotion.
+- CPR12: orphaned-owner lease class reconciled; live fencing integrity restored.
+- PR69: bounded normal-writer health on exact current writer + currently-unexpired live lease evidence.
 
-### RuntimeGraph
-- RG2 closed-loop released.
-- RG2.1 autonomous event dispatcher released.
-- First live dispatcher cycle reconciled Step Into Paralympics and promoted Human Frontier from 3 → 4.
-- Receipt authority remains strict: `SubmissionAttempt != SubmissionReceipt`.
+### Scheduler isolation
+- Tool-free Scheduled Tasks probe: completed.
+- Scheduler control-plane canary V3: completed receipt → exact lease ACTIVE readback → exact release → terminal session, with no source/RuntimeGraph/domain side effect.
 
-### Form Execution Gateway
-Completed and merged:
-1. typed form contracts / field ownership;
-2. compiler + AI policy enforcement;
-3. receipt/idempotency engine;
-4. HMAC ApprovalToken;
-5. INSPECT_ONLY browser executor;
-6. human-login takeover;
-7. Chromium CI smoke;
-8. PREFILL_LOCAL_ONLY;
-9. validation/diff + validation signature;
-10. Plan Identity v2;
-11. runtime attestation + provider capability gate;
-12. target-Mac activation compiler;
-13. Browser Worker v1;
-14. MCP Relay v1;
-15. Browser Stack Supervisor v1.
+### Control-plane repair of failed production canaries
+- CPR13 reconciled production-canary V3 and expired staged-A session to `FAILED`.
+- CPR14 reconciled production-canary V4 to `FAILED` and released its repair fence.
+- No production PASS was fabricated.
 
-Browser Stack release ancestor: PR #49 / `d1d82b0dbb8d5712888cef7d247b2487f9fd7514`.
-Browser Stack main checks: `33565691506` SUCCESS, `33565691512` SUCCESS.
-Current main at refresh: `d72369366396e97cf532f9c7a462df3cfdc9b79e`, which preserves Browser Stack and adds continuity updates.
+## Current promotion state
 
-### Root continuity seal
-`SES-UEX-CHATGPT-20260902T002030-30` completed and released at 00:27.
-It sealed CONVIVIAL P1 continuity into root recovery artifacts and advanced `main` to `d7236936…` without resolving its hard gates.
+```text
+Native scheduler dispatch                 PASS
+Control-plane receipt/lease lifecycle     PASS
+Bounded normal-writer health code         RELEASED
+Full scheduled RG2.2 production path      NOT YET PASS
+Recurring UEX Runtime Dispatcher          DISABLED
+```
 
-## Active work
+## Current blocker
 
-### RG2.2 source adapters / self-heal
-Session: `SES-UEX-CHATGPT-20260902T001630-27`
-Lease: `LSE-UEX-RUNTIMEGRAPH-ADAPTERS-20260902T001630-27`
-Scope: adapters + derived projection repair only.
+Demonstrate one full scheduled RG2.2 activation that reaches:
 
-### RG2.1 repo handoff seal
-Session: `SES-UEX-CHATGPT-20260902T002900-32`
-Status: ACTIVE at refresh.
-Purpose: integrate RG2.1 dispatcher-cycle closure into versioned recovery state while yielding RG2.2 and `agent_context/**`.
+`bootstrap → bounded health → canonical receipt → exact lease ACTIVE → one adapter micro-batch → deterministic projection readback → exact lease RELEASED → terminal session → SCHEDULER_PRODUCTION_CANARY_PASS`.
 
-### Agent-context pack
-Session: `SES-UEX-CHATGPT-20260902T002200-31`
-Lease: `LSE-UEX-AGENT-CONTEXT-20260902T002200-31`
-Scope: `agent_context/**` only.
+The earlier full canaries failed before the source path and were reconciled safely.
 
-## Domain frontier
+## Next promotion ladder
 
-Human READY: Step Into Paralympics, COMPASS, CIVIS LAB, SABER.
+1. Re-read current main/private watermark/current unexpired leases.
+2. Audit any session/event divergence after `EVT-20260910T132147-CPR14-008`.
+3. Launch a NEW production-path canary using current `RUNBOOKS/RG22_SCHEDULED_CANARY.md`.
+4. Require one adapter slice only, <=5 candidates, <=2 exact subgraphs.
+5. Require closure/read-back and PASS event.
+6. Run a SECOND independent clean scheduled canary.
+7. Enable bounded hourly RG2.2 only after two PASSes.
+8. Observe at least 3 clean recurrent cycles.
+9. Declare `RG2.2_SCHEDULED_PRODUCTION_STABLE` only then.
+10. Continue historical hygiene through a separate watchdog/RPL queue.
+11. Resume RG2.3 reversible execution.
+12. Provider-specific Form Gateway certification.
+13. Strong receipt engine / real application throughput.
 
-Important non-human/open work:
-- Game of Nature group-leader reply pending.
-- I-PLAY route/details follow-up pending.
-- CONVIVIAL FOODSCAPES is canonical P1 but blocked by `AI_UNKNOWN` + full-November availability confirmation; not Mass-Apply-enqueued.
-- Trainer/facilitator paid-source monitoring remains active.
-- Telegram 60/60 remains access-blocked.
+## Explicit non-goals for the next wave
 
-## Known inconsistencies / debt
-
-1. Dashboard was last read stale (`175` opportunities) while canonical continuity now says `176`.
-2. Dashboard says `Applications submitted=1`, but `Submission receipts=0`; never treat the former as receipt-backed current submission.
-3. Browser Stack owning session is COMPLETED/merged/green, while its Work_Lease row was previously observed `ACTIVE`; reconcile current lease state before overlapping stack mutation.
-4. `goal.md` scale figures are historic and not live counts; mission/policy remains canonical, counts do not.
-5. Root recovery files may continue changing while RG2.1 handoff sealer is ACTIVE; always read latest main/checkpoint before writing.
-
-## Next technical milestones
-
-1. Finish RG2.2 adapters/self-heal under its current lease.
-2. Finish RG2.1 recovery/handoff seal and read its final event.
-3. Reconcile stale Browser Stack lease if still ACTIVE.
-4. Run Browser Stack doctor on the actual target environment when possible.
-5. Certify exactly one external provider for authenticated INSPECT/PREFILL; no Submit.
-6. Only after provider gauntlet: supervised Submit design with fresh ApprovalToken + attempt-before-click + receipt confirmation.
+- do not make historical hygiene globally green before testing a healthy new writer;
+- do not execute Agent_Next from RG2.2;
+- do not use fuzzy/semantic routing for mutations;
+- do not enlarge receipt/prelease policy by prompt;
+- do not split the writer into staged handoffs unless single-activation evidence proves impossible and a versioned design is reviewed;
+- do not touch payment/auth/credentials/OTP/cookies/external PREFILL/Submit.
 
 ## Definition of survival
 
-A fresh agent can reconstruct mission, current main, control-plane sessions/leases, Human Frontier, Form Gateway capability ceiling, active writers, known inconsistencies and next actions without reading this chat.
+A fresh agent can recover the current reliability lineage, distinguish scheduler dispatch from RG2.2 production certification, identify all failed canary sessions as terminal, find the current runbook and execute exactly one next promotion step without reading this chat.
