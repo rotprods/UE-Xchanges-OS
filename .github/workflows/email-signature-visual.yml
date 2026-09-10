@@ -1,0 +1,49 @@
+name: email-signature-visual
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SIGNATURE_PATH: docs/application-assets/email-signature.html
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install Playwright
+        working-directory: qa/email-signature
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Serve signature
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory . > /tmp/email-signature-server.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "http://127.0.0.1:4173/${SIGNATURE_PATH}" > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/email-signature-server.log
+          exit 1
+      - name: Run gauntlet
+        working-directory: qa/email-signature
+        run: npm test
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: email-signature-playwright-${{ github.run_id }}
+          path: |
+            qa/email-signature/playwright-report
+            qa/email-signature/test-results
+          if-no-files-found: error
+          retention-days: 30
