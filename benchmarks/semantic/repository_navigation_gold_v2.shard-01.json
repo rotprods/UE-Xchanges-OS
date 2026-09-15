@@ -1,0 +1,227 @@
+[
+  {
+    "acceptable_related_paths": [
+      "docs/WRITER_AUTHORIZATION_AND_RELIABILITY_WATCHDOG.md",
+      "docs/WRITER_AUTHORIZATION_RECEIPT.md"
+    ],
+    "expected_paths": [
+      "src/uexchanges/writer_authorization.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Where is the coordination broker that decides whether a writer may acquire an exact proposed lease?",
+    "query_id": "RGN2-EN-01",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/WRITER_AUTHORIZATION_AND_RELIABILITY_WATCHDOG.md",
+      "docs/WRITER_AUTHORIZATION_RECEIPT.md"
+    ],
+    "expected_paths": [
+      "src/uexchanges/writer_authorization.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Dónde está el broker de coordinación que decide si un writer puede adquirir un lease propuesto exacto?",
+    "query_id": "RGN2-ES-01",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "tests/test_control_plane_health.py",
+      "schemas/control-plane-health-report.schema.json"
+    ],
+    "expected_paths": [
+      "src/uexchanges/control_plane_health.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the implementation that evaluates control-plane SLO health for sessions and lease fencing.",
+    "query_id": "RGN2-EN-02",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "tests/test_control_plane_health.py",
+      "schemas/control-plane-health-report.schema.json"
+    ],
+    "expected_paths": [
+      "src/uexchanges/control_plane_health.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Encuentra la implementación que evalúa la salud SLO del control plane para sesiones y fencing de leases.",
+    "query_id": "RGN2-ES-02",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/BOOTSTRAP_COMPLIANCE_WATCHDOG.md",
+      "tests/test_bootstrap_watchdog.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/bootstrap_watchdog.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Which module audits stale or noncompliant agent bootstrap lifecycle state?",
+    "query_id": "RGN2-EN-03",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/BOOTSTRAP_COMPLIANCE_WATCHDOG.md",
+      "tests/test_bootstrap_watchdog.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/bootstrap_watchdog.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Qué módulo audita estados stale o no conformes del ciclo de bootstrap de agentes?",
+    "query_id": "RGN2-ES-03",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/BOOTSTRAP_GUARD.md",
+      "tests/test_bootstrap_guard.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/bootstrap_guard.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the fail-closed guard that validates one writer bootstrap acknowledgement before writes.",
+    "query_id": "RGN2-EN-04",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/BOOTSTRAP_GUARD.md",
+      "tests/test_bootstrap_guard.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/bootstrap_guard.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Localiza el guard fail-closed que valida el acknowledgement de bootstrap de un writer antes de escribir.",
+    "query_id": "RGN2-ES-04",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/RECONCILIATION_AND_DR_V1.md",
+      "tests/test_reconciliation_planner.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/reconciliation_planner.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Where are deterministic non-executing repair plans built from reliability findings?",
+    "query_id": "RGN2-EN-05",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/RECONCILIATION_AND_DR_V1.md",
+      "tests/test_reconciliation_planner.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/reconciliation_planner.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Dónde se construyen planes deterministas de reparación no ejecutables a partir de findings de fiabilidad?",
+    "query_id": "RGN2-ES-05",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "schemas/recovery-manifest.schema.json",
+      "tests/test_recovery_manifest.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/recovery_manifest.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the code that constructs hashed recovery manifests for zero-context disaster recovery.",
+    "query_id": "RGN2-EN-06",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "schemas/recovery-manifest.schema.json",
+      "tests/test_recovery_manifest.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/recovery_manifest.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Encuentra el código que construye manifests hasheados de recovery para disaster recovery sin contexto.",
+    "query_id": "RGN2-ES-06",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "schemas/recovery-drill-report.schema.json",
+      "tests/test_recovery_drill.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/recovery_drill.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Which module records measured recovery drill results and RTO/RPO facts?",
+    "query_id": "RGN2-EN-07",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "schemas/recovery-drill-report.schema.json",
+      "tests/test_recovery_drill.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/recovery_drill.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Qué módulo registra resultados medidos de recovery drill y hechos RTO/RPO?",
+    "query_id": "RGN2-ES-07",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "tests/test_recovery_verifier.py",
+      "docs/RECONCILIATION_AND_DR_V1.md"
+    ],
+    "expected_paths": [
+      "src/uexchanges/recovery_verifier.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Where is recovery evidence verified before state is trusted?",
+    "query_id": "RGN2-EN-08",
+    "strict": true
+  }
+]
