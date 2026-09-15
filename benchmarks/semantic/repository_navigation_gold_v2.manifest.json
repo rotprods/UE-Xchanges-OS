@@ -25,12 +25,12 @@
     {
       "path": "repository_navigation_gold_v2.shard-03.json",
       "query_count": 15,
-      "sha256": "c62db07fa84ea9f9485bb1afc6ae40dd8efbfbdded93ddc75816bf551757a061"
+      "sha256": "e0ff6eb0003354eaee937ec5009cbd4d06dd102a475be6f24263b4ad607c33f3"
     },
     {
       "path": "repository_navigation_gold_v2.shard-04.json",
       "query_count": 15,
-      "sha256": "91c29d46fd6ee46aac9d79f88888c7058524a1b6b6d4433de798104e822bb424"
+      "sha256": "bc4b61e89e51b64e3f4ec3aa93d978f89afe1789b2fa44f86954a595b9afa527"
     }
   ],
   "source_repo": "rotprods/UE-Xchanges-OS"

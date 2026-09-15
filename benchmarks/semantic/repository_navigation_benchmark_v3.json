@@ -1,0 +1,101 @@
+{
+  "allowed_embedding_source_commits": [
+    "5bb086b0adcaa1a22cb80fa0ad87836a00f015b8",
+    "5bd92696e3b9d04be9eda0c2a6e5dcb929235870"
+  ],
+  "authority": "DERIVED_BENCHMARK_ONLY",
+  "benchmark_id": "UEX-RETR03-FROZEN-REPLAY",
+  "corpus_manifest_sha256": "148a4ac7e17f47acb4a8884c856798d951df36aed78cee26ca78b842b6ebcfc9",
+  "corpus_paths": 397,
+  "corpus_points": 676,
+  "dense_protected_top10_equal_count": 60,
+  "embedding_dimensions": 1024,
+  "freshness": "HISTORICAL_ONLY",
+  "gate_surface": "hybrid_rrf",
+  "gold_manifest_sha256": "2508138b7d860c2b49137041a884c14f9b6f26d04814c9bc0efb759166c977df",
+  "historical_index_source_sha": "5bd92696e3b9d04be9eda0c2a6e5dcb929235870",
+  "hybrid_promotion": "BLOCKED_REGRESSION",
+  "implementation_sha256": {
+    "scripts/run_repository_navigation_benchmark.py": "b4e6c631d47796fc6693cefaeaed57f00c3e6ea4618d130fb02b0d4d1c46c037",
+    "src/uexchanges/semantic/__init__.py": "70c12c91be02d00db2efe75f1b955b3f3724fb2d1a2f157978cc0143d033f5b2",
+    "src/uexchanges/semantic/artifact_registry.py": "d38395fe3fbc12036d4d5436cfbf9987c5414e8e3d24772c583d4776fdc9d5f2",
+    "src/uexchanges/semantic/config.py": "eef396b385848a6ecb21f5f4b4e520750347eb2711af8cb4e84f82221458065f",
+    "src/uexchanges/semantic/cos20.py": "fce2f201aa17e93578fd73c88e7852dee442e2dc81699ced1f6a3fdaa1c615cf",
+    "src/uexchanges/semantic/repository_navigation.py": "dd38e25c4c6493de09b408fcc429fb972ee7c92e62ac965b3a6c0ed90d9fe667",
+    "src/uexchanges/semantic/retrieval_gate.py": "15377b8954da311018bc330d361a6e0f4c18584e1d3aeac3a4c098a4a28c7e59"
+  },
+  "metric_definitions": {
+    "mrr": "mean reciprocal rank truncated at 10",
+    "ndcg_at_10": "binary expected-path relevance",
+    "recall_at_k": "query-level hit rate; equals recall for frozen singleton labels"
+  },
+  "metrics": {
+    "dense_instruction": {
+      "mrr": 0.617956349206349,
+      "ndcg_at_10": 0.6958378116660403,
+      "query_count": 60,
+      "recall_at_10": 0.9333333333333333,
+      "recall_at_5": 0.85
+    },
+    "dense_plain": {
+      "mrr": 0.5743518518518517,
+      "ndcg_at_10": 0.6539573784026564,
+      "query_count": 60,
+      "recall_at_10": 0.9,
+      "recall_at_5": 0.8166666666666667
+    },
+    "dense_protected": {
+      "mrr": 0.617956349206349,
+      "ndcg_at_10": 0.6958378116660403,
+      "query_count": 60,
+      "recall_at_10": 0.9333333333333333,
+      "recall_at_5": 0.85
+    },
+    "hybrid_rrf": {
+      "mrr": 0.40068121693121694,
+      "ndcg_at_10": 0.5089545900733822,
+      "query_count": 60,
+      "recall_at_10": 0.85,
+      "recall_at_5": 0.6833333333333333
+    },
+    "lexical": {
+      "mrr": 0.1725595238095238,
+      "ndcg_at_10": 0.23250370218556013,
+      "query_count": 60,
+      "recall_at_10": 0.43333333333333335,
+      "recall_at_5": 0.25
+    }
+  },
+  "model": "qwen3-embedding:0.6b",
+  "model_sha256": "06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439",
+  "mutation_authority": false,
+  "ollama_capture_version": "0.33.2",
+  "paired_query_caveat": "60 queries = 30 paired EN/ES intents, not 60 independent topics; no held-out tuning claim",
+  "qualification_scope": "Focused candidate subset on Python 3.13.5; not whole repo exact-head qualification",
+  "query_cache_sha256": "b14adfc612a0dfdb98b572d6a0ee4523cf066db91377ef706f771d835843dc48",
+  "rankings_sha256": "75917445ec802ed4c0681736c7f458f1b3f3a7e7416bab7cb2a1055f690c8943",
+  "raw_evidence_ref": "private-eventbus:CORR-UEX-RETR03-88e19c",
+  "release_gate": {
+    "checks": {
+      "finite_metric_ranges": true,
+      "hybrid_mrr": true,
+      "hybrid_ndcg_at_10": true,
+      "hybrid_recall_at_10": true,
+      "mutation_authority_false": true,
+      "query_count": true,
+      "recall10_non_regression": false,
+      "same_query_count": true
+    },
+    "pass": false,
+    "policy": {
+      "max_recall10_regression_vs_dense": 0.02,
+      "min_hybrid_mrr": 0.4,
+      "min_hybrid_ndcg_at_10": 0.4,
+      "min_hybrid_recall_at_10": 0.7,
+      "min_queries": 50
+    }
+  },
+  "schema_version": "3.0.0",
+  "selected_default": "dense_protected",
+  "vectors_sha256": "ea7a1154f6bc544fe28892adbdbe79fded19e759dd81bd686ee778f8b298d7b2"
+}
