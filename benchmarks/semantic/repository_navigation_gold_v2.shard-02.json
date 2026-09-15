@@ -1,0 +1,227 @@
+[
+  {
+    "acceptable_related_paths": [
+      "tests/test_recovery_verifier.py",
+      "docs/RECONCILIATION_AND_DR_V1.md"
+    ],
+    "expected_paths": [
+      "src/uexchanges/recovery_verifier.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Dónde se verifica la evidencia de recovery antes de confiar en el estado?",
+    "query_id": "RGN2-ES-08",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/RUNTIMEGRAPH_V2_2_SOURCE_ADAPTERS_SELFHEAL.md",
+      "tests/test_runtime_dispatcher.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/dispatcher.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the RG2.2 dispatcher that processes a bounded source-adapter micro-batch without executing Agent_Next.",
+    "query_id": "RGN2-EN-09",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/RUNTIMEGRAPH_V2_2_SOURCE_ADAPTERS_SELFHEAL.md",
+      "tests/test_runtime_dispatcher.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/dispatcher.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Encuentra el dispatcher RG2.2 que procesa un micro-batch acotado de source adapters sin ejecutar Agent_Next.",
+    "query_id": "RGN2-ES-09",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/RUNTIMEGRAPH_V2_3_AGENT_FRONTIER_EXECUTOR.md",
+      "tests/test_agent_frontier_executor.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/agent_executor.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Where is the reversible RG2.3 Agent_Next action executor implemented?",
+    "query_id": "RGN2-EN-10",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/RUNTIMEGRAPH_V2_3_AGENT_FRONTIER_EXECUTOR.md",
+      "tests/test_agent_frontier_executor.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/agent_executor.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Dónde está implementado el ejecutor reversible de acciones Agent_Next de RG2.3?",
+    "query_id": "RGN2-ES-10",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "tests/test_runtime_source_adapters.py",
+      "docs/RUNTIMEGRAPH_V2_2_SOURCE_ADAPTERS_SELFHEAL.md"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/source_adapters.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the exact-ID source adapter normalization layer for Gmail, forms and official sources.",
+    "query_id": "RGN2-EN-11",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "tests/test_runtime_source_adapters.py",
+      "docs/RUNTIMEGRAPH_V2_2_SOURCE_ADAPTERS_SELFHEAL.md"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/source_adapters.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Localiza la capa de normalización de source adapters por ID exacto para Gmail, forms y fuentes oficiales.",
+    "query_id": "RGN2-ES-11",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "tests/test_runtime_source_cursor.py",
+      "docs/RUNTIMEGRAPH_V2_2_SOURCE_ADAPTERS_SELFHEAL.md"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/source_cursor.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Which file implements monotonic source cursors and late-unique event handling?",
+    "query_id": "RGN2-EN-12",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "tests/test_runtime_source_cursor.py",
+      "docs/RUNTIMEGRAPH_V2_2_SOURCE_ADAPTERS_SELFHEAL.md"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/source_cursor.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Qué archivo implementa source cursors monotónicos y manejo de eventos late-unique?",
+    "query_id": "RGN2-ES-12",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "schemas/runtime-v2-claim.schema.json",
+      "docs/RUNTIMEGRAPH_V2_CLOSED_LOOP.md"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/evidence_claims.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the runtime layer that converts explicit evidence into non-authoritative claims.",
+    "query_id": "RGN2-EN-13",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "schemas/runtime-v2-claim.schema.json",
+      "docs/RUNTIMEGRAPH_V2_CLOSED_LOOP.md"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/evidence_claims.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Encuentra la capa runtime que convierte evidencia explícita en claims no autoritativos.",
+    "query_id": "RGN2-ES-13",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/RUNTIMEGRAPH_FORM_GATEWAY.md",
+      "tests/test_runtime_v2_closed_loop.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/form_bridge.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Where is the safe read bridge from Form Gateway evidence into RuntimeGraph?",
+    "query_id": "RGN2-EN-14",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "docs/RUNTIMEGRAPH_FORM_GATEWAY.md",
+      "tests/test_runtime_v2_closed_loop.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/form_bridge.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Dónde está el bridge seguro de lectura desde evidencia de Form Gateway hacia RuntimeGraph?",
+    "query_id": "RGN2-ES-14",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "schemas/runtime-projection-repair.schema.json",
+      "tests/test_runtime_projection_selfheal.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/projection_health.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the code that evaluates deterministic projection mismatches without rewriting canonical domain truth.",
+    "query_id": "RGN2-EN-15",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": [
+      "schemas/runtime-projection-repair.schema.json",
+      "tests/test_runtime_projection_selfheal.py"
+    ],
+    "expected_paths": [
+      "src/uexchanges/runtime_v2/projection_health.py"
+    ],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Localiza el código que evalúa mismatches deterministas de proyección sin reescribir la verdad canónica del dominio.",
+    "query_id": "RGN2-ES-15",
+    "strict": true
+  }
+]
