@@ -4,6 +4,7 @@
   "version": "1.1.0",
   "context_id": "CTX-UEX-GLOBAL-EXPANSION-INCOME-V1",
   "authority": "DERIVED_BOOTSTRAP_ROUTER_ONLY",
+  "semantic_brain_durability_contract": "docs/SEMANTIC_BRAIN_DURABILITY.md",
   "rules": {
     "chat_memory_is_authoritative": false,
     "memory_md_is_live_state": false,
@@ -16,13 +17,18 @@
     "required_writer_authorization_event": "WRITER_AUTHORIZATION_GRANTED",
     "writer_authorization_receipt_version": "1.0.0",
     "external_side_effects_require_separate_capability": true,
-    "never_reuse_session_id_for_writes": true
+    "never_reuse_session_id_for_writes": true,
+    "semantic_brain_service_is_persistence_boundary": false,
+    "semantic_brain_must_be_reconstructible": true,
+    "must_restore_validated_semantic_artifacts_before_regenerating": true,
+    "semantic_similarity_is_mutation_authority": false
   },
   "required_public_reads": [
     "CURRENT_GITHUB_MAIN_SHA",
     "goal.md",
     "AGENTS.md",
     "MEMORY.md",
+    "docs/SEMANTIC_BRAIN_DURABILITY.md",
     "LIVE-STATE-OVERRIDE.json",
     "STATE.md",
     "HANDOFF.md",
@@ -55,7 +61,8 @@
     "generate or refresh ControlPlaneHealthReport before writer authorization",
     "inventory explicit overlapping unexpired lease IDs for the proposed scope",
     "reconcile target projection before write",
-    "read fresh Gmail/official evidence when the action depends on external state"
+    "read fresh Gmail/official evidence when the action depends on external state",
+    "compare semantic artifact source SHA/watermark with current main and classify stale partitions as HISTORICAL_ONLY"
   ],
   "bootstrap_ack_required_fields": [
     "manifest_version",
@@ -115,7 +122,8 @@
     "receipt_enforcement": "NON_RETROACTIVE",
     "pre_1_1_leases": "do not classify as receipt violations solely because the v1.1 receipt contract did not yet exist",
     "existing_sessions": "refresh manifest before next lease acquisition; no existing lease is retroactively invalidated",
-    "external_side_effects": "remain outside generic writer authorization and require a separately versioned capability contract"
+    "external_side_effects": "remain outside generic writer authorization and require a separately versioned capability contract",
+    "semantic_brain_required_read": "additive v1.1 hardening; new cold starts must read the durability contract before regenerating semantic state"
   },
   "forbidden_bootstrap_shortcuts": [
     "write_from_chat_memory_only",
@@ -128,6 +136,9 @@
     "treat_writer_authorization_receipt_as_domain_authority",
     "treat_writer_authorization_receipt_as_external_capability",
     "infer_submission_from_draft_task_open_form_or_route_query",
-    "claim_merge_or_ci_without_github_evidence"
+    "claim_merge_or_ci_without_github_evidence",
+    "treat_running_qdrant_or_ollama_as_semantic_brain_persistence",
+    "regenerate_embeddings_before_checking_validated_recovery_artifacts",
+    "use_semantic_similarity_to_authorize_state_change"
   ]
 }
