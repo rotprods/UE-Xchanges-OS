@@ -25,6 +25,8 @@ jobs:
       MODEL_CONFIG_SHA256: 9202febed9e2dadac14bca089be90864571336fa9f4375b690a26ed548957fde
       MODEL_LAYER_SHA256: 06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439
       MODEL_LAYER_BYTES: '639150592'
+      MODEL_PART_BYTES: '94371840'
+      CONNECTOR_MAX_BYTES: '104857600'
       QDRANT_VERSION: v1.19.0
       QDRANT_OFFICIAL_SHA256: e4405091f67d02f96fb941695ef8a6974e677632507ff7b04a3fcbb332ad9c19
       SEMANTIC_DIMENSIONS: '1024'
@@ -43,6 +45,7 @@ jobs:
           git cat-file -e "${OBSERVED_MAIN_SHA}^{commit}"
           git merge-base --is-ancestor "$OBSERVED_MAIN_SHA" HEAD
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$MODEL_PART_BYTES" -lt "$CONNECTOR_MAX_BYTES"
           command -v jq >/dev/null
           command -v zstd >/dev/null || (sudo apt-get update && sudo apt-get install -y zstd)
           mkdir -p \
@@ -195,11 +198,13 @@ jobs:
         run: |
           set -euo pipefail
           MODEL_BLOB="$RUNNER_TEMP/models/blobs/sha256-${MODEL_LAYER_SHA256}"
-          split -b 180M -d -a 2 "$MODEL_BLOB" "$RUNNER_TEMP/output/model.layer.part."
-          test "$(find "$RUNNER_TEMP/output" -maxdepth 1 -name 'model.layer.part.*' | wc -l)" -eq 4
+          split -b "$MODEL_PART_BYTES" -d -a 2 "$MODEL_BLOB" "$RUNNER_TEMP/output/model.layer.part."
+          test "$(find "$RUNNER_TEMP/output" -maxdepth 1 -name 'model.layer.part.*' | wc -l)" -eq 7
           (
             cd "$RUNNER_TEMP/output"
-            sha256sum model.layer.part.00 model.layer.part.01 model.layer.part.02 model.layer.part.03
+            sha256sum \
+              model.layer.part.00 model.layer.part.01 model.layer.part.02 model.layer.part.03 \
+              model.layer.part.04 model.layer.part.05 model.layer.part.06
           ) > "$RUNNER_TEMP/output/model.parts.sha256"
           cat "$RUNNER_TEMP/output/model.parts.sha256"
 
@@ -253,6 +258,11 @@ jobs:
               'historical_qdrant_snapshot_sha256': os.environ['HISTORICAL_QDRANT_SNAPSHOT_SHA256'],
               'semantic_dimensions': int(os.environ['SEMANTIC_DIMENSIONS']),
               'cos_dimensions': int(os.environ['COS_DIMENSIONS']),
+              'transport': {
+                  'connector_max_bytes': int(os.environ['CONNECTOR_MAX_BYTES']),
+                  'model_part_bytes': int(os.environ['MODEL_PART_BYTES']),
+                  'model_part_count': len(parts),
+              },
               'ollama': {
                   'version': os.environ['OLLAMA_VERSION'],
                   'official_archive_sha256': os.environ['OLLAMA_OFFICIAL_SHA256'],
@@ -350,5 +360,29 @@ jobs:
         with:
           name: semantic-airgap-qwen3-layer-part-03
           path: ${{ runner.temp }}/output/model.layer.part.03
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload model part 04
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-airgap-qwen3-layer-part-04
+          path: ${{ runner.temp }}/output/model.layer.part.04
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload model part 05
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-airgap-qwen3-layer-part-05
+          path: ${{ runner.temp }}/output/model.layer.part.05
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload model part 06
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-airgap-qwen3-layer-part-06
+          path: ${{ runner.temp }}/output/model.layer.part.06
           compression-level: 0
           retention-days: 90
