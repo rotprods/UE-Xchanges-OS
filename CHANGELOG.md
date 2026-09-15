@@ -1,5 +1,19 @@
 # UE-Xchanges-OS — CHANGELOG
 
+## 2026-09-15 — semantic brain durability / death-safe recovery seal
+
+- Promoted the semantic/vector brain from a durable-but-optional recovery artifact into the **mandatory cold-start hierarchy** via `docs/SEMANTIC_BRAIN_DURABILITY.md` + `agent_context/bootstrap_manifest.json`.
+- Persisted the core law: **service is ephemeral; brain is reconstructible**. Qdrant/Ollama/container/sandbox liveness is never the persistence boundary.
+- Added restore-before-regenerate rules so agents must verify existing checksummed semantic artifacts and incremental deltas before repeating embedding/index work.
+- Recorded validated historical recovery facts: Qwen3 `0.6b` 1024D, Qdrant v1.19.0, 676 points / 397 paths, COS-20D, 2729 graph edges, restart persistence PASS, isolated snapshot restore PASS, external snapshot/vector/graph backup and checksums.
+- Preserved the explicit remaining durability gap: the 2026-09-07 external backup does not contain all exact model weights/runtime binaries, so air-gapped bit-exact restore is not yet claimed.
+- Added current private federated-brain package checksum `7fe7ff75db16a089fce5645d22d91343540561c837fb2e5c1a6caafeb988e2f5` without publishing private overlay contents.
+- Persisted the stronger >=50-query benchmark signal: dense 1024D R@5 ~60%, R@10 ~64%; COS20 ~26%/~42%; instruction-aware dense ~70% R@10; dense+lexical/BM25 ~74% R@10, MRR ~0.464. Raw benchmark fixtures remain a future reproducibility gate.
+- Persisted federated-brain safety lessons: relevance hard-gates authority reranking, drafts remain drafts, display limits cannot hide authoritative evidence, prompt injection in retrieved text is inert, wrong embedding dimensions fail closed, and vector similarity never grants mutation authority.
+- Recorded 2026-09-15 freshness audit: RuntimeGraph still exposed a 2026-09-07 watermark while canonical EventBus evidence was materially newer; projection existence is not projection freshness.
+- Added `checkpoints/2026-09-15-semantic-brain-durability-seal.md` and updated `MEMORY.md`, `agent_context/README.md`, `knowledge.md`, `recovery.md` and bootstrap routing.
+- This wave is VERSIONED_CODE/recovery documentation only. No canonical opportunity/application state, RuntimeGraph projection, provider action, payment, booking or submission was mutated.
+
 ## 2026-09-10 — CGEV2 + COS + RuntimeGraph zero-context recovery seal
 
 - Sealed the current RG2.2 Scheduled Tasks reliability work into durable repo artifacts before chat-context exhaustion.
