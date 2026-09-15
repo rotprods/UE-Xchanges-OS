@@ -5,6 +5,7 @@
   "context_id": "CTX-UEX-GLOBAL-EXPANSION-INCOME-V1",
   "authority": "DERIVED_BOOTSTRAP_ROUTER_ONLY",
   "semantic_brain_durability_contract": "docs/SEMANTIC_BRAIN_DURABILITY.md",
+  "deathsafe_next_contract": "agent_context/NEXT_DEATHSAFE.md",
   "rules": {
     "chat_memory_is_authoritative": false,
     "memory_md_is_live_state": false,
@@ -21,7 +22,8 @@
     "semantic_brain_service_is_persistence_boundary": false,
     "semantic_brain_must_be_reconstructible": true,
     "must_restore_validated_semantic_artifacts_before_regenerating": true,
-    "semantic_similarity_is_mutation_authority": false
+    "semantic_similarity_is_mutation_authority": false,
+    "must_read_deathsafe_next_before_selecting_frontier": true
   },
   "required_public_reads": [
     "CURRENT_GITHUB_MAIN_SHA",
@@ -29,6 +31,7 @@
     "AGENTS.md",
     "MEMORY.md",
     "docs/SEMANTIC_BRAIN_DURABILITY.md",
+    "agent_context/NEXT_DEATHSAFE.md",
     "LIVE-STATE-OVERRIDE.json",
     "STATE.md",
     "HANDOFF.md",
@@ -62,7 +65,8 @@
     "inventory explicit overlapping unexpired lease IDs for the proposed scope",
     "reconcile target projection before write",
     "read fresh Gmail/official evidence when the action depends on external state",
-    "compare semantic artifact source SHA/watermark with current main and classify stale partitions as HISTORICAL_ONLY"
+    "compare semantic artifact source SHA/watermark with current main and classify stale partitions as HISTORICAL_ONLY",
+    "reconcile the NEXT_DEATHSAFE frontier against current authority before executing it"
   ],
   "bootstrap_ack_required_fields": [
     "manifest_version",
@@ -123,7 +127,8 @@
     "pre_1_1_leases": "do not classify as receipt violations solely because the v1.1 receipt contract did not yet exist",
     "existing_sessions": "refresh manifest before next lease acquisition; no existing lease is retroactively invalidated",
     "external_side_effects": "remain outside generic writer authorization and require a separately versioned capability contract",
-    "semantic_brain_required_read": "additive v1.1 hardening; new cold starts must read the durability contract before regenerating semantic state"
+    "semantic_brain_required_read": "additive v1.1 hardening; new cold starts must read the durability contract before regenerating semantic state",
+    "deathsafe_next_required_read": "additive v1.1 hardening; new cold starts must read NEXT_DEATHSAFE and then reconcile its proposed frontier against current live authority"
   },
   "forbidden_bootstrap_shortcuts": [
     "write_from_chat_memory_only",
@@ -139,6 +144,7 @@
     "claim_merge_or_ci_without_github_evidence",
     "treat_running_qdrant_or_ollama_as_semantic_brain_persistence",
     "regenerate_embeddings_before_checking_validated_recovery_artifacts",
-    "use_semantic_similarity_to_authorize_state_change"
+    "use_semantic_similarity_to_authorize_state_change",
+    "execute_historical_NEXT_without_live_reconciliation"
   ]
 }
