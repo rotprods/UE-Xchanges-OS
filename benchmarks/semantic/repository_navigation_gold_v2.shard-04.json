@@ -1,0 +1,152 @@
+[
+  {
+    "acceptable_related_paths": ["tools/form-executor/src/cli.mjs", "docs/FORM_RECEIPT_PROTOCOL.md"],
+    "expected_paths": ["docs/FORM_BROWSER_EXECUTOR.md"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Qué documento explica el límite de capacidad del ejecutor de formularios en navegador y la distinción submit/receipt?",
+    "query_id": "RGN2-ES-23",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["scripts/form-activation/activation_cli.py", "src/uexchanges/forms/activation.py"],
+    "expected_paths": ["docs/FORM_TARGET_MAC_ACTIVATION.md"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the activation runbook for local target-Mac form inspection and attestation without credential export.",
+    "query_id": "RGN2-EN-24",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["scripts/form-activation/activation_cli.py", "src/uexchanges/forms/activation.py"],
+    "expected_paths": ["docs/FORM_TARGET_MAC_ACTIVATION.md"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Encuentra el runbook de activación para inspección y attestation local en target Mac sin exportar credenciales.",
+    "query_id": "RGN2-ES-24",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["src/uexchanges/runtime_v2/dispatcher.py", "src/uexchanges/runtime_v2/source_adapters.py"],
+    "expected_paths": ["docs/RUNTIMEGRAPH_V2_2_SOURCE_ADAPTERS_SELFHEAL.md"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Which document specifies RG2.2 source adapters, monotonic cursors and derived-only self-heal?",
+    "query_id": "RGN2-EN-25",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["src/uexchanges/runtime_v2/dispatcher.py", "src/uexchanges/runtime_v2/source_adapters.py"],
+    "expected_paths": ["docs/RUNTIMEGRAPH_V2_2_SOURCE_ADAPTERS_SELFHEAL.md"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Qué documento especifica source adapters RG2.2, cursors monotónicos y self-heal sólo derivado?",
+    "query_id": "RGN2-ES-25",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["src/uexchanges/runtime_v2/agent_executor.py", "src/uexchanges/runtime_v2/action_handlers.py"],
+    "expected_paths": ["docs/RUNTIMEGRAPH_V2_3_AGENT_FRONTIER_EXECUTOR.md"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the contract that separates reversible agent execution from human irreversible actions.",
+    "query_id": "RGN2-EN-26",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["src/uexchanges/runtime_v2/agent_executor.py", "src/uexchanges/runtime_v2/action_handlers.py"],
+    "expected_paths": ["docs/RUNTIMEGRAPH_V2_3_AGENT_FRONTIER_EXECUTOR.md"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Encuentra el contrato que separa ejecución reversible del agente de acciones humanas irreversibles.",
+    "query_id": "RGN2-ES-26",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["services/browser-worker/src/provider-capture.mjs", "scripts/provider-capture-live-smoke.mjs"],
+    "expected_paths": ["docs/RUNTIMEGRAPH_V2_4_PROVIDER_FORM_CAPTURE.md"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Where is provider/form capture designed as evidence acquisition rather than submission authority?",
+    "query_id": "RGN2-EN-27",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["services/browser-worker/src/provider-capture.mjs", "scripts/provider-capture-live-smoke.mjs"],
+    "expected_paths": ["docs/RUNTIMEGRAPH_V2_4_PROVIDER_FORM_CAPTURE.md"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Dónde se diseña provider/form capture como adquisición de evidencia y no como autoridad de submission?",
+    "query_id": "RGN2-ES-27",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["docs/SENSITIVE_ATTRIBUTE_ELIGIBILITY_PROTOCOL.md", "src/uexchanges/facts.py"],
+    "expected_paths": ["docs/NO-GUESSING-INVARIANTS.md"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the project rules that prohibit guessing sensitive or eligibility facts.",
+    "query_id": "RGN2-EN-28",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["docs/SENSITIVE_ATTRIBUTE_ELIGIBILITY_PROTOCOL.md", "src/uexchanges/facts.py"],
+    "expected_paths": ["docs/NO-GUESSING-INVARIANTS.md"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Encuentra las reglas del proyecto que prohíben adivinar hechos sensibles o de elegibilidad.",
+    "query_id": "RGN2-ES-28",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["src/uexchanges/receipt_reconciler.py", "docs/FORM_RECEIPT_PROTOCOL.md"],
+    "expected_paths": ["docs/REPLY_INGESTION_PROTOCOL.md"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Which document governs ingestion of organiser replies without treating raw email as receipt authority?",
+    "query_id": "RGN2-EN-29",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["src/uexchanges/receipt_reconciler.py", "docs/FORM_RECEIPT_PROTOCOL.md"],
+    "expected_paths": ["docs/REPLY_INGESTION_PROTOCOL.md"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Qué documento gobierna la ingestión de respuestas de organizadores sin tratar email crudo como autoridad de receipt?",
+    "query_id": "RGN2-ES-29",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["agent_context/runtimegraph.md", "src/uexchanges/runtime_graph.py"],
+    "expected_paths": ["RUNBOOKS/RUNTIMEGRAPH_RECOVERY.md"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the runbook for recovering RuntimeGraph after stale or interrupted execution.",
+    "query_id": "RGN2-EN-30",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["agent_context/runtimegraph.md", "src/uexchanges/runtime_graph.py"],
+    "expected_paths": ["RUNBOOKS/RUNTIMEGRAPH_RECOVERY.md"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Encuentra el runbook para recuperar RuntimeGraph tras ejecución stale o interrumpida.",
+    "query_id": "RGN2-ES-30",
+    "strict": true
+  }
+]
