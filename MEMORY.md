@@ -66,6 +66,17 @@ chat                              = disposable working context
 
 Do **not** store live counts or transient frontier membership in this file. Those belong in `STATE.md`, `HANDOFF.md`, current checkpoints, `LIVE-STATE-OVERRIDE.json`, Drive and `agent_context/context.md` with explicit watermarks.
 
+## Durable semantic-brain memory
+
+- **Service is ephemeral; brain is reconstructible.** A running Qdrant/Ollama process, container, VM or sandbox is never the persistence boundary.
+- Before regenerating embeddings, restore and validate existing checksummed semantic artifacts and incremental deltas. Repeating expensive work because a daemon died is a recovery defect.
+- Semantic state must be recoverable from external durable artifacts with model/runtime identity, dimensions, source SHA, checksums, graph/vector invariants and restore tests.
+- Native semantic embeddings are retrieval context; COS-20D is topology/navigation only. Hybrid lexical+dense retrieval may improve repository navigation but remains derived.
+- Semantic/vector/fuzzy similarity never grants mutation authority. Exact IDs and current authoritative evidence are still mandatory for state changes.
+- Historical vector partitions remain `HISTORICAL_ONLY` until their source SHA/freshness is reconciled. A live projection or collection can exist and still be stale.
+- Private live-evidence overlays stay private; public GitHub/Rot.Knowledge may persist only sanitised architecture, metrics, manifests and tests.
+- The mandatory restore/authority contract is `docs/SEMANTIC_BRAIN_DURABILITY.md`, which the bootstrap manifest requires every compliant cold-start agent to read.
+
 ## Durable profile/evidence memory
 
 - Historical programme participation does not prove current youth-worker, trainer, facilitator or group-leader status.
@@ -115,6 +126,8 @@ Current capability state must always be read from current code/recovery artifact
 8. **Provider session != agent authority** — being logged in does not grant PREFILL or Submit capability.
 9. **A capability is not a credential** — local HMAC authorization may permit one bounded operation but must not expose browser secrets.
 10. **Volatile facts in stable docs rot quickly** — stable contracts point to live state instead of embedding current counts.
+11. **Daemon liveness != persistence** — losing Qdrant/Ollama must trigger restore from validated artifacts, not silent re-creation or duplicated embedding work.
+12. **Projection existence != projection freshness** — compare generated timestamp/watermark with current EventBus/source evidence before trusting a derived view.
 
 ## 2026-09-10 — durable scheduler / CGEV2 / COS learnings
 
@@ -139,6 +152,7 @@ Canonical extended explanations live in:
 - [`agent_context/REGRESSION.md`](agent_context/REGRESSION.md)
 - [`agent_context/CONSCIOUSNESS_ACT.md`](agent_context/CONSCIOUSNESS_ACT.md)
 - [`agent_context/NEXT.md`](agent_context/NEXT.md)
+- [`docs/SEMANTIC_BRAIN_DURABILITY.md`](docs/SEMANTIC_BRAIN_DURABILITY.md)
 
 These files are navigation/learning artifacts; current operational truth still requires fresh authority reconstruction.
 

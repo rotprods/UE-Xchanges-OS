@@ -1,11 +1,11 @@
 # UE-Xchanges-OS — HANDOFF
 
-Checkpoint: `2026-09-10T14:46:00+02:00`
-Context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`
-Baseline main observed before this handoff branch: `349f63f2109e40ab6cba960c7311456a5d7ae906`
-Private EventBus lower-bound observed: `EVT-20260910T132147-CPR14-008`
+Checkpoint: `2026-09-15 semantic-brain-durability seal`  
+Context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`  
+Baseline main before this handoff wave: `c5fd939617cb28f8af90d5ac39907564804ee925`  
+Private EventBus lower-bound at lease acquisition: `EVT-20260915T111526-SEMDUR-005`
 
-Purpose: allow a fresh agent to recover the current UE-Xchanges-OS operating state without relying on this chat.
+Purpose: allow a fresh agent to recover both the UE-Xchanges operating system and its semantic/vector brain without relying on this chat, a live daemon or an ephemeral sandbox.
 
 > This is a watermarked public recovery projection. Fresh official/provider evidence, private Drive canonical state, current GitHub main/contracts and current unexpired leases override it.
 
@@ -16,176 +16,187 @@ Purpose: allow a fresh agent to recover the current UE-Xchanges-OS operating sta
 3. Read `AGENTS.md`.
 4. Read `MEMORY.md`.
 5. Read `agent_context/bootstrap_manifest.json` and obey its required public/private read sets.
-6. Read `LIVE-STATE-OVERRIDE.json`, `STATE.md`, this file and the newest checkpoint.
-7. Read `agent_context/README.md`, `context.md`, `progress.md`, `checkpoints.md`, `session.md`, `runtimegraph.md`, `knowledge.md`, `recovery.md`, `CGEV2_COS.md`, `REGRESSION.md`, `LEARNINGS.md`, `CONSCIOUSNESS_ACT.md`, and finally `NEXT.md`.
-8. Read private Drive `Context_Registry`, exact/new `Agent_Sessions`, currently **UNEXPIRED** `Work_Leases`, and `Agent_Event_Bus` after the current watermark.
-9. Read RuntimeGraph V2 Command Center `Command_Center`, `Human_Now`, `Agent_Next`, `Source_Cursors` and `Dead_Letters`.
-10. Read fresh Gmail/official/Form/receipt evidence only when the next operation depends on it.
-11. Register a **new** Session ID. Never reuse any historical Session ID below for writes.
-12. Emit `SESSION_STARTED`, then `BOOTSTRAP_CONTEXT_LOADED`.
-13. Refresh current main + current EventBus + currently-unexpired leases immediately before WriterAuthorization.
-14. Acquire only the smallest exact lease after a real positive authorization and canonical receipt.
+6. Read **`docs/SEMANTIC_BRAIN_DURABILITY.md`** before regenerating any embeddings or semantic collection.
+7. Read `LIVE-STATE-OVERRIDE.json`, `STATE.md`, this file and the newest checkpoint.
+8. Read `agent_context/README.md`, `context.md`, `progress.md`, `checkpoints.md`, `session.md`, `runtimegraph.md`, `knowledge.md`, `recovery.md`, `CGEV2_COS.md`, `REGRESSION.md`, `LEARNINGS.md`, `CONSCIOUSNESS_ACT.md`, and finally `NEXT.md`.
+9. Read private Drive `Context_Registry`, exact/new `Agent_Sessions`, currently **UNEXPIRED** `Work_Leases`, and `Agent_Event_Bus` after the current watermark.
+10. Read RuntimeGraph V2 Command Center `Command_Center`, `Human_Now`, `Agent_Next`, `Source_Cursors` and `Dead_Letters`, but verify their generated timestamp/watermark before using them.
+11. Read fresh Gmail/official/Form/receipt evidence only when the next operation depends on it.
+12. Register a **new** Session ID. Never reuse a historical Session ID for writes.
+13. Emit `SESSION_STARTED`, then `BOOTSTRAP_CONTEXT_LOADED`.
+14. Refresh current main + EventBus + currently-unexpired leases immediately before WriterAuthorization.
+15. Acquire only the smallest exact lease after a real positive authorization and canonical receipt.
 
-## Reliability lineage now in code
+## Semantic brain — primary new durable milestone
 
-### PR67 — WriterAuthorization receipt integrity
+The semantic collection is **not** a forever-running daemon. Qdrant/Ollama/container/VM/sandbox process state is disposable.
 
-Established strict canonical receipt payload validation, duplicate JSON-key rejection, content-addressed `receipt_id`, exact decision/session/context/main/lease/scope/health/prelease binding, authorization-timestamp integrity, and fail-closed audit/gate behavior.
+What survives agent death is the reconstructible brain:
 
-### PR68 — stale `ACTIVE_READ_ONLY` visibility
+- checksummed semantic snapshot/vector/graph state;
+- model identity + 1024D contract;
+- Qdrant/COS versions/dimensions;
+- manifests and hashes;
+- incremental deltas;
+- adversarial/restore tests;
+- private durable recovery objects;
+- public sanitised Rot.Knowledge recovery assurance;
+- this GitHub restore contract;
+- bootstrap-required discovery;
+- EventBus/session/lease provenance.
 
-Made stale nonterminal read-only sessions visible to health/reconciliation while preserving `ACTIVE_READ_ONLY` as non-writer.
-
-### CPR12 — live fencing recovery
-
-Reconciled the orphaned-owner stale lease class under narrow evidence-backed RPLs. Material result: live `lease_fencing_integrity` was restored. Historical hygiene was deliberately not treated as a normal-writer critical-path blocker.
-
-### PR69 — bounded normal-writer health
-
-Current baseline main includes `uexchanges.bounded_writer_health.evaluate_bounded_writer_authorization_health` and `RUNBOOKS/RG22_SCHEDULED_CANARY.md`.
-
-Normal `DERIVED_PROJECTION` authorization must evaluate:
-
-- exact stable-ID matches for the current new session;
-- the real BootstrapGuard for this current writer;
-- currently-unexpired leases only;
-- exact owner/bootstrap evidence for every actually-live lease.
-
-The resulting report explicitly does **not** claim historical hygiene was evaluated globally.
-
-## Scheduler state at this checkpoint
+Core law:
 
 ```text
-Native Scheduled Tasks tool-free dispatch probe   PASS
-Control-plane canary V3 receipt/lease lifecycle   PASS
-Full RG2.2 scheduled production path              NOT YET PASS
-UEX Runtime Dispatcher recurring                   DISABLED
+service liveness != persistence
+service death != brain loss
+restore before regenerate
+semantic retrieval != mutation authority
+historical vector state != current source state
+projection existence != projection freshness
 ```
 
-A scheduler probe does not certify RuntimeGraph. A control-plane canary does not certify source dispatch.
+Canonical runbook: [`docs/SEMANTIC_BRAIN_DURABILITY.md`](docs/SEMANTIC_BRAIN_DURABILITY.md).
 
-## Reconciled failed canaries
+Current semantic checkpoint: [`checkpoints/2026-09-15-semantic-brain-durability-seal.md`](checkpoints/2026-09-15-semantic-brain-durability-seal.md).
 
-### Production canary V3
+## Proven historical recovery state
 
-`SES-UEX-AUTO-20260910T010530-RG22-PCV3-001` → `FAILED` through CPR13. No own RG2.2 lease/source-path success claimed.
+The public recovery assurance records:
 
-### Staged canary A
+- `qwen3-embedding:0.6b`, semantic width **1024D**;
+- model blob SHA256 `06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439`;
+- Qdrant `v1.19.0`;
+- historical full index **676 points / 397 paths**;
+- graph **676 nodes / 2729 edges**;
+- COS **20D**;
+- restart persistence `PASS`;
+- isolated snapshot restore `PASS`;
+- snapshot guard **12/12**;
+- external recovery backup SHA256 `60aa24625d3e1da981c71f67520d580544846a8cc2666c3900847178a7b54ed5`;
+- snapshot SHA256 `2c52722941a7a23abec205103db11f27b5affd0ae47f912d8e962159128aa388`.
 
-`SES-UEX-AUTO-20260910T113308-RG22-SCA-001` completed cold bootstrap and created a bounded handoff, but Stage B did not consume it before expiry. CPR13 reconciled the session `FAILED`. No WriterAuthorization receipt/lease existed.
+The later private federated-brain v2 package is checksummed `7fe7ff75db16a089fce5645d22d91343540561c837fb2e5c1a6caafeb988e2f5` and remains private because it can contain live-evidence derivatives.
 
-### Production canary V4
+### Remaining durability gap
 
-`SES-UEX-AUTO-20260910T115630-RG22-PCV4-001` registered against superseded main `801a3c7ca9a8e517de56b0bb402acf59f9299bd5`, acquired no own lease, made no source/RuntimeGraph/provider mutation, and was reconciled `FAILED` by CPR14 using `RPL-d21dbdcfd1227f0e`.
+The 2026-09-07 assurance explicitly records `weights_and_runtime_binaries_in_backup=false`.
 
-Never reuse these Session IDs.
+Therefore the brain is death-safe/reconstructible, but a fully air-gapped bit-exact restore of every model/runtime blob is **not yet certified**. Future agents must not claim “forever” or “air-gapped complete” until those blobs are replicated and a destructive restore passes without pre-existing sandbox files/upstream downloads.
 
-## CPR14 terminal-evidence caveat
-
-`Agent_Sessions` showed `SES-UEX-CHATGPT-20260910T131121-CPR14` as `COMPLETED` with heartbeat `2026-09-10T13:23:16+02:00`.
-
-The EventBus search performed while sealing this handoff observed CPR14 through:
-
-- `EVT-20260910T132051-CPR14-006` — target repair ACTIVE→FAILED;
-- `EVT-20260910T132147-CPR14-007` — target finding cleared;
-- `EVT-20260910T132147-CPR14-008` — repair lease ACTIVE→RELEASED.
-
-It did not expose a later CPR14 `SESSION_COMPLETED` event in that search. A successor must read the EventBus tail after `...CPR14-008`; if terminal event evidence is still absent, preserve this as coordination/event divergence and use the reconciliation planner rather than fabricating history.
-
-## RuntimeGraph production-canary contract
-
-The immediate milestone is **`SCHEDULER_PRODUCTION_CANARY_PASS #1`**.
-
-Use the current scheduled-canary runbook and keep one activation deliberately small:
+## Retrieval architecture and current quality evidence
 
 ```text
-NEW SESSION
-→ full manifest bootstrap
-→ exact current-session lookup
-→ current main/EventBus/unexpired leases refresh
-→ bounded writer health
-→ real WriterAuthorization
-→ canonical content-addressed receipt
-→ persist WRITER_AUTHORIZATION_GRANTED
-→ immediate exact lease acquisition
-→ exact-ID ACTIVE readback
-→ ONE adapter slice
-→ <=5 source candidates
-→ <=2 exact application/opportunity subgraphs
-→ deterministic derived reconciliation only
-→ exact readback
-→ exact lease RELEASED
-→ terminal session
-→ SESSION_COMPLETED
-→ SCHEDULER_PRODUCTION_CANARY_PASS
+native 1024D semantic -> retrieval
+COS-20D               -> topology/navigation only
+dense + lexical/BM25  -> repository-navigation candidate
 ```
 
-No second adapter and no backlog drain in the canary.
+The stronger strict bilingual exact-path benchmark superseded the optimistic first tiny set:
 
-## Source / receipt rules
+- dense 1024D R@5 ~60%;
+- dense 1024D R@10 ~64%;
+- COS20 R@5 ~26%;
+- COS20 R@10 ~42%;
+- instruction-aware dense ~70% R@10;
+- local dense+BM25 ~74% R@10, MRR ~0.464.
 
-- explicit adapter-contract facts only;
-- exact `application_id` / `opportunity_id` for state-changing routing;
-- fuzzy title matching, similarity and COS/embeddings never authorise mutation;
-- Gmail raw prose or absence is never receipt authority;
-- strong receipt requires canonical evidence bound to exact submission identity;
-- at-least-once delivery + deterministic idempotency + monotonic cursors;
-- same transient strategy max 3;
-- poison/unroutable normalized events → `Dead_Letters`;
-- preserve continuation boundary; never advance cursor past unprocessed evidence.
+Raw >=50-query fixtures still need durable promotion before these aggregates become a reproducible release gate.
 
-## Derived self-heal boundary
+Federated-brain safety policy:
 
-RG2.2 may repair only actual deterministic mismatches on its current derived allowlist. It must never use projection repair to rewrite canonical `Opportunities`, `Applications`, `Mass_Apply_Queue`, `Execution_Log`, `Agent_Event_Bus`, `Agent_Sessions`, `Work_Leases`, `Autofill_Profile` or `Human_Gates`.
+```text
+semantic candidates
+→ topical/entity relevance hard gate
+→ authority/freshness only within same topic
+→ preserve raw result for transparency
+→ mutation_authority=false
+```
 
-Control-plane lifecycle repair requires its own evidence-backed `CONTROL_PLANE_REPAIR` RPL.
+Drafts remain drafts. Prompt injection inside retrieved text remains inert. Wrong embedding dimensions fail closed.
 
-## Absolute boundaries
+## Projection freshness incident found by this wave
 
-- RG2.2 never executes `Agent_Next`;
-- no payment;
-- no generic-agent login/MFA/CAPTCHA handling;
-- no credentials/OTP/cookies export or use;
-- no inferred external PREFILL certification;
-- no irreversible Submit;
-- no historical `COMPLETED` invented for dashboard cleanliness.
+On 2026-09-15 RuntimeGraph still exposed:
 
-## CGEV2 / COS split
+- source revision based on historical `5bd92696...`;
+- generated timestamp `2026-09-07T19:32:00+02:00`;
+- watermark `EVT-20260907T193100-DSP2-A189-005`;
+- derived Human_Now/Source_Cursor state older than later canonical EventBus/provider evidence.
 
-- **CGEV2** = continuity, provenance, exact identity, sessions, leases, EventBus, checkpoints, reconciliation and zero-context recovery.
-- **COS** = semantic retrieval, 20D topology, graph navigation and candidate relation discovery.
-- **RuntimeGraph** = exact-ID deterministic execution/read projection.
-- **Provider/Drive authority** = truth.
+The EventBus had materially later 2026-09-10 and 2026-09-15 events. Therefore **RuntimeGraph is stale until recomputed/reconciled**. Do not mutate canonical state to match it.
 
-COS may suggest what to inspect. It may never decide what state to mutate.
+This semantic documentation wave does not repair RuntimeGraph. Use a separate exact-ID `DERIVED_PROJECTION` or `CONTROL_PLANE_REPAIR` wave as appropriate.
+
+## Current durability-seal writer evidence
+
+Session: `SES-UEX-CHATGPT-20260915T110528-SEM01`  
+Agent: `AGT-SEMANTIC-BRAIN-DURABILITY-SEALER`
+
+Observed chain before branch writes:
+
+- `EVT-20260915T110528-SEMDUR-001` — `SESSION_STARTED`;
+- `EVT-20260915T110837-SEMDUR-002` — `BOOTSTRAP_CONTEXT_LOADED`;
+- `EVT-20260915T111042-SEMDUR-003` — writer lifecycle heartbeat/activation;
+- `WAZ-715b9f3b565060ba34641b90` — VERSIONED_CODE WriterAuthorizationReceipt;
+- `EVT-20260915T111525-SEMDUR-004` — `WRITER_AUTHORIZATION_GRANTED`;
+- `LSE-UEX-SEMANTIC-BRAIN-DURABILITY-20260915T111526-SEM01` — exact docs/bootstrap lease;
+- `EVT-20260915T111526-SEMDUR-005` — `LEASE_ACQUIRED`;
+- exact lease read-back `ACTIVE` before the versioned writes.
+
+The lease scope is limited to semantic-brain durability documentation/bootstrap/handoff files. Domain authority and external capability are false.
+
+## Prior reliability lineage — keep, but re-read live state
+
+The previous 2026-09-10 handoff documented:
+
+- strict WriterAuthorizationReceipt integrity;
+- stale `ACTIVE_READ_ONLY` visibility;
+- bounded normal-writer health;
+- control-plane repair lineage;
+- scheduled RG2.2 canary work.
+
+Do not copy its scheduler conclusion forward blindly. Read the EventBus after the current watermark and current scheduler/RuntimeGraph state. Historical sessions remain evidence only.
+
+## Authority split
+
+- **Official/provider/receipt** = external truth.
+- **Private Drive CRM + EventBus** = canonical operational truth.
+- **CGEV2** = continuity/control/provenance/reconciliation.
+- **RuntimeGraph** = exact-ID derived execution projection.
+- **Semantic 1024D / COS / hybrid navigation** = retrieval/topology only.
+- **Todoist/Notion/Mem/UI** = reconstructible convenience projections.
+- **Chat/sandbox** = disposable work context.
+
+Semantic similarity may suggest what to inspect. It may never decide what state to mutate.
 
 ## Deliberately not asserted here
 
-This seal did not refresh the whole domain. Do not reuse old 2026-09-02 counts/frontiers/deadlines as current.
+This seal does not reconstruct the whole live domain. A successor must read private Drive/provider evidence for:
 
-The next agent must reconstruct live:
-
-- opportunities/applications;
+- current opportunities/applications;
 - Human Frontier;
 - strong receipts;
-- Source_Cursors;
-- Dead_Letters;
+- source cursors;
+- dead letters;
 - organiser replies;
-- official deadlines/forms;
-- Todoist exact bindings.
+- current official deadlines/forms;
+- Todoist exact bindings;
+- scheduler/RuntimeGraph current state.
 
-## Promotion ladder
+No payment, booking, authentication, credentials/OTP/cookies, external PREFILL, irreversible Submit, canonical domain mutation or RuntimeGraph self-heal is authorised by this handoff.
 
-1. `SCHEDULER_PRODUCTION_CANARY_PASS #1`.
-2. Independent clean PASS #2.
-3. Enable bounded hourly `UEX Runtime Dispatcher` only after two PASSes.
-4. Observe at least 3 consecutive clean recurrent cycles.
-5. Declare `RG2.2_SCHEDULED_PRODUCTION_STABLE` only with read-back evidence.
-6. Continue historical hygiene separately through watchdog/RPL queue.
-7. Resume RG2.3 reversible execution.
-8. Provider-specific Form Gateway certification.
-9. Receipt-backed application throughput.
+## Next architecture frontier
+
+1. **P0 durability:** replicate exact model weights/runtime binaries to a second durable external store + checksums.
+2. Run destructive cold-sandbox restore with no dependence on existing `/mnt/data`.
+3. Persist the raw bilingual >=50-query gold set and deterministic benchmark runner.
+4. Implement/test a separate hybrid dense+lexical `repository_navigation` surface.
+5. Formalise changed-file incremental indexing and stale-point deletion.
+6. Create a machine-readable semantic-artifact registry (`baseline → delta → latest`) with source SHA/model/hash/point counts/benchmark refs.
+7. Reconcile stale RuntimeGraph/control-plane projections under their own exact leases.
+8. Only then consider an always-on Qdrant service; reconstructibility remains primary even if the service becomes persistent.
 
 ## Fast continuation
 
-Read [`agent_context/NEXT.md`](agent_context/NEXT.md) and execute exactly one next promotion wave. It contains the copy/paste `/next` directive.
+Read [`agent_context/recovery.md`](agent_context/recovery.md) and the semantic durability checkpoint first. Then read [`agent_context/NEXT.md`](agent_context/NEXT.md), but reconcile it against current EventBus/main before executing any older frontier instruction.

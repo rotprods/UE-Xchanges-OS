@@ -1,12 +1,12 @@
 # UE-Xchanges-OS — Zero-Context Recovery Procedure
 
-Current seal: `2026-09-10T14:46:00+02:00`
+Semantic-durability seal: `2026-09-15`
 
 Use this when a new agent starts with no trusted chat memory.
 
 ## 1. Establish current Git authority
 
-Read current `main` first. Historical baseline for this seal is `349f63f2109e40ab6cba960c7311456a5d7ae906`; a later main supersedes it.
+Read current `main` first. Historical baselines in recovery docs are not assumed current.
 
 Then read:
 
@@ -14,12 +14,15 @@ Then read:
 2. `../AGENTS.md`
 3. `../MEMORY.md`
 4. `bootstrap_manifest.json`
-5. `../LIVE-STATE-OVERRIDE.json`
-6. `../STATE.md`
-7. `../HANDOFF.md`
-8. `../checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md`
-9. this directory's current navigation files, ending with `NEXT.md`
-10. current writer-authorization/bootstrap/runbook files required by the manifest and by the intended operation.
+5. `../docs/SEMANTIC_BRAIN_DURABILITY.md`
+6. `../LIVE-STATE-OVERRIDE.json`
+7. `../STATE.md`
+8. `../HANDOFF.md`
+9. `../checkpoints/2026-09-15-semantic-brain-durability-seal.md`
+10. this directory's current navigation files, ending with `NEXT.md`
+11. current writer-authorization/bootstrap/runbook files required by the manifest and by the intended operation.
+
+The semantic-brain durability contract is a mandatory bootstrap read. A cold agent must not regenerate embeddings simply because Qdrant/Ollama is absent.
 
 ## 2. Reconstruct private control plane
 
@@ -31,31 +34,45 @@ Read:
 - `Agent_Event_Bus` after the live watermark;
 - RuntimeGraph `Command_Center`, `Human_Now`, `Agent_Next`, `Source_Cursors`, `Dead_Letters`.
 
-Seal lower-bound EventBus watermark: `EVT-20260910T132147-CPR14-008`.
+Do not assume a historical seal watermark is the current tail. Read every later event.
 
-Do not assume this is the current tail. Read every later event.
+## 3. Check derived-view freshness before using it
 
-## 3. Reconcile scheduler/canary lifecycle
+Compare RuntimeGraph/projection generated timestamps and watermarks against the current EventBus/source evidence.
 
-At seal:
+A projection can exist and still be stale. If stale, use it only as navigation and rebuild/reconcile it through the correct exact-ID authority path. Never patch canonical truth to make it agree with a stale projection.
 
-- `UEX Runtime Dispatcher` disabled;
-- simple tool-free scheduler probe succeeded;
-- control-plane canary V3 completed exact receipt/lease/release lifecycle;
-- no full production-path PASS;
-- PCV3, staged-A and PCV4 are terminal FAILED after CPR13/14 and are never reusable.
+The 2026-09-15 semantic-durability audit observed RuntimeGraph watermark `EVT-20260907T193100-DSP2-A189-005` while the canonical EventBus had materially later events; therefore the current domain/frontier must be reconstructed fresh before acting.
 
-Verify whether CPR14 has a later `SESSION_COMPLETED` EventBus event. If its session row and event chain disagree, create a finding/RPL; do not invent event history.
+## 4. Restore the semantic brain when needed
 
-## 4. Reconstruct domain state fresh
+Follow `docs/SEMANTIC_BRAIN_DURABILITY.md`:
 
-This seal intentionally does not assert current opportunities, applications, Human Frontier, receipts, deadlines or source cursors.
+1. resolve latest semantic recovery pointers from the checkpoint/EventBus/Rot.Knowledge;
+2. verify package/snapshot SHA256;
+3. verify model identity + expected **1024D** width, Qdrant version and COS dimensions;
+4. restore the validated historical collection/vector/graph state in an isolated runtime;
+5. apply only explicit incremental deltas after the baseline;
+6. run point/path/dimension/finite-vector/graph checks;
+7. run the adversarial brain gauntlet;
+8. compare artifact source SHA with current `main`;
+9. mark stale partitions `HISTORICAL_ONLY`;
+10. add a separate current-code/fresh-evidence overlay rather than rewriting history;
+11. keep every semantic result `mutation_authority=false`.
+
+Known recovery assurance records a private external backup for snapshot/vector/graph/manifest/log state, but not all exact model/runtime binaries. Treat local `/mnt/data` blobs as acceleration only until a later air-gapped replication checkpoint proves otherwise.
+
+## 5. Reconstruct domain state fresh
+
+Do not assert current opportunities, applications, Human Frontier, receipts, deadlines or source cursors from old semantic or RuntimeGraph snapshots.
 
 Read canonical Drive and fresh provider evidence before any domain/frontier claim.
 
-## 5. Normal writer authorization
+Semantic retrieval may identify which exact records/files to inspect; it never supplies mutation authority.
 
-Use current PR69 architecture when still present on main:
+## 6. Normal writer authorization
+
+Use the current versioned WriterAuthorization architecture:
 
 ```text
 exact new current session rows
@@ -70,9 +87,9 @@ exact new current session rows
 
 `historical_hygiene_evaluated=false` means exactly that. Do not pretend it is a global-green report.
 
-## 6. Execute only one RG2.2 micro-batch
+## 7. Execute RG2.2 only within its current runbook
 
-For scheduled canary/initial production:
+For scheduled canary/initial production when still applicable:
 
 - one adapter slice;
 - <=5 new/late-unique candidates;
@@ -83,16 +100,18 @@ For scheduled canary/initial production:
 
 Exact-ID explicit adapter facts only.
 
-## 7. Preserve authority boundaries
+## 8. Preserve authority boundaries
 
 - Gmail cannot directly become receipt.
-- COS/fuzzy/title/embedding similarity cannot authorize mutation.
+- COS/fuzzy/title/embedding similarity cannot authorise mutation.
 - RuntimeGraph cannot self-heal canonical domain state.
 - RG2.2 cannot execute Agent_Next.
 - Todoist mutation requires exact persisted binding.
 - payments/auth/credentials/OTP/cookies/external PREFILL/Submit remain outside generic execution.
+- a running semantic daemon is not durable state.
+- a stopped semantic daemon is not evidence the brain is lost.
 
-## 8. Closure is mandatory
+## 9. Closure is mandatory
 
 Reserve activation budget for:
 
@@ -101,22 +120,24 @@ Reserve activation budget for:
 - verify `RELEASED`;
 - close session terminally;
 - emit terminal event evidence;
-- persist changed STATE/HANDOFF/NEXT/checkpoint only when state materially changed.
+- persist changed STATE/HANDOFF/NEXT/checkpoint only when state materially changed;
+- persist semantic restore/benchmark artifacts outside the ephemeral runtime before claiming death-safe completion.
 
-## 9. Promotion sequence
+## 10. Promotion sequence
+
+Operational RuntimeGraph promotion remains governed by current live state/runbooks rather than this historical sequence. For semantic durability, the next independent hardening gates are:
 
 ```text
-SCHEDULER_PRODUCTION_CANARY_PASS #1
-→ independent PASS #2
-→ enable bounded hourly dispatcher
-→ 3 consecutive clean recurrent cycles
-→ RG2.2_SCHEDULED_PRODUCTION_STABLE
-→ safe self-heal subset
-→ RG2.3 reversible execution
-→ provider Form Gateway certification
-→ receipt-backed application throughput
+validated external snapshot/vector restore
+→ exact model/runtime blob replication to durable store
+→ destructive cold-sandbox restore drill
+→ raw >=50-query bilingual gold-set persistence
+→ dense/instruction/hybrid reproducible benchmark
+→ changed-file incremental index contract
+→ current-main freshness overlay
+→ optional always-on Qdrant service (never sole persistence)
 ```
 
-## 10. End every session durably
+## 11. End every session durably
 
-Before exit, persist exact main SHA, private watermark, own session/lease lifecycle, tests/read-backs, blockers, next transition and handoff. Chat text is never the sole continuity layer.
+Before exit, persist exact main SHA, private watermark, own session/lease lifecycle, tests/read-backs, blockers, next transition and handoff. Chat text and sandbox process state are never the sole continuity layer.
