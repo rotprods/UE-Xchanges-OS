@@ -1,0 +1,152 @@
+[
+  {
+    "acceptable_related_paths": ["tests/test_semantic_config.py", ".env.example"],
+    "expected_paths": ["src/uexchanges/semantic/config.py"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Where are loopback-only Ollama and Qdrant semantic configuration guards defined?",
+    "query_id": "RGN2-EN-16",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["tests/test_semantic_config.py", ".env.example"],
+    "expected_paths": ["src/uexchanges/semantic/config.py"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Dónde se definen los guards de configuración semántica loopback-only para Ollama y Qdrant?",
+    "query_id": "RGN2-ES-16",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["tests/test_semantic_benchmark.py", "docs/SEMANTIC_GRAPH_ENGINE.md"],
+    "expected_paths": ["src/uexchanges/semantic/benchmark.py"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the existing semantic benchmark harness used to compare native vectors and COS topology.",
+    "query_id": "RGN2-EN-17",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["tests/test_semantic_benchmark.py", "docs/SEMANTIC_GRAPH_ENGINE.md"],
+    "expected_paths": ["src/uexchanges/semantic/benchmark.py"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Encuentra el harness existente de benchmark semántico usado para comparar vectores nativos y topología COS.",
+    "query_id": "RGN2-ES-17",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["config/qdrant/collection.json", "tests/test_semantic_qdrant.py"],
+    "expected_paths": ["src/uexchanges/semantic/qdrant.py"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Which module wraps the local Qdrant collection and named semantic plus cos20 vectors?",
+    "query_id": "RGN2-EN-18",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["config/qdrant/collection.json", "tests/test_semantic_qdrant.py"],
+    "expected_paths": ["src/uexchanges/semantic/qdrant.py"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Qué módulo envuelve la colección Qdrant local y los named vectors semantic y cos20?",
+    "query_id": "RGN2-ES-18",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["tests/test_semantic_graphify.py", "docs/SEMANTIC_GRAPH_ENGINE.md"],
+    "expected_paths": ["src/uexchanges/semantic/graphify.py"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the graphify implementation that builds neighbour topology from semantic artifacts.",
+    "query_id": "RGN2-EN-19",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["tests/test_semantic_graphify.py", "docs/SEMANTIC_GRAPH_ENGINE.md"],
+    "expected_paths": ["src/uexchanges/semantic/graphify.py"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Localiza la implementación graphify que construye topología de vecinos desde artefactos semánticos.",
+    "query_id": "RGN2-ES-19",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["tests/test_semantic_chunking.py", "src/uexchanges/semantic/indexer.py"],
+    "expected_paths": ["src/uexchanges/semantic/chunking.py"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Where is deterministic repository chunking with overlap and provenance implemented?",
+    "query_id": "RGN2-EN-20",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["tests/test_semantic_chunking.py", "src/uexchanges/semantic/indexer.py"],
+    "expected_paths": ["src/uexchanges/semantic/chunking.py"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Dónde está implementado el chunking determinista del repositorio con overlap y provenance?",
+    "query_id": "RGN2-ES-20",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["src/uexchanges/semantic/cos20.py", "src/uexchanges/semantic/indexer.py"],
+    "expected_paths": ["docs/SEMANTIC_GRAPH_ENGINE.md"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Which document defines the semantic 1024D versus COS-20D responsibility split?",
+    "query_id": "RGN2-EN-21",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["src/uexchanges/semantic/cos20.py", "src/uexchanges/semantic/indexer.py"],
+    "expected_paths": ["docs/SEMANTIC_GRAPH_ENGINE.md"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "¿Qué documento define la separación de responsabilidades entre semantic 1024D y COS-20D?",
+    "query_id": "RGN2-ES-21",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["src/uexchanges/coordination.py", "schemas/context-registry.schema.json"],
+    "expected_paths": ["docs/MULTI_AGENT_CONTROL_PLANE.md"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Find the architecture contract for shared sessions, leases, EventBus and context registry.",
+    "query_id": "RGN2-EN-22",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["src/uexchanges/coordination.py", "schemas/context-registry.schema.json"],
+    "expected_paths": ["docs/MULTI_AGENT_CONTROL_PLANE.md"],
+    "intent": "repository_navigation",
+    "language": "es",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Encuentra el contrato de arquitectura para sesiones compartidas, leases, EventBus y context registry.",
+    "query_id": "RGN2-ES-22",
+    "strict": true
+  },
+  {
+    "acceptable_related_paths": ["tools/form-executor/src/cli.mjs", "docs/FORM_RECEIPT_PROTOCOL.md"],
+    "expected_paths": ["docs/FORM_BROWSER_EXECUTOR.md"],
+    "intent": "repository_navigation",
+    "language": "en",
+    "notes": "Gold V2 newly persisted after P0.2; not claimed as the lost historical fixture.",
+    "query": "Which document explains the browser form execution capability boundary and submit/receipt distinction?",
+    "query_id": "RGN2-EN-23",
+    "strict": true
+  }
+]
