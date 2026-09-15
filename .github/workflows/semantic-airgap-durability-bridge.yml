@@ -1,0 +1,347 @@
+name: semantic-airgap-durability-bridge
+
+on:
+  push:
+    branches:
+      - ops/semantic-airgap-durability-20260915
+    paths:
+      - .github/workflows/semantic-airgap-durability-bridge.yml
+
+permissions:
+  contents: read
+
+jobs:
+  replicate-exact-runtime-artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      OBSERVED_MAIN_SHA: 844640c008a0cdf161925b55687cdaa159ec40a0
+      HISTORICAL_SEMANTIC_SOURCE_SHA: 5bd92696e3b9d04be9eda0c2a6e5dcb929235870
+      HISTORICAL_RECOVERY_BACKUP_SHA256: 60aa24625d3e1da981c71f67520d580544846a8cc2666c3900847178a7b54ed5
+      HISTORICAL_QDRANT_SNAPSHOT_SHA256: 2c52722941a7a23abec205103db11f27b5affd0ae47f912d8e962159128aa388
+      OLLAMA_VERSION: v0.33.2
+      OLLAMA_OFFICIAL_SHA256: 9785247dea264d9072f09f6c9c0eb4b8e666892826a3d8388eba3e8fb9ed1db9
+      OLLAMA_MODEL: qwen3-embedding:0.6b
+      MODEL_CONFIG_SHA256: 9202febed9e2dadac14bca089be90864571336fa9f4375b690a26ed548957fde
+      MODEL_LAYER_SHA256: 06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439
+      MODEL_LAYER_BYTES: '639150592'
+      QDRANT_VERSION: v1.19.0
+      QDRANT_OFFICIAL_SHA256: e4405091f67d02f96fb941695ef8a6974e677632507ff7b04a3fcbb332ad9c19
+      SEMANTIC_DIMENSIONS: '1024'
+      COS_DIMENSIONS: '20'
+
+    steps:
+      - name: Checkout exact bridge head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prove lineage and prepare workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "${OBSERVED_MAIN_SHA}^{commit}"
+          git merge-base --is-ancestor "$OBSERVED_MAIN_SHA" HEAD
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          command -v jq >/dev/null
+          command -v zstd >/dev/null || (sudo apt-get update && sudo apt-get install -y zstd)
+          mkdir -p \
+            "$RUNNER_TEMP/full-ollama" \
+            "$RUNNER_TEMP/models" \
+            "$RUNNER_TEMP/bridge/ollama-cpu" \
+            "$RUNNER_TEMP/output/model-metadata" \
+            "$RUNNER_TEMP/qdrant-extract"
+
+      - name: Download and verify exact Ollama release
+        shell: bash
+        run: |
+          set -euo pipefail
+          OLLAMA_ARCHIVE="$RUNNER_TEMP/ollama-linux-amd64-${OLLAMA_VERSION}.tar.zst"
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://github.com/ollama/ollama/releases/download/${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst" \
+            -o "$OLLAMA_ARCHIVE"
+          echo "${OLLAMA_OFFICIAL_SHA256}  ${OLLAMA_ARCHIVE}" | sha256sum -c -
+          tar --zstd -xf "$OLLAMA_ARCHIVE" -C "$RUNNER_TEMP/full-ollama"
+          test -x "$RUNNER_TEMP/full-ollama/bin/ollama"
+          "$RUNNER_TEMP/full-ollama/bin/ollama" --version
+          printf '%s  %s\n' "$OLLAMA_OFFICIAL_SHA256" "$(basename "$OLLAMA_ARCHIVE")" \
+            > "$RUNNER_TEMP/output/ollama.official.sha256"
+
+      - name: Pull exact Qwen model and fail closed on manifest drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$RUNNER_TEMP/full-ollama/bin:$PATH"
+          export LD_LIBRARY_PATH="$RUNNER_TEMP/full-ollama/lib/ollama${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export OLLAMA_HOST=127.0.0.1:11434
+          export OLLAMA_MODELS="$RUNNER_TEMP/models"
+          export OLLAMA_KEEP_ALIVE=0
+          export OLLAMA_NUM_PARALLEL=1
+
+          ollama serve >"$RUNNER_TEMP/ollama-full.log" 2>&1 &
+          OLLAMA_PID=$!
+          trap 'kill "$OLLAMA_PID" 2>/dev/null || true' EXIT
+          for _ in $(seq 1 120); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$OLLAMA_MODEL"
+
+          MODEL_MANIFEST="$RUNNER_TEMP/models/manifests/registry.ollama.ai/library/qwen3-embedding/0.6b"
+          CONFIG_BLOB="$RUNNER_TEMP/models/blobs/sha256-${MODEL_CONFIG_SHA256}"
+          MODEL_BLOB="$RUNNER_TEMP/models/blobs/sha256-${MODEL_LAYER_SHA256}"
+          test -f "$MODEL_MANIFEST"
+          test -f "$CONFIG_BLOB"
+          test -f "$MODEL_BLOB"
+          test "$(jq -r '.config.digest' "$MODEL_MANIFEST")" = "sha256:${MODEL_CONFIG_SHA256}"
+          test "$(jq -r '.config.size' "$MODEL_MANIFEST")" = "266"
+          test "$(jq -r '.layers | length' "$MODEL_MANIFEST")" = "1"
+          test "$(jq -r '.layers[0].digest' "$MODEL_MANIFEST")" = "sha256:${MODEL_LAYER_SHA256}"
+          test "$(jq -r '.layers[0].size' "$MODEL_MANIFEST")" = "$MODEL_LAYER_BYTES"
+          echo "${MODEL_CONFIG_SHA256}  ${CONFIG_BLOB}" | sha256sum -c -
+          echo "${MODEL_LAYER_SHA256}  ${MODEL_BLOB}" | sha256sum -c -
+          test "$(stat -c '%s' "$MODEL_BLOB")" = "$MODEL_LAYER_BYTES"
+
+          curl -fsS http://127.0.0.1:11434/api/embed \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"qwen3-embedding:0.6b","input":["UE-Xchanges exact air-gap durability verification"]}' \
+            > "$RUNNER_TEMP/embed-full.json"
+          python - <<'PY'
+          import json, os
+          p = os.path.join(os.environ['RUNNER_TEMP'], 'embed-full.json')
+          data = json.load(open(p, encoding='utf-8'))
+          vector = data['embeddings'][0]
+          assert len(vector) == int(os.environ['SEMANTIC_DIMENSIONS']), len(vector)
+          assert all(isinstance(v, (int, float)) for v in vector)
+          print('full_runtime_embedding_dimensions=', len(vector))
+          PY
+
+          kill "$OLLAMA_PID" || true
+          wait "$OLLAMA_PID" 2>/dev/null || true
+          trap - EXIT
+
+          cp "$MODEL_MANIFEST" "$RUNNER_TEMP/output/model-metadata/ollama-model-manifest.json"
+          cp "$CONFIG_BLOB" "$RUNNER_TEMP/output/model-metadata/sha256-${MODEL_CONFIG_SHA256}"
+          sha256sum "$RUNNER_TEMP/output/model-metadata/ollama-model-manifest.json" \
+            > "$RUNNER_TEMP/output/model-metadata/ollama-model-manifest.sha256"
+
+      - name: Build and smoke-test deterministic CPU-only Ollama payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          STAGE="$RUNNER_TEMP/bridge/ollama-cpu"
+          mkdir -p "$STAGE/bin" "$STAGE/lib/ollama"
+          cp "$RUNNER_TEMP/full-ollama/bin/ollama" "$STAGE/bin/ollama"
+          LIBSRC="$RUNNER_TEMP/full-ollama/lib/ollama"
+          shopt -s nullglob
+          for item in "$LIBSRC"/*; do
+            base="$(basename "$item")"
+            case "$base" in
+              cuda*|rocm*|vulkan*|oneapi*|metal*) echo "skip accelerator payload: $base" ;;
+              *) cp -a "$item" "$STAGE/lib/ollama/" ;;
+            esac
+          done
+          shopt -u nullglob
+          chmod +x "$STAGE/bin/ollama"
+
+          (
+            cd "$STAGE"
+            find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum
+          ) > "$RUNNER_TEMP/output/ollama-cpu-files.sha256"
+
+          export LD_LIBRARY_PATH="$STAGE/lib/ollama${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export OLLAMA_HOST=127.0.0.1:11435
+          export OLLAMA_MODELS="$RUNNER_TEMP/models"
+          export OLLAMA_KEEP_ALIVE=0
+          export OLLAMA_NUM_PARALLEL=1
+          "$STAGE/bin/ollama" serve >"$RUNNER_TEMP/ollama-cpu.log" 2>&1 &
+          PID=$!
+          trap 'kill "$PID" 2>/dev/null || true' EXIT
+          for _ in $(seq 1 120); do
+            curl -fsS http://127.0.0.1:11435/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11435/api/embed \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"qwen3-embedding:0.6b","input":["CPU-only exact runtime verification"]}' \
+            > "$RUNNER_TEMP/embed-cpu.json"
+          python - <<'PY'
+          import json, os
+          p = os.path.join(os.environ['RUNNER_TEMP'], 'embed-cpu.json')
+          vector = json.load(open(p, encoding='utf-8'))['embeddings'][0]
+          assert len(vector) == int(os.environ['SEMANTIC_DIMENSIONS']), len(vector)
+          print('cpu_runtime_embedding_dimensions=', len(vector))
+          PY
+          kill "$PID" || true
+          wait "$PID" 2>/dev/null || true
+          trap - EXIT
+
+          tar --sort=name \
+            --mtime='UTC 1970-01-01' \
+            --owner=0 --group=0 --numeric-owner \
+            --zstd -cf "$RUNNER_TEMP/output/ollama-cpu-linux-amd64-${OLLAMA_VERSION}.tar.zst" \
+            -C "$RUNNER_TEMP/bridge" ollama-cpu
+          sha256sum "$RUNNER_TEMP/output/ollama-cpu-linux-amd64-${OLLAMA_VERSION}.tar.zst" \
+            > "$RUNNER_TEMP/output/ollama-cpu.tar.sha256"
+
+      - name: Split exact model layer below connector ceiling
+        shell: bash
+        run: |
+          set -euo pipefail
+          MODEL_BLOB="$RUNNER_TEMP/models/blobs/sha256-${MODEL_LAYER_SHA256}"
+          split -b 180M -d -a 2 "$MODEL_BLOB" "$RUNNER_TEMP/output/model.layer.part."
+          test "$(find "$RUNNER_TEMP/output" -maxdepth 1 -name 'model.layer.part.*' | wc -l)" -eq 4
+          (
+            cd "$RUNNER_TEMP/output"
+            sha256sum model.layer.part.00 model.layer.part.01 model.layer.part.02 model.layer.part.03
+          ) > "$RUNNER_TEMP/output/model.parts.sha256"
+          cat "$RUNNER_TEMP/output/model.parts.sha256"
+
+      - name: Download and verify exact Qdrant release
+        shell: bash
+        run: |
+          set -euo pipefail
+          QDRANT_ARCHIVE="$RUNNER_TEMP/output/qdrant-x86_64-unknown-linux-gnu-${QDRANT_VERSION}.tar.gz"
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://github.com/qdrant/qdrant/releases/download/${QDRANT_VERSION}/qdrant-x86_64-unknown-linux-gnu.tar.gz" \
+            -o "$QDRANT_ARCHIVE"
+          echo "${QDRANT_OFFICIAL_SHA256}  ${QDRANT_ARCHIVE}" | sha256sum -c -
+          tar -xzf "$QDRANT_ARCHIVE" -C "$RUNNER_TEMP/qdrant-extract"
+          QDRANT_BIN="$(find "$RUNNER_TEMP/qdrant-extract" -type f -name qdrant -perm -111 | head -1)"
+          test -n "$QDRANT_BIN"
+          "$QDRANT_BIN" --version
+          printf '%s  %s\n' "$QDRANT_OFFICIAL_SHA256" "$(basename "$QDRANT_ARCHIVE")" \
+            > "$RUNNER_TEMP/output/qdrant.official.sha256"
+
+      - name: Emit machine-readable artifact manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os, pathlib
+          from datetime import datetime, timezone
+
+          out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'output'
+          parts = []
+          for path in sorted(out.glob('model.layer.part.*')):
+              parts.append({
+                  'file': path.name,
+                  'bytes': path.stat().st_size,
+                  'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+              })
+          cpu_tar = out / f"ollama-cpu-linux-amd64-{os.environ['OLLAMA_VERSION']}.tar.zst"
+          qdrant_tar = out / f"qdrant-x86_64-unknown-linux-gnu-{os.environ['QDRANT_VERSION']}.tar.gz"
+          model_manifest = out / 'model-metadata' / 'ollama-model-manifest.json'
+          config_blob = out / 'model-metadata' / f"sha256-{os.environ['MODEL_CONFIG_SHA256']}"
+          payload = {
+              'contract': 'UEX_SEMANTIC_AIRGAP_ARTIFACT_SET_V1',
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'authority': 'DERIVED_RECONSTRUCTIBLE_RUNTIME_ONLY',
+              'mutation_authority': False,
+              'air_gapped_restore_complete': False,
+              'restore_status': 'ARTIFACT_REPLICATION_ONLY_NOT_RESTORE_CERTIFICATION',
+              'observed_main_sha': os.environ['OBSERVED_MAIN_SHA'],
+              'bridge_head_sha': os.environ['GITHUB_SHA'],
+              'historical_semantic_source_sha': os.environ['HISTORICAL_SEMANTIC_SOURCE_SHA'],
+              'historical_recovery_backup_sha256': os.environ['HISTORICAL_RECOVERY_BACKUP_SHA256'],
+              'historical_qdrant_snapshot_sha256': os.environ['HISTORICAL_QDRANT_SNAPSHOT_SHA256'],
+              'semantic_dimensions': int(os.environ['SEMANTIC_DIMENSIONS']),
+              'cos_dimensions': int(os.environ['COS_DIMENSIONS']),
+              'ollama': {
+                  'version': os.environ['OLLAMA_VERSION'],
+                  'official_archive_sha256': os.environ['OLLAMA_OFFICIAL_SHA256'],
+                  'cpu_payload_file': cpu_tar.name,
+                  'cpu_payload_sha256': hashlib.sha256(cpu_tar.read_bytes()).hexdigest(),
+              },
+              'model': {
+                  'name': os.environ['OLLAMA_MODEL'],
+                  'config_sha256': os.environ['MODEL_CONFIG_SHA256'],
+                  'config_bytes': config_blob.stat().st_size,
+                  'layer_sha256': os.environ['MODEL_LAYER_SHA256'],
+                  'layer_bytes': int(os.environ['MODEL_LAYER_BYTES']),
+                  'ollama_manifest_sha256': hashlib.sha256(model_manifest.read_bytes()).hexdigest(),
+                  'parts': parts,
+              },
+              'qdrant': {
+                  'version': os.environ['QDRANT_VERSION'],
+                  'official_archive_file': qdrant_tar.name,
+                  'official_archive_sha256': os.environ['QDRANT_OFFICIAL_SHA256'],
+              },
+              'public_private_boundary': {
+                  'workflow_and_checksums_public_ok': True,
+                  'runtime_and_model_bytes_private_durable_store_required': True,
+              },
+          }
+          manifest = out / 'artifact-manifest.json'
+          manifest.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(manifest.read_text())
+          PY
+          sha256sum "$RUNNER_TEMP/output/artifact-manifest.json" \
+            > "$RUNNER_TEMP/output/artifact-manifest.sha256"
+
+      - name: Upload Ollama CPU artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-airgap-ollama-cpu-v0.33.2
+          path: |
+            ${{ runner.temp }}/output/ollama-cpu-linux-amd64-v0.33.2.tar.zst
+            ${{ runner.temp }}/output/ollama-cpu.tar.sha256
+            ${{ runner.temp }}/output/ollama-cpu-files.sha256
+            ${{ runner.temp }}/output/ollama.official.sha256
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload Qdrant artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-airgap-qdrant-v1.19.0
+          path: |
+            ${{ runner.temp }}/output/qdrant-x86_64-unknown-linux-gnu-v1.19.0.tar.gz
+            ${{ runner.temp }}/output/qdrant.official.sha256
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload model metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-airgap-qwen3-embedding-0.6b-metadata
+          path: |
+            ${{ runner.temp }}/output/model-metadata/
+            ${{ runner.temp }}/output/model.parts.sha256
+            ${{ runner.temp }}/output/artifact-manifest.json
+            ${{ runner.temp }}/output/artifact-manifest.sha256
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload model part 00
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-airgap-qwen3-layer-part-00
+          path: ${{ runner.temp }}/output/model.layer.part.00
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload model part 01
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-airgap-qwen3-layer-part-01
+          path: ${{ runner.temp }}/output/model.layer.part.01
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload model part 02
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-airgap-qwen3-layer-part-02
+          path: ${{ runner.temp }}/output/model.layer.part.02
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload model part 03
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-airgap-qwen3-layer-part-03
+          path: ${{ runner.temp }}/output/model.layer.part.03
+          compression-level: 0
+          retention-days: 90
