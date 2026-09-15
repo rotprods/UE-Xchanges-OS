@@ -1,0 +1,37 @@
+{
+  "authority": "DERIVED_BENCHMARK_FIXTURE_ONLY",
+  "created_against_main": "4837f4a074a6dd4a52d5d343bd65bb5074634f71",
+  "gold_set_id": "UEX-REPOSITORY-NAVIGATION-GOLD-V2",
+  "historical_index_source_sha": "5bd92696e3b9d04be9eda0c2a6e5dcb929235870",
+  "languages": [
+    "en",
+    "es"
+  ],
+  "mutation_authority": false,
+  "provenance_note": "New durable Gold V2 created after the original >=50-query raw fixture was found not to have been persisted. It must not be represented as the lost historical fixture.",
+  "query_count": 60,
+  "schema_version": "2.0.0",
+  "shards": [
+    {
+      "path": "repository_navigation_gold_v2.shard-01.json",
+      "query_count": 15,
+      "sha256": "4f16ca56d74bcf73ac8198e28ab8d88d8f33b97b8fcf1061b2b383bc9d5be869"
+    },
+    {
+      "path": "repository_navigation_gold_v2.shard-02.json",
+      "query_count": 15,
+      "sha256": "4e8c242136304792c84f618ed1e85fa6289e251efbb8ea8f63f7f24ee2be3da3"
+    },
+    {
+      "path": "repository_navigation_gold_v2.shard-03.json",
+      "query_count": 15,
+      "sha256": "c62db07fa84ea9f9485bb1afc6ae40dd8efbfbdded93ddc75816bf551757a061"
+    },
+    {
+      "path": "repository_navigation_gold_v2.shard-04.json",
+      "query_count": 15,
+      "sha256": "91c29d46fd6ee46aac9d79f88888c7058524a1b6b6d4433de798104e822bb424"
+    }
+  ],
+  "source_repo": "rotprods/UE-Xchanges-OS"
+}
