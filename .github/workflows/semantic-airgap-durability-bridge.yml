@@ -123,8 +123,11 @@ jobs:
 
           cp "$MODEL_MANIFEST" "$RUNNER_TEMP/output/model-metadata/ollama-model-manifest.json"
           cp "$CONFIG_BLOB" "$RUNNER_TEMP/output/model-metadata/sha256-${MODEL_CONFIG_SHA256}"
-          sha256sum "$RUNNER_TEMP/output/model-metadata/ollama-model-manifest.json" \
-            > "$RUNNER_TEMP/output/model-metadata/ollama-model-manifest.sha256"
+          (
+            cd "$RUNNER_TEMP/output/model-metadata"
+            sha256sum ollama-model-manifest.json > ollama-model-manifest.sha256
+            sha256sum "sha256-${MODEL_CONFIG_SHA256}" > model-config.sha256
+          )
 
       - name: Build and smoke-test deterministic CPU-only Ollama payload
         shell: bash
@@ -182,8 +185,10 @@ jobs:
             --owner=0 --group=0 --numeric-owner \
             --zstd -cf "$RUNNER_TEMP/output/ollama-cpu-linux-amd64-${OLLAMA_VERSION}.tar.zst" \
             -C "$RUNNER_TEMP/bridge" ollama-cpu
-          sha256sum "$RUNNER_TEMP/output/ollama-cpu-linux-amd64-${OLLAMA_VERSION}.tar.zst" \
-            > "$RUNNER_TEMP/output/ollama-cpu.tar.sha256"
+          (
+            cd "$RUNNER_TEMP/output"
+            sha256sum "ollama-cpu-linux-amd64-${OLLAMA_VERSION}.tar.zst" > ollama-cpu.tar.sha256
+          )
 
       - name: Split exact model layer below connector ceiling
         shell: bash
@@ -277,8 +282,10 @@ jobs:
           manifest.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8')
           print(manifest.read_text())
           PY
-          sha256sum "$RUNNER_TEMP/output/artifact-manifest.json" \
-            > "$RUNNER_TEMP/output/artifact-manifest.sha256"
+          (
+            cd "$RUNNER_TEMP/output"
+            sha256sum artifact-manifest.json > artifact-manifest.sha256
+          )
 
       - name: Upload Ollama CPU artifact
         uses: actions/upload-artifact@v4
