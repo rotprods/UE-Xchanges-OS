@@ -108,6 +108,8 @@ def evaluate_rankings(
 ) -> RetrievalMetrics:
     if not gold:
         raise RetrievalGateError("gold set cannot be empty")
+    # Legacy recall fields are query-level hit rates; MRR is truncated at 10.
+    # For the frozen singleton-label Gold V2 these hit rates equal Recall@k.
     hits5 = 0
     hits10 = 0
     reciprocal = 0.0
@@ -147,7 +149,15 @@ class RetrievalReleasePolicy:
     def evaluate(
         self, *, dense: RetrievalMetrics, hybrid: RetrievalMetrics, mutation_authority: bool
     ) -> dict[str, Any]:
+        def valid(m: RetrievalMetrics) -> bool:
+            return (type(m.query_count) is int and m.query_count > 0
+                    and all(type(v) in (int, float) and math.isfinite(v) and 0 <= v <= 1
+                            for v in (m.recall_at_5, m.recall_at_10, m.mrr, m.ndcg_at_10))
+                    and m.recall_at_5 <= m.recall_at_10)
+
         checks = {
+            "finite_metric_ranges": valid(dense) and valid(hybrid),
+            "same_query_count": dense.query_count == hybrid.query_count,
             "query_count": hybrid.query_count >= self.min_queries,
             "hybrid_recall_at_10": hybrid.recall_at_10 >= self.min_hybrid_recall_at_10,
             "hybrid_mrr": hybrid.mrr >= self.min_hybrid_mrr,

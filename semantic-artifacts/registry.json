@@ -1,0 +1,47 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "UEX-HISTORICAL-5bd92696-676",
+      "authority": "DERIVED_RECONSTRUCTIBLE_ONLY",
+      "backup_locations": [
+        "private-eventbus:EVT-20260915T132043-AIRGAP-008"
+      ],
+      "baseline_id": "UEX-HISTORICAL-5bd92696-676",
+      "benchmark_ref": "benchmarks/semantic/repository_navigation_benchmark_v3.json",
+      "chunk_contract": "semantic-chunking-v1:3600chars:420overlap",
+      "cos_dimensions": 20,
+      "created_at": "2026-09-07T17:55:35+00:00",
+      "delta_parent": null,
+      "embedding_dimensions": 1024,
+      "freshness": "HISTORICAL_ONLY",
+      "graph_sha256": "c2675c9977dfe1fa4f8b0f0f34cb676f910e80ed89f3233aeb820a8f0eb3fb84",
+      "metadata": {
+        "air_gap_semantics": "Operational restore from durable inputs; OS network isolation NOT enforced",
+        "embedding_origin_counts": {
+          "5bb086b0adcaa1a22cb80fa0ad87836a00f015b8": 660,
+          "5bd92696e3b9d04be9eda0c2a6e5dcb929235870": 16
+        },
+        "model_and_runtime_exact_replicas": "See private artifact-replication event; do not infer from service liveness",
+        "registry_is_artifact_declaration_not_restore_execution": true,
+        "restore_evidence_event": "EVT-20260915T165324-AIRGAP2-005",
+        "restore_report_sha256": "f6a5d64ab0fc365c34578c3fd4a550f1a3269afde12383256c3017602f9f9abc",
+        "retrieval_benchmark_promotion": "BLOCKED_REGRESSION"
+      },
+      "model": "qwen3-embedding:0.6b",
+      "model_sha256": "06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439",
+      "mutation_authority": false,
+      "paths": 397,
+      "points": 676,
+      "restore_status": "AIR_GAPPED_RESTORE_PASS",
+      "snapshot_sha256": "2c52722941a7a23abec205103db11f27b5affd0ae47f912d8e962159128aa388",
+      "source_repo": "rotprods/UE-Xchanges-OS",
+      "source_sha": "5bd92696e3b9d04be9eda0c2a6e5dcb929235870",
+      "vectors_sha256": "ea7a1154f6bc544fe28892adbdbe79fded19e759dd81bd686ee778f8b298d7b2"
+    }
+  ],
+  "authority": "DERIVED_RECONSTRUCTIBLE_ONLY",
+  "baseline_id": "UEX-HISTORICAL-5bd92696-676",
+  "current_id": null,
+  "mutation_authority": false,
+  "schema_version": "1.0.0"
+}

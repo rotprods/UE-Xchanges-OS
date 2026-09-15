@@ -57,6 +57,8 @@ def cosine_similarity(a: Sequence[float], b: Sequence[float]) -> float:
         dot += af * bf
         aa += af * af
         bb += bf * bf
+    if not all(math.isfinite(v) for v in (dot, aa, bb, aa * bb)):
+        raise ValueError("vector arithmetic must remain finite")
     if aa <= 0.0 or bb <= 0.0:
         raise ValueError("vectors must be non-zero")
     return dot / math.sqrt(aa * bb)
@@ -141,7 +143,8 @@ def reciprocal_rank_fusion(
     limit: int = 10,
 ) -> list[NavigationResult]:
     """Fuse independent rankings without pretending their raw scores are calibrated."""
-    if dense_weight < 0 or lexical_weight < 0 or dense_weight + lexical_weight <= 0:
+    if (not math.isfinite(dense_weight) or not math.isfinite(lexical_weight)
+            or dense_weight < 0 or lexical_weight < 0 or dense_weight + lexical_weight <= 0):
         raise ValueError("fusion weights must be non-negative and not both zero")
     if rrf_k < 1 or limit < 1:
         raise ValueError("rrf_k and limit must be positive")
@@ -193,7 +196,8 @@ def dense_first_reciprocal_rank_fusion(
     """Fuse lexical evidence without allowing it to evict trusted dense top-k paths."""
     if preserve_dense_top < 0 or limit < 1:
         raise ValueError("preserve_dense_top must be >= 0 and limit positive")
-    if dense_weight < 0 or lexical_weight < 0 or dense_weight + lexical_weight <= 0:
+    if (not math.isfinite(dense_weight) or not math.isfinite(lexical_weight)
+            or dense_weight < 0 or lexical_weight < 0 or dense_weight + lexical_weight <= 0):
         raise ValueError("fusion weights must be non-negative and not both zero")
     if rrf_k < 1:
         raise ValueError("rrf_k must be positive")
@@ -250,9 +254,21 @@ def repository_navigation(
     dense_limit: int = 100,
     lexical_limit: int = 100,
     result_limit: int = 10,
+    strategy: str = "dense_protected",
 ) -> list[NavigationResult]:
+    """Candidate navigation only; dense-protected is not a hybrid top-10.
+
+    hybrid_rrf is explicit and experimental. Its release gate remains separate
+    from this function and must pass before any production promotion.
+    """
+    if strategy not in {"dense_protected", "hybrid_rrf"}:
+        raise ValueError("unknown repository navigation strategy")
+    if any(type(v) is not int or v < 1 for v in (dense_limit, lexical_limit, result_limit)):
+        raise ValueError("navigation limits must be positive integers")
     dense = rank_dense_paths(query_embedding, chunks, limit=dense_limit)
     lexical = rank_bm25_paths(query, chunks, limit=lexical_limit)
+    if strategy == "hybrid_rrf":
+        return reciprocal_rank_fusion(dense, lexical, limit=result_limit)
     return dense_first_reciprocal_rank_fusion(
         dense, lexical, preserve_dense_top=min(10, result_limit), limit=result_limit
     )
