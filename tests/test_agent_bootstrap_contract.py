@@ -21,6 +21,7 @@ class AgentBootstrapContractTests(unittest.TestCase):
             "agent_context/recovery.md",
             "agent_context/bootstrap_manifest.json",
             "docs/AGENT_BOOTSTRAP_PROTOCOL.md",
+            "docs/APPLICATION_EXECUTION_CONTRACT.md",
             "docs/WRITER_AUTHORIZATION_AND_RELIABILITY_WATCHDOG.md",
             "docs/WRITER_AUTHORIZATION_RECEIPT.md",
             "schemas/writer-authorization-receipt.schema.json",
@@ -28,11 +29,12 @@ class AgentBootstrapContractTests(unittest.TestCase):
         missing = [path for path in required if not (ROOT / path).is_file()]
         self.assertEqual(missing, [])
 
-    def test_manifest_is_strict_and_requires_bootstrap_and_writer_authorization(self):
+    def test_manifest_is_strict_and_requires_bootstrap_writer_auth_and_execution_contract(self):
         manifest = json.loads((ROOT / "agent_context/bootstrap_manifest.json").read_text())
         self.assertEqual(manifest["contract"], "UEX_AGENT_BOOTSTRAP")
-        self.assertEqual(manifest["version"], "1.1.0")
+        self.assertEqual(manifest["version"], "1.2.0")
         self.assertEqual(manifest["authority"], "DERIVED_BOOTSTRAP_ROUTER_ONLY")
+        self.assertEqual(manifest["application_execution_contract"], "docs/APPLICATION_EXECUTION_CONTRACT.md")
         rules = manifest["rules"]
         self.assertFalse(rules["chat_memory_is_authoritative"])
         self.assertFalse(rules["memory_md_is_live_state"])
@@ -43,7 +45,10 @@ class AgentBootstrapContractTests(unittest.TestCase):
         self.assertEqual(rules["required_writer_authorization_event"], "WRITER_AUTHORIZATION_GRANTED")
         self.assertEqual(rules["writer_authorization_receipt_version"], "1.0.0")
         self.assertTrue(rules["external_side_effects_require_separate_capability"])
+        self.assertTrue(rules["must_read_application_execution_contract_before_selecting_frontier"])
+        self.assertTrue(rules["safe_live_application_execution_outranks_nonblocking_architecture"])
         self.assertIn("MEMORY.md", manifest["required_public_reads"])
+        self.assertIn("docs/APPLICATION_EXECUTION_CONTRACT.md", manifest["required_public_reads"])
         self.assertIn("agent_context/context.md", manifest["required_public_reads"])
         self.assertIn("docs/WRITER_AUTHORIZATION_RECEIPT.md", manifest["required_public_reads"])
         self.assertIn("Drive:Work_Leases:UNEXPIRED_ONLY", manifest["required_private_reads"])
@@ -75,6 +80,7 @@ class AgentBootstrapContractTests(unittest.TestCase):
         self.assertEqual(migration["receipt_enforcement"], "NON_RETROACTIVE")
         self.assertIn("no existing lease is retroactively invalidated", migration["existing_sessions"])
         self.assertIn("separately versioned capability", migration["external_side_effects"])
+        self.assertIn("execution contract", migration["application_execution_required_read"])
         shortcuts = manifest["forbidden_bootstrap_shortcuts"]
         self.assertIn(
             "acquire_post_v1_1_write_lease_without_WRITER_AUTHORIZATION_GRANTED_receipt",
@@ -82,6 +88,7 @@ class AgentBootstrapContractTests(unittest.TestCase):
         )
         self.assertIn("treat_writer_authorization_receipt_as_domain_authority", shortcuts)
         self.assertIn("treat_writer_authorization_receipt_as_external_capability", shortcuts)
+        self.assertIn("choose_nonblocking_architecture_over_safe_live_application_execution", shortcuts)
 
     def test_agents_enforces_manifest_memory_and_handshake(self):
         agents = (ROOT / "AGENTS.md").read_text()
@@ -94,6 +101,31 @@ class AgentBootstrapContractTests(unittest.TestCase):
             "Unregistered sessions are read-only",
         ]:
             self.assertIn(marker, agents)
+
+    def test_next_router_points_to_execution_contract(self):
+        router = (ROOT / "agent_context/NEXT.md").read_text()
+        for marker in [
+            "docs/APPLICATION_EXECUTION_CONTRACT.md",
+            "Execution-first selection law",
+            "architecture activity != application outcome",
+            "unknown send outcome != permission to resend",
+        ]:
+            self.assertIn(marker, router)
+
+    def test_execution_contract_contains_durable_outreach_invariants(self):
+        contract = (ROOT / "docs/APPLICATION_EXECUTION_CONTRACT.md").read_text()
+        for marker in [
+            "Outcome-first law",
+            "One opportunity, one outbound identity",
+            "Route resolution before outreach",
+            "5 days / 120 hours",
+            "signature",
+            "CAPTURE_ALL_STEPS",
+            "EMAIL_CANDIDATURE_SENT",
+            "FORM_SUBMITTED",
+            "Throughput metrics",
+        ]:
+            self.assertIn(marker, contract)
 
     def test_handoff_points_zero_context_agents_to_manifest_and_memory(self):
         handoff = (ROOT / "HANDOFF.md").read_text()
