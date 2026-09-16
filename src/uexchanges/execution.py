@@ -25,6 +25,14 @@ class SubmissionState(str, Enum):
     WITHDRAWN = "withdrawn"
 
 
+class ApplicationRoute(str, Enum):
+    EMAIL = "email"
+    FORM = "form"
+    EMAIL_THEN_FORM = "email_then_form"
+    FORM_THEN_EMAIL = "form_then_email"
+    UNKNOWN = "unknown"
+
+
 class ExecutionAction(str, Enum):
     WAIT_REPLY = "wait_reply"
     INGEST_REPLY = "ingest_reply"
@@ -38,6 +46,11 @@ class ExecutionAction(str, Enum):
     HUMAN_WRITE_REQUIRED = "human_write_required"
     BUILD_ASSETS = "build_assets"
     HUMAN_REVIEW = "human_review"
+    SEND_EMAIL_CANDIDATURE = "send_email_candidature"
+    COMPLETE_FORM = "complete_form"
+    RECONCILE_OUTBOUND_EFFECT = "reconcile_outbound_effect"
+    BLOCK_DUPLICATE_OUTREACH = "block_duplicate_outreach"
+    FIX_SIGNATURE = "fix_signature"
     SUBMIT = "submit"
     VERIFY_RECEIPT = "verify_receipt"
     RECORD_SUBMITTED = "record_submitted"
@@ -67,10 +80,128 @@ class ExecutionGateDecision:
     reasons: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class RouteDecision:
+    route: ApplicationRoute
+    action: ExecutionAction
+    reason: str
+
+
+@dataclass(frozen=True)
+class OutboundPreflightDecision:
+    allowed: bool
+    action: ExecutionAction
+    reasons: tuple[str, ...]
+
+
 def _require_aware(value: datetime, name: str) -> datetime:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError(f"{name} must be timezone-aware")
     return value
+
+
+def decide_application_route(
+    *,
+    email_candidature_authorized: bool = False,
+    form_required: bool = False,
+    email_required: bool = False,
+    explicit_order: str | None = None,
+) -> RouteDecision:
+    """Choose the lowest-friction authorised route without inventing provider rules.
+
+    `explicit_order` may be `email_then_form` or `form_then_email` only when the
+    provider actually specifies that order.
+    """
+    if explicit_order not in {None, "email_then_form", "form_then_email"}:
+        raise ValueError("explicit_order must be email_then_form or form_then_email")
+
+    if explicit_order == "email_then_form":
+        if not (email_required and form_required):
+            raise ValueError("email_then_form requires both email_required and form_required")
+        return RouteDecision(
+            ApplicationRoute.EMAIL_THEN_FORM,
+            ExecutionAction.SEND_EMAIL_CANDIDATURE,
+            "The provider requires email first and form second; follow the stated order.",
+        )
+    if explicit_order == "form_then_email":
+        if not (email_required and form_required):
+            raise ValueError("form_then_email requires both email_required and form_required")
+        return RouteDecision(
+            ApplicationRoute.FORM_THEN_EMAIL,
+            ExecutionAction.COMPLETE_FORM,
+            "The provider requires form first and email second; follow the stated order.",
+        )
+
+    if form_required and email_required:
+        return RouteDecision(
+            ApplicationRoute.UNKNOWN,
+            ExecutionAction.RESOLVE_CONTACT_ROUTE,
+            "Both routes are required but their order is unresolved; verify only the blocking route detail.",
+        )
+    if form_required:
+        return RouteDecision(
+            ApplicationRoute.FORM,
+            ExecutionAction.COMPLETE_FORM,
+            "The provider requires the form; do not replace it with preliminary outreach.",
+        )
+    if email_required or email_candidature_authorized:
+        return RouteDecision(
+            ApplicationRoute.EMAIL,
+            ExecutionAction.SEND_EMAIL_CANDIDATURE,
+            "A complete candidature by email is authorised; use it directly instead of a route-query.",
+        )
+    return RouteDecision(
+        ApplicationRoute.UNKNOWN,
+        ExecutionAction.RESOLVE_CONTACT_ROUTE,
+        "No authorised application route is established yet.",
+    )
+
+
+def evaluate_outbound_preflight(
+    *,
+    duplicate_initial_contact: bool = False,
+    unknown_previous_send_outcome: bool = False,
+    signature_count: int = 1,
+    unresolved_blocking_questions: int = 0,
+    asks_already_answered_questions: bool = False,
+    contains_internal_process_jargon: bool = False,
+    ai_policy: AIPolicy = AIPolicy.UNKNOWN,
+    applicant_owned_text: bool = True,
+) -> OutboundPreflightDecision:
+    """Fail closed before organiser-facing email.
+
+    This does not send anything. It enforces the durable outreach lessons that
+    historically failed when multiple agents operated on the same call.
+    """
+    if signature_count < 0 or unresolved_blocking_questions < 0:
+        raise ValueError("counts must be non-negative")
+
+    reasons: list[str] = []
+    if duplicate_initial_contact:
+        reasons.append("An initial contact/candidature already exists for this call identity.")
+        return OutboundPreflightDecision(False, ExecutionAction.BLOCK_DUPLICATE_OUTREACH, tuple(reasons))
+    if unknown_previous_send_outcome:
+        reasons.append("A previous send outcome is unknown; reconcile provider/Gmail evidence before retrying.")
+        return OutboundPreflightDecision(False, ExecutionAction.RECONCILE_OUTBOUND_EFFECT, tuple(reasons))
+    if signature_count != 1:
+        reasons.append("The canonical Erasmus signature must appear exactly once.")
+        return OutboundPreflightDecision(False, ExecutionAction.FIX_SIGNATURE, tuple(reasons))
+    if asks_already_answered_questions:
+        reasons.append("The draft repeats questions already resolved by existing evidence.")
+    if contains_internal_process_jargon:
+        reasons.append("The draft exposes internal orchestration/process jargon irrelevant to the recipient.")
+    if unresolved_blocking_questions > 1:
+        reasons.append("More than one unresolved blocking question remains; reduce outreach to the minimum needed to apply.")
+    if ai_policy in {AIPolicy.ASSIST_ONLY, AIPolicy.FINAL_TEXT_PROHIBITED} and not applicant_owned_text:
+        reasons.append("The route requires applicant-owned wording under the current AI/application policy.")
+
+    if reasons:
+        return OutboundPreflightDecision(False, ExecutionAction.HUMAN_REVIEW, tuple(reasons))
+    return OutboundPreflightDecision(
+        True,
+        ExecutionAction.SEND_EMAIL_CANDIDATURE,
+        ("Outbound preflight passed: unique contact, one signature, no repeated questions and policy-compatible wording.",),
+    )
 
 
 def evaluate_communication(
@@ -80,10 +211,14 @@ def evaluate_communication(
     reply_received: bool = False,
     bounced: bool = False,
     deadline: datetime | None = None,
-    follow_up_after_hours: float = 24.0,
+    follow_up_after_hours: float = 120.0,
     escalate_within_hours: float = 24.0,
 ) -> CommunicationDecision:
-    """Route an outbound verification/relationship message without inventing outcomes."""
+    """Route an outbound verification/relationship message without inventing outcomes.
+
+    The default follow-up window is five days. Real deadline pressure can still
+    escalate earlier, but ordinary silence must not generate daily organiser mail.
+    """
     sent_at = _require_aware(sent_at, "sent_at")
     now = _require_aware(now, "now")
     if deadline is not None:
@@ -126,7 +261,7 @@ def evaluate_communication(
         return CommunicationDecision(
             CommunicationState.FOLLOW_UP_DUE,
             ExecutionAction.FOLLOW_UP,
-            "The reply SLA elapsed; send one concise follow-up or use another authoritative contact route.",
+            "The reply SLA elapsed; send at most one concise follow-up or use another authoritative route if still useful.",
         )
     return CommunicationDecision(
         CommunicationState.SENT_WAITING,
@@ -201,8 +336,13 @@ def evaluate_execution_gate(
     human_owned_final_text: bool,
     now: datetime,
     deadline: datetime | None = None,
+    form_required: bool = True,
 ) -> ExecutionGateDecision:
-    """Choose the one mandatory next action for a candidate application."""
+    """Choose the one mandatory next action for a candidate application.
+
+    `form_captured` means the complete reachable form has been captured. Email-only
+    routes set `form_required=False` and are not blocked by a nonexistent form.
+    """
     now = _require_aware(now, "now")
     if deadline is not None:
         deadline = _require_aware(deadline, "deadline")
@@ -235,26 +375,26 @@ def evaluate_execution_gate(
             False,
             ("Private residence, availability, sensitive-profile or comparable gates remain unresolved.",),
         )
-    if not form_captured:
+    if form_required and not form_captured:
         return ExecutionGateDecision(
             "form_missing",
             ExecutionAction.CAPTURE_FORM,
             False,
-            ("The current application form/questions are not captured.",),
+            ("The complete current application form/questions are not captured.",),
         )
-    if ai_policy is AIPolicy.UNKNOWN:
+    if ai_policy is AIPolicy.UNKNOWN and not human_owned_final_text:
         return ExecutionGateDecision(
-            "ai_policy_unknown",
+            "ai_policy_unknown_generated_text_blocked",
             ExecutionAction.RESOLVE_AI_POLICY,
             False,
-            ("Application-writing policy is unknown; final-answer generation remains disabled.",),
+            ("Application-writing policy is unknown; generated final-answer prose remains disabled unless the applicant independently owns the final wording.",),
         )
-    if ai_policy is AIPolicy.FINAL_TEXT_PROHIBITED and not human_owned_final_text:
+    if ai_policy in {AIPolicy.ASSIST_ONLY, AIPolicy.FINAL_TEXT_PROHIBITED} and not human_owned_final_text:
         return ExecutionGateDecision(
             "human_write_required",
             ExecutionAction.HUMAN_WRITE_REQUIRED,
             False,
-            ("The call prohibits AI-written final text; the applicant must author the final wording.",),
+            ("The current application policy requires applicant-owned final wording.",),
         )
     if not mandatory_assets_ready:
         return ExecutionGateDecision(
