@@ -188,7 +188,7 @@ semantic retrieval != mutation authority
 projection existence != projection freshness
 ```
 
-Full semantic architecture, checksums, benchmarks and restore procedures live in `docs/SEMANTIC_BRAIN_DURABILITY.md` and specialised recovery artifacts. Do not duplicate them here or execute historical semantic P0s without a fresh demonstrated need.
+Full semantic architecture, checksums, benchmarks and restore procedures live in `docs/SEMANTIC_BRAIN_DURABILITY.md` and specialised recovery artifacts; do not execute historical semantic P0s without a fresh demonstrated need.
 
 ## 10. RuntimeGraph law
 
