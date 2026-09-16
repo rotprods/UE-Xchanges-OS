@@ -2,173 +2,151 @@
 
 > **Durable semantic memory, not live state.**
 >
-> This file stores slow-changing lessons, invariants and recurring failure patterns that every agent should know before acting. It is deliberately **not** authoritative for volatile counts, deadlines, frontier membership, active leases, current opportunity states or receipt status.
+> This file stores only slow-changing lessons, invariants and recurring failure patterns. It must stay compact enough that every cold-start agent actually uses it.
 
 ## Authority
 
-When this file conflicts with a newer source, the newer authoritative source wins:
+When memory conflicts with newer evidence, newer authority wins:
 
-1. current official source / authorised form / organiser confirmation / contract / receipt;
+1. current official/provider/form/organiser/contract/receipt evidence;
 2. private Drive CRM + evidence graph + `Agent_Event_Bus`;
-3. current GitHub policies, schemas, code and root recovery state;
-4. RuntimeGraph derived state;
-5. `agent_context/**`, Notion, Todoist, HubSpot and other projections;
+3. current GitHub policy/code/schemas/recovery state;
+4. RuntimeGraph and other derived projections;
+5. `agent_context/**`, Todoist/Notion/interface projections;
 6. chat memory.
 
-Never use `MEMORY.md` to override a receipt, organiser reply, live lease, current form or newer checkpoint.
+`MEMORY.md` never overrides a receipt, organiser reply, live lease, current form or newer checkpoint.
 
 ## Durable mission memory
 
 - Project: `UE-Xchanges-OS`.
-- Global context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`.
-- Operating policy: **APPLY EVERYTHING VIABLE**. Priority orders execution; it does not exclude objectively viable routes.
-- Portfolio objective: global mobility + remote-work continuity + progression toward paid trainer/facilitator and adjacent international work.
-- Submission north star: receipt-backed applications per live Spain-compatible opportunity.
+- Context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`.
+- Core policy: **APPLY EVERYTHING VIABLE**; priority orders work but does not silently exclude viable routes.
+- North-star application metric: truthful receipt/evidence-backed applications converted into real selections, attendance/certification and paid outcomes where applicable.
+- Documentation, commits, PRs, prompts, events, agent count and task count are not business outcomes.
+
+## Durable execution-first memory
+
+- The system already has enough architecture to execute many opportunities. **Safe live execution outranks non-blocking architecture.**
+- Before adding a new control plane/prompt/graph, identify the concrete failing enforcement point. If current machinery can safely advance an application, use it.
+- One opportunity/call identity gets one initial candidature/contact by default, even when aliases or separate email threads exist.
+- Unknown prior-send outcome means reconcile Gmail/provider evidence before retry; never blind-resend after a timeout/tool error.
+- Use the lowest-friction authorised route: email when complete email candidature is accepted; form when required; both only in provider-stated order.
+- Do not send preliminary route-query emails when a complete authorised candidature can already be sent.
+- Ordinary silence is not urgency. Default no-reply follow-up is 5 days / 120 hours, except real deadline/bounce/provider-requested action.
+- Do not repeatedly ask organisers questions already answered in correspondence, infopack or authoritative source.
+- External communication stays project-specific, concise, professional and natural. Internal tooling/orchestration language is not recipient-facing content.
+- Every substantive Erasmus+/youth-project email carries the canonical Erasmus signature exactly once; private identity payload stays private.
+- Photography, filmmaking, VFX and content creation are legitimate optional contributions when relevant, subject to consent/privacy/safeguarding; credit/tagging may be agreed without becoming a participation condition.
+- Canonical execution details live in `docs/APPLICATION_EXECUTION_CONTRACT.md` and are mandatory cold-start context.
 
 ## Durable truth rules
 
 - `UNKNOWN` is verification debt, never permission.
 - `ROUTE_QUERY_SENT != APPLICATION_SUBMITTED`.
+- `EMAIL_CANDIDATURE_SENT != FORM_SUBMITTED`.
+- `FORM_SUBMITTED != SELECTED`.
 - `ELIGIBLE != SELECTED`.
 - `INVITED_TO_APPLY != ACCEPTED`.
+- `SELECTED != ACCEPTED_BY_USER`.
 - `PAYMENT_REQUIRED_FOR_PLACE != CONFIRMED`.
 - `SubmissionAttempt != SubmissionReceipt`.
-- Todoist completion, Notion status, open form, draft asset, organiser encouragement or an agent statement are never submission evidence.
-- Latest authoritative evidence may supersede an older state; latest edit timestamp alone does not establish authority.
-- Never majority-vote conflicting facts. Preserve conflict and route to verification.
-
-## Durable multi-agent memory
-
-- Chat memory is never the continuity system.
-- Every writer creates a unique Session ID. Never reuse an old session for writes.
-- Every writer reads current main, bootstrap manifest, Drive sessions, **currently unexpired** leases and Event Bus tail before mutation.
-- A writer must emit `BOOTSTRAP_CONTEXT_LOADED` before acquiring a write lease.
-- A lease is a fencing token for its exact scope, not a global lock.
-- Expired/released leases do not block; stale rows must be reconciled rather than blindly trusted.
-- Every material mutation emits an append-only event and is read back before closure.
-- Projection divergence is a real defect: fix or explicitly log it before declaring a wave complete.
-- Never claim a GitHub PR/merge/CI result before GitHub itself proves it. If Drive and GitHub disagree about code state, GitHub is authoritative for code/CI.
-
-## Durable memory model
-
-Use the following separation:
-
-```text
-Official evidence / receipts      = external truth
-Drive CRM + Event Bus             = canonical operational truth
-GitHub policies/code/recovery     = versioned system contract
-RuntimeGraph                      = derived execution truth
-agent_context/**                  = derived zero-context navigation
-MEMORY.md                         = slow-changing semantic memory
-Notion / Todoist / HubSpot        = reconstructible projections
-chat                              = disposable working context
-```
-
-Do **not** store live counts or transient frontier membership in this file. Those belong in `STATE.md`, `HANDOFF.md`, current checkpoints, `LIVE-STATE-OVERRIDE.json`, Drive and `agent_context/context.md` with explicit watermarks.
-
-## Durable semantic-brain memory
-
-- **Service is ephemeral; brain is reconstructible.** A running Qdrant/Ollama process, container, VM or sandbox is never the persistence boundary.
-- Before regenerating embeddings, restore and validate existing checksummed semantic artifacts and incremental deltas. Repeating expensive work because a daemon died is a recovery defect.
-- Semantic state must be recoverable from external durable artifacts with model/runtime identity, dimensions, source SHA, checksums, graph/vector invariants and restore tests.
-- Native semantic embeddings are retrieval context; COS-20D is topology/navigation only. Hybrid lexical+dense retrieval may improve repository navigation but remains derived.
-- Semantic/vector/fuzzy similarity never grants mutation authority. Exact IDs and current authoritative evidence are still mandatory for state changes.
-- Historical vector partitions remain `HISTORICAL_ONLY` until their source SHA/freshness is reconciled. A live projection or collection can exist and still be stale.
-- Private live-evidence overlays stay private; public GitHub/Rot.Knowledge may persist only sanitised architecture, metrics, manifests and tests.
-- The mandatory restore/authority contract is `docs/SEMANTIC_BRAIN_DURABILITY.md`, which the bootstrap manifest requires every compliant cold-start agent to read.
+- Drafts, open forms, Todoist completion, organiser encouragement, browser completion and agent statements are not submission receipts.
+- Preserve conflicts; never majority-vote them or let semantic similarity resolve them.
 
 ## Durable profile/evidence memory
 
 - Historical programme participation does not prove current youth-worker, trainer, facilitator or group-leader status.
 - Attendance never implies delivery responsibility.
-- Do not infer degree, CEFR, safeguarding, first aid, disability/fewer-opportunities status, work rights, student status, current affiliation, experience duration or sensitive personal facts.
-- Search `Autofill_Profile` and `Profile_Interview` before asking Roberto for information already persisted.
-- Private applicant values, answers, identity details and restricted evidence never belong in public GitHub.
+- Pending applications do not belong in completed-experience CV sections.
+- Never infer degree, CEFR, safeguarding/first aid, disability/fewer-opportunities status, current affiliation, work rights, emergency/health facts, availability or experience duration.
+- Search `Autofill_Profile` and `Profile_Interview` before asking Roberto for already persisted facts.
+- Completed experience should be represented by an evidence ledger: title/programme/location/dates/role/host/sending organisation/certificate or source reference.
+- Private applicant values, answers and identity evidence never belong in public GitHub.
 
-## Durable Form Execution Gateway memory
+## Durable AI/application memory
 
-The Form Execution Gateway exists to remove the manual form bottleneck without weakening evidence or secret boundaries.
+Application policy is per route, not a universal assumption:
 
-Persistent rules:
+- `AI_ALLOWED`: assistance may draft subject to truth/quality review.
+- `AI_ASSIST_ONLY`: applicant-owned substance/final wording is required; assistance may improve/structure within the organiser's rule.
+- `AI_FINAL_TEXT_PROHIBITED`: facts/outline only.
+- `AI_UNKNOWN`: do not assume generated final prose permission; independently applicant-owned wording can proceed unless another gate genuinely requires clarification.
 
-- secrets remain local to the authenticated browser/runtime;
-- passwords, OTP, cookies and storage state are not model outputs;
-- BLACK fields are human-only;
-- RED fields require human confirmation;
-- AI policy controls narrative assistance;
-- fingerprint + validation signature + canonical payload form the execution identity;
-- approval tokens are short-lived and bound to the exact plan;
-- duplicate/ambiguous submission attempts block blind retry;
-- **clicking Submit is not proof of submission**;
-- only receipt/authoritative confirmation may advance submission truth.
+Do not ask every organiser about AI/tool use. Resolve published/explicit policy first. If directly asked about authorship/tool use, answer truthfully.
 
-Current capability state must always be read from current code/recovery artifacts. `MEMORY.md` must never be used to infer that external PREFILL or Submit is enabled.
+## Durable form-execution memory
 
-## Durable RuntimeGraph memory
+Use:
+
+`CAPTURE_ALL_STEPS → MAP_FIELDS → VALUE_PACK → PREFILL → QA → SUBMIT → RECEIPT`
+
+- Capture the complete reachable form before filling, not merely the first page.
+- Unknown personal/legal/medical/sensitive fields cause STOP; never guess.
+- Ambiguous organisation affiliation causes STOP; never select the only visible option merely to progress.
+- Authentication != PREFILL permission; PREFILL != Submit permission.
+- Generic WriterAuthorization never implies browser credentials, email-send permission, irreversible Submit, payment or OTP/MFA/CAPTCHA authority.
+- Clicking Submit or a technically “completed” browser run is not evidence; capture provider confirmation/receipt.
+
+## Durable multi-agent memory
+
+- Chat memory is never the continuity system.
+- Every writer uses a fresh Session ID, reads current main + manifest + private events + **currently unexpired** leases and emits `BOOTSTRAP_CONTEXT_LOADED` before a write lease.
+- WriterAuthorization is a short-lived coordination receipt bound to exact main/scope/lease; it is not domain authority or external capability.
+- A lease fences exact scope, not the whole project.
+- Expired/released textual `ACTIVE` rows do not remain locks.
+- Every material mutation needs append-only event evidence and exact readback.
+- Unknown side-effect outcome blocks blind replay.
+- GitHub is authoritative for GitHub/PR/CI facts; never claim a merge or green CI before GitHub proves it.
+
+## Durable RuntimeGraph / projection memory
 
 - RuntimeGraph is derived, never a second opportunity/application authority.
+- Projection existence != projection freshness. Compare generation/watermark with current Event Bus/provider evidence.
 - Execution law: `READ → READY FRONTIER → CLAIM UNDER LEASE → EXECUTE → VERIFY → EMIT EVENT → RECOMPUTE`.
-- Exact entity/application IDs are required for state-changing routing.
-- Source cursors are monotonic ingestion watermarks, not source authority.
-- Late unique events may still be processed idempotently; never rewind a cursor to represent them.
-- Dead-letter after bounded retry rather than silently dropping or looping forever.
-- Human-only irreversible actions remain separated from reversible agent work.
+- Never edit canonical domain truth merely to make a stale dashboard agree.
+- Todoist/Notion/interface state is reconstructible projection, not evidence of external outcome.
 
-## Recurring failure patterns to remember
+## Durable semantic-brain memory
 
-1. **Stale dashboard / stale snapshot** — aggregate projections may lag canonical events.
-2. **Prepared != submitted** — forms, drafts and email queries have repeatedly been mistaken for application evidence.
-3. **Outcome proves historical application but not its timestamp** — preserve `UNRECOVERED` rather than fabricate provenance.
-4. **Stale lease flag** — a session may be completed while an old lease row still says ACTIVE; expiry/event evidence matters.
-5. **Premature merge claim** — never record a PR as merged before GitHub proves it.
-6. **Projection column/schema drift** — read-back exact target cells/IDs after mutation.
-7. **Source-access block != processed** — inaccessible Telegram/source items remain unresolved.
-8. **Provider session != agent authority** — being logged in does not grant PREFILL or Submit capability.
-9. **A capability is not a credential** — local HMAC authorization may permit one bounded operation but must not expose browser secrets.
-10. **Volatile facts in stable docs rot quickly** — stable contracts point to live state instead of embedding current counts.
-11. **Daemon liveness != persistence** — losing Qdrant/Ollama must trigger restore from validated artifacts, not silent re-creation or duplicated embedding work.
-12. **Projection existence != projection freshness** — compare generated timestamp/watermark with current EventBus/source evidence before trusting a derived view.
+- **Service is ephemeral; brain is reconstructible.** Daemon/container/VM liveness is not the persistence boundary.
+- Restore and validate checksummed semantic artifacts before regenerating expensive embeddings.
+- Semantic/vector/fuzzy similarity may retrieve candidates but never grants mutation authority.
+- Historical vector partitions remain historical until source SHA/freshness is reconciled.
+- Private live-evidence overlays stay private.
+- Detailed semantic recovery architecture lives in `docs/SEMANTIC_BRAIN_DURABILITY.md`; do not duplicate its benchmarks/binary inventory here.
 
-## 2026-09-10 — durable scheduler / CGEV2 / COS learnings
+## Durable source/economics memory
 
-These lessons survived the RG2.2 Scheduled Tasks recovery and should remain across sessions:
+- T3 social/aggregator sources discover; current original/provider sources authorise when available.
+- Source freshness needs evidence: last attempt, last success, cursor, processed items and errors. A blocked scraper is not “complete”.
+- Funded value is not salary. Accommodation, food, travel reimbursement, insurance, training and pocket money remain distinct from cash compensation.
+- Paid-role economics require verified amount, hours/preparation, compulsory costs, payer/payment certainty and legal/tax/visa constraints before net/hour claims.
 
-- **Normal writer health is bounded; historical hygiene is separate.** A healthy new writer should be authorised from its exact session/bootstrap plus currently-unexpired live leases/owners. Full historical stale-session/expired-lease archaeology belongs to watchdog/`CONTROL_PLANE_REPAIR`. A bounded report must state that historical hygiene was not evaluated rather than pretending global green.
-- **`ACTIVE_READ_ONLY` must be visible but never promoted to writer.** Stale read-only sessions are lifecycle debt, not hidden debt and not write authority.
-- **WriterAuthorization is a critical-section protocol.** Do expensive reads before authorization. After a canonical receipt is persisted, acquire the exact proposed lease immediately; never interleave unrelated work. A stale/failed receipt is discarded and never reused.
-- **Do not invent stricter operational thresholds than current versioned policy.** Extra-conservative prompt rules can create availability bugs. If policy should change, change code/contracts + tests.
-- **A scheduler probe and a RuntimeGraph canary prove different things.** A tiny task proves native dispatch; a control-plane canary proves receipt/lease lifecycle; only a full production-path canary proves RG2.2 scheduled operation.
-- **Scheduled RG2.2 needs an explicit micro-budget.** Initial production should process one adapter slice, a small bounded candidate set and a small exact-ID subgraph set, then close. Backlog draining and canary certification are different jobs.
-- **Closure is a first-class phase.** Reserve time for read-back, lease release and terminal session evidence. Hard-killed tasks cannot rely on `finally`; independent watchdog/reconciliation must exist.
-- **Expired textual `ACTIVE` rows are not perpetual locks.** Live fencing depends on unexpired lease identity/owner/context/scope and current policy. Historical rows remain evidence/hygiene debt.
-- **Control-plane repair preserves uncertainty.** Never label an interrupted/stale historical session `COMPLETED` merely to clean the dashboard. Use deterministic RPL + narrow repair lease + exact-ID read-back.
-- **CGEV2, COS and RuntimeGraph must not impersonate one another.** CGEV2 is control/provenance/continuity; COS-20D is semantic retrieval/topology; RuntimeGraph is exact-ID deterministic execution projection. Embeddings/fuzzy similarity may generate candidates but never authorise state mutation.
-- **Session registry and EventBus are separate evidence surfaces.** A terminal session row without corresponding expected event evidence is a divergence to investigate, not permission to fabricate a missing event.
+## Recurring failure patterns
 
-Canonical extended explanations live in:
-
-- [`agent_context/LEARNINGS.md`](agent_context/LEARNINGS.md)
-- [`agent_context/CGEV2_COS.md`](agent_context/CGEV2_COS.md)
-- [`agent_context/REGRESSION.md`](agent_context/REGRESSION.md)
-- [`agent_context/CONSCIOUSNESS_ACT.md`](agent_context/CONSCIOUSNESS_ACT.md)
-- [`agent_context/NEXT.md`](agent_context/NEXT.md)
-- [`docs/SEMANTIC_BRAIN_DURABILITY.md`](docs/SEMANTIC_BRAIN_DURABILITY.md)
-
-These files are navigation/learning artifacts; current operational truth still requires fresh authority reconstruction.
+1. **Architecture replaces execution** — activity increases while real applications do not.
+2. **Duplicate outreach across threads/agents** — same call gets repeated initial emails or eligibility questions.
+3. **Prepared != submitted** — drafts/forms/tasks are promoted without provider evidence.
+4. **Email candidature != form receipt** — different evidence types are collapsed into one state.
+5. **Missing/duplicated signature** — email body bypasses the canonical renderer.
+6. **Partial form inspection** — first page is mistaken for complete form capture.
+7. **Unknown send outcome replay** — timeout triggers duplicate send instead of reconciliation.
+8. **Stale projection/dashboard** — old aggregate is treated as live canonical truth.
+9. **Stale lease flag** — textual ACTIVE is trusted after expiry/release.
+10. **Premature GitHub claim** — merge/CI is recorded without GitHub evidence.
+11. **Provider session != agent authority** — login is mistaken for PREFILL/Submit capability.
+12. **Volatile facts in stable docs** — counts/frontiers rot and redirect new agents into historical work.
+13. **Semantic architecture dominates work selection** — durable recovery work becomes a default frontier even when live application work is safely executable.
 
 ## Memory write policy
 
-Add something to `MEMORY.md` only when all are true:
+Add to `MEMORY.md` only when the lesson is long-lived, non-sensitive, not a live count/deadline/frontier and not better represented in a specialised authoritative document.
 
-1. it is expected to remain useful across many sessions;
-2. it is not sensitive/private applicant data;
-3. it is not merely a current count/status/deadline;
-4. it represents a durable invariant, architecture law, recurring failure pattern or verified long-lived decision;
-5. it does not duplicate a more authoritative source verbatim.
+Do **not** store live counts, current opportunity states, current lease ownership, receipt IDs or transient deadlines here.
 
-Every memory change should cite its causal event/decision in the PR or Event Bus. Delete or revise memory when an architecture law intentionally changes.
+Prefer links to specialised contracts over copying large architecture/runbook sections into memory.
 
 ## Mandatory bootstrap pointer
 
-The machine-readable cold-start contract is `agent_context/bootstrap_manifest.json`.
-Every compliant writer must follow it and emit `BOOTSTRAP_CONTEXT_LOADED` before acquiring a write lease.
+The machine-readable cold-start contract is `agent_context/bootstrap_manifest.json`. Every compliant writer must follow it and emit `BOOTSTRAP_CONTEXT_LOADED` before acquiring a write lease.
