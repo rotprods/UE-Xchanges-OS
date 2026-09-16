@@ -99,6 +99,8 @@ class AgentBootstrapContractTests(unittest.TestCase):
             "agent_context/context.md",
             "currently unexpired",
             "Unregistered sessions are read-only",
+            "Safe live application execution outranks non-blocking architecture",
+            "5 days / 120 hours",
         ]:
             self.assertIn(marker, agents)
 
@@ -127,12 +129,36 @@ class AgentBootstrapContractTests(unittest.TestCase):
         ]:
             self.assertIn(marker, contract)
 
+    def test_deathsafe_router_is_execution_first_not_historical_semantic_backlog(self):
+        router = (ROOT / "agent_context/NEXT_DEATHSAFE.md").read_text()
+        for marker in [
+            "EXECUTION-FIRST",
+            "Execution-first frontier selection",
+            "docs/APPLICATION_EXECUTION_CONTRACT.md",
+            "do not execute historical semantic P0s without a fresh demonstrated need",
+            "Then execute — do not return to architecture by habit.",
+        ]:
+            self.assertIn(marker, router)
+        self.assertNotIn("## 19. Immediate P0 frontier", router)
+        self.assertNotIn("P0-A — exact binary/model durability", router)
+
+    def test_mandatory_control_docs_have_entropy_budget(self):
+        ceilings = {
+            "AGENTS.md": 15000,
+            "MEMORY.md": 12000,
+            "agent_context/NEXT_DEATHSAFE.md": 12000,
+        }
+        for path, ceiling in ceilings.items():
+            with self.subTest(path=path):
+                size = len((ROOT / path).read_text().encode("utf-8"))
+                self.assertLessEqual(size, ceiling, f"{path} exceeded the cold-start entropy budget")
+
     def test_handoff_points_zero_context_agents_to_manifest_and_memory(self):
         handoff = (ROOT / "HANDOFF.md").read_text()
         for marker in ["agent_context/bootstrap_manifest.json", "MEMORY.md", "BOOTSTRAP_CONTEXT_LOADED"]:
             self.assertIn(marker, handoff)
 
-    def test_memory_is_explicitly_non_authoritative_and_nonvolatile(self):
+    def test_memory_is_explicitly_non_authoritative_nonvolatile_and_execution_aware(self):
         memory = (ROOT / "MEMORY.md").read_text()
         for marker in [
             "Durable semantic memory, not live state",
@@ -140,6 +166,9 @@ class AgentBootstrapContractTests(unittest.TestCase):
             "Chat memory is never the continuity system",
             "BOOTSTRAP_CONTEXT_LOADED",
             "SubmissionAttempt != SubmissionReceipt",
+            "Safe live execution outranks non-blocking architecture",
+            "Unknown prior-send outcome",
+            "5 days / 120 hours",
         ]:
             self.assertIn(marker, memory)
 
