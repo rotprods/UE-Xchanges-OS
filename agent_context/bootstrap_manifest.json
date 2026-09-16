@@ -1,10 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contract": "UEX_AGENT_BOOTSTRAP",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "context_id": "CTX-UEX-GLOBAL-EXPANSION-INCOME-V1",
   "authority": "DERIVED_BOOTSTRAP_ROUTER_ONLY",
   "semantic_brain_durability_contract": "docs/SEMANTIC_BRAIN_DURABILITY.md",
+  "application_execution_contract": "docs/APPLICATION_EXECUTION_CONTRACT.md",
   "deathsafe_next_contract": "agent_context/NEXT_DEATHSAFE.md",
   "rules": {
     "chat_memory_is_authoritative": false,
@@ -23,7 +24,9 @@
     "semantic_brain_must_be_reconstructible": true,
     "must_restore_validated_semantic_artifacts_before_regenerating": true,
     "semantic_similarity_is_mutation_authority": false,
-    "must_read_deathsafe_next_before_selecting_frontier": true
+    "must_read_application_execution_contract_before_selecting_frontier": true,
+    "must_read_deathsafe_next_before_selecting_frontier": true,
+    "safe_live_application_execution_outranks_nonblocking_architecture": true
   },
   "required_public_reads": [
     "CURRENT_GITHUB_MAIN_SHA",
@@ -31,6 +34,7 @@
     "AGENTS.md",
     "MEMORY.md",
     "docs/SEMANTIC_BRAIN_DURABILITY.md",
+    "docs/APPLICATION_EXECUTION_CONTRACT.md",
     "agent_context/NEXT_DEATHSAFE.md",
     "LIVE-STATE-OVERRIDE.json",
     "STATE.md",
@@ -66,6 +70,7 @@
     "reconcile target projection before write",
     "read fresh Gmail/official evidence when the action depends on external state",
     "compare semantic artifact source SHA/watermark with current main and classify stale partitions as HISTORICAL_ONLY",
+    "reconcile the APPLICATION_EXECUTION_CONTRACT ordering against current authority before choosing architecture work",
     "reconcile the NEXT_DEATHSAFE frontier against current authority before executing it"
   ],
   "bootstrap_ack_required_fields": [
@@ -128,6 +133,7 @@
     "existing_sessions": "refresh manifest before next lease acquisition; no existing lease is retroactively invalidated",
     "external_side_effects": "remain outside generic writer authorization and require a separately versioned capability contract",
     "semantic_brain_required_read": "additive v1.1 hardening; new cold starts must read the durability contract before regenerating semantic state",
+    "application_execution_required_read": "additive v1.2 hardening; new cold starts must read the execution contract before selecting non-blocking architecture over application work",
     "deathsafe_next_required_read": "additive v1.1 hardening; new cold starts must read NEXT_DEATHSAFE and then reconcile its proposed frontier against current live authority"
   },
   "forbidden_bootstrap_shortcuts": [
@@ -145,6 +151,7 @@
     "treat_running_qdrant_or_ollama_as_semantic_brain_persistence",
     "regenerate_embeddings_before_checking_validated_recovery_artifacts",
     "use_semantic_similarity_to_authorize_state_change",
+    "choose_nonblocking_architecture_over_safe_live_application_execution",
     "execute_historical_NEXT_without_live_reconciliation"
   ]
 }
