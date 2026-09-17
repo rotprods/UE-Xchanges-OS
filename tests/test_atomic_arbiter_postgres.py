@@ -6,7 +6,7 @@ psycopg, then runs these tests against an ephemeral PostgreSQL service.
 """
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from hashlib import sha256
 import json
 import os
@@ -92,6 +92,21 @@ class AtomicArbiterPostgresTests(unittest.TestCase):
             assert row is not None
             return str(row[0]), int(row[1])
 
+    def expire_lease_for_test(self, lease_id: str) -> None:
+        """Move a lease into a valid historical interval entirely in the past.
+
+        Production rows keep the invariant ``expires_at > acquired_at``.  Tests
+        must not disable or violate that integrity check merely to simulate time.
+        """
+        with self.connect() as conn:
+            conn.execute(
+                "UPDATE uex_arbiter.work_leases "
+                "SET acquired_at=clock_timestamp()-interval '2 seconds', "
+                "    expires_at=clock_timestamp()-interval '1 second' "
+                "WHERE lease_id=%s",
+                (lease_id,),
+            )
+
     def test_fifty_contenders_exactly_one_scope_winner(self):
         contenders = 50
         for i in range(contenders):
@@ -152,11 +167,7 @@ class AtomicArbiterPostgresTests(unittest.TestCase):
         self.register("s1")
         self.register("s2")
         _, old_token, _ = self.claim("s1", "l1", ["APPLICATION:app"])
-        with self.connect() as conn:
-            conn.execute(
-                "UPDATE uex_arbiter.work_leases "
-                "SET expires_at=clock_timestamp()-interval '1 second' WHERE lease_id='l1'"
-            )
+        self.expire_lease_for_test("l1")
         _, new_token, _ = self.claim("s2", "l2", ["APPLICATION:app"])
         self.assertGreater(new_token, old_token)
 
@@ -209,11 +220,9 @@ class AtomicArbiterPostgresTests(unittest.TestCase):
                 "SELECT uex_arbiter.mark_effect_started(%s,%s,%s,%s)",
                 (effect, "l1", "s1", token1),
             )
-            # Simulate worker death by expiring its lease after provider invocation.
-            conn.execute(
-                "UPDATE uex_arbiter.work_leases "
-                "SET expires_at=clock_timestamp()-interval '1 second' WHERE lease_id='l1'"
-            )
+        # Simulate worker death after provider invocation while preserving all
+        # lease integrity constraints.
+        self.expire_lease_for_test("l1")
 
         _, token2, _ = self.claim("s2", "l2", ["APPLICATION:app"])
         with self.assertRaises(Exception) as ctx:
