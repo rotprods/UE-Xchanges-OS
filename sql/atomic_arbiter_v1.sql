@@ -207,7 +207,9 @@ BEGIN
     ORDER BY so.scope_key LIMIT 1;
     IF v_conflict IS NOT NULL THEN RAISE EXCEPTION 'SCOPE_CONFLICT:%',v_conflict; END IF;
 
-    v_scope_hash := encode(digest(array_to_string(v_scopes,chr(31)),'sha256'),'hex');
+    -- pgcrypto is installed in public on stock PostgreSQL. Security-definer
+    -- functions deliberately use a hardened search_path, so qualify digest.
+    v_scope_hash := encode(public.digest(array_to_string(v_scopes,chr(31)),'sha256'),'hex');
     v_token := nextval('fencing_token_seq');
     v_expires := v_now+make_interval(secs=>p_ttl_seconds);
 
