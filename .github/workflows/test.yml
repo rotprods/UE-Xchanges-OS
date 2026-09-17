@@ -22,3 +22,32 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run deterministic unit tests
         run: PYTHONPATH=src python -m unittest discover -s tests -v
+
+  atomic-arbiter-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: uex_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d uex_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/uex_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PostgreSQL test driver
+        run: python -m pip install "psycopg[binary]>=3.2,<4"
+      - name: Run atomic arbiter PostgreSQL gauntlet
+        run: PYTHONPATH=src python -m unittest discover -s tests -p 'test_atomic_arbiter_postgres.py' -v
