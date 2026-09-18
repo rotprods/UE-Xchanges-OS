@@ -203,91 +203,38 @@ Travel ceiling caution:
 
 ---
 
-## 4. Travel graph — LEAD RIGHT → Greece chain
+## 4. Travel / budget state — sanitised public view
 
-All prices below are observation-time planning figures, not bookings. Recheck immediately before purchase.
+Detailed candidate flights, local transfers, accommodation quotes and exact future movement planning are **private operational data** and are intentionally not persisted in this public repository.
 
-### Spain → Italy
-Practical departure airport: **ALC**. No RMU→Rome Ryanair route was found for 23/24 Sep.
+Durable public conclusions only:
 
-Option A — same-day:
-- ALC→FCO, 24 Sep, Ryanair FR5180, 08:50–10:55;
-- observed fare: **€67.99**;
-- requires reliable early road transfer to ALC because ordinary morning public transport from Murcia is too tight.
+- LEAD RIGHT can be chained into the Greece period without a direct date overlap.
+- The tightest logistical boundary is the transition between the Italy project end and the Greece project start.
+- The gap between the two Greece windows creates several self-funded nights and is a material personal-cost driver.
+- Baggage and cash-flow timing can materially change gross liquidity even when travel is later reimbursed.
+- Working private budget research produced a gross-liquidity range in the high hundreds of euros, with an additional emergency buffer recommended; this is **not** the expected final net cost.
+- Reimbursement ceilings belong to each project independently and cannot be pooled by assumption.
+- A multi-project itinerary must be accepted by the relevant organisers before relying on cross-border segments as reimbursable.
+- No travel purchase is authorised by this seal.
+- Exact prices/timetables are volatile and must be re-read from providers immediately before a GO/purchase decision.
 
-Option B — previous evening:
-- ALC→FCO, 23 Sep, FR4004, 19:15–21:20;
-- observed fare: **€54.99**;
-- Rome hostel baseline observed from ~€48.50;
-- safer public-transport day but usually more expensive overall.
+T4DT2B funding caution:
+- current public/secondary research indicates travel/accommodation/food funding;
+- the existing original-source Drive dossier still records the exact Spain travel ceiling as unresolved;
+- do not promote a secondary ceiling into canonical truth until the original infopack/organiser evidence is recovered.
 
-Italy ground chain:
-`FCO → Rome/rail → Frosinone → Alatri / Il Favogoloso`.
-Use exact train/Cotral timetable after organiser arrival-window confirmation.
-
-### Italy → Greece
-Best observed connection:
-- FCO→ATH, 3 Oct;
-- Ryanair;
-- evening 20:35–23:35 observed at **€29.19**;
-- morning 07:55–10:55 also observed around €29.19.
-
-Prefer the evening flight if the project finishes normally on 2 Oct; do not leave LEAD RIGHT early solely to catch a cheaper 2-Oct flight.
-
-### ATH → Raches / NISI
-Working public-transport route:
-`ATH airport → KTEL terminal → Lamia → Raches`.
-
-Planning baseline:
-- Airport express: ~€5.50;
-- Athens→Lamia: ~€17.50;
-- Lamia→Raches: low single-digit local fare pending exact purchase-time check.
-
-### Gap between Greece projects
-T4DT2B ends 14 Oct; Step arrival is 20 Oct.
-
-This creates **6 self-funded nights**: 14, 15, 16, 17, 18, 19 Oct.
-
-Observed Athens hostel baseline for 14→20 Oct:
-- low end ~€96 total;
-- realistic range ~€100–160 total.
-
-Working personal food/local-transit reserve:
-- food ~€60–120;
-- local transport ~€10–20.
-
-This gap is likely the largest guaranteed personal expense if the whole chain is executed.
-
-### Athens → Sofiko
-Working chain:
-`Athens → Corinth → Sofiko → The Ranch`.
-
-Public intercity/local service exists; exact 20-Oct connection must be rechecked before booking.
-
-### Return Greece → Spain
-No Ryanair ATH→ALC was found for 29/30 Oct in the checked schedule.
-A direct ATH→ALC alternative was observed around **€179.99** for 29 Oct, but must be rechecked and matched to project departure/transfer timing before purchase.
-
-### Working cash budget
-Gross liquidity estimate for the entire Italy + Greece + Greece chain, including baggage reserve:
+Private next calculation remains:
 
 ```text
-~€660–950 gross cash exposure
-target working liquidity: ~€800
-emergency buffer: +€150–200
+ULTRA LOW COST
+RECOMMENDED
+COMFORTABLE
++ cash advanced
++ expected reimbursable by project
++ non-reimbursable
++ emergency buffer
 ```
-
-This is **cash needed to execute**, not expected final cost.
-
-Potential final personal cost could be much lower if each project accepts the multi-project routing and reimburses its eligible segment, but no cross-project reimbursement allocation is guaranteed yet.
-
-No booking before:
-1. GO decision for LEAD RIGHT;
-2. authoritative T4DT2B participation state;
-3. organiser approval of the relevant itinerary where required;
-4. exact baggage/ticket checkout review.
-
----
 
 ## 5. Engineering / PR graph
 
