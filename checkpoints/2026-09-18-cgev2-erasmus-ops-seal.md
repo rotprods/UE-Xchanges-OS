@@ -108,7 +108,7 @@ Authoritative/current facts:
 User decision:
 - **DO NOT contact Ana again yet.**
 - First finish exact routing, cash-flow budget and reimbursement feasibility.
-- Then Roberto makes GO / NO-GO.
+- Then the applicant makes GO / NO-GO.
 - Only on GO: inspect/capture complete form + infopack, resolve human-owned personal fields, complete applicant-owned motivation, QA, submit through the authorised route, capture receipt, then send the concrete travel proposal if required.
 
 ### P0/P1 — Thrive and Shine — Paphos, Cyprus — 24 Oct–1 Nov 2026
@@ -116,7 +116,7 @@ Application ID: `app-thrive-shine-v1`.
 
 Evidence:
 - Strong Google Forms confirmation exists: submission recorded.
-- New organiser email advanced Roberto to the second stage and invited him to Zoom.
+- New organiser email advanced the applicant to the second stage and invited him to Zoom.
 - A slot was entered in the organiser sheet for **17 Sep 18:30 CET** and a calendar event was created.
 - At this Sep-18 seal, attendance/interview outcome is **NOT VERIFIED** and no newer organiser message was found.
 
@@ -161,7 +161,7 @@ Application ID: `app-step-paralympics-v1`.
 
 Evidence recovered in Gmail:
 - organiser clarified the form remained open and selection process timing;
-- Roberto later stated in-thread that he had submitted the participant application;
+- the applicant later stated in-thread that he had submitted the participant application;
 - organiser reacted/acknowledged the message;
 - no strong Google Form receipt was recovered in this seal.
 
@@ -332,7 +332,7 @@ COMFORTABLE
 + emergency buffer
 ```
 
-Then Roberto chooses:
+Then the applicant chooses:
 - `GO` → form/infopack execution;
 - `NO_GO` → one concise closure to Ana only if needed.
 
@@ -345,7 +345,7 @@ full infopack read
 → exact field map
 → verified factual autofill
 → stop on personal/sensitive unknowns
-→ Roberto-owned motivation/final wording
+→ the applicant-owned motivation/final wording
 → QA
 → submit
 → capture receipt
