@@ -117,7 +117,7 @@ Application ID: `app-thrive-shine-v1`.
 Evidence:
 - Strong Google Forms confirmation exists: submission recorded.
 - New organiser email advanced the applicant to the second stage and invited him to Zoom.
-- A slot was entered in the organiser sheet for **17 Sep 18:30 CET** and a calendar event was created.
+- A second-stage discussion slot was entered in the organiser scheduling sheet and a calendar event was created.
 - At this Sep-18 seal, attendance/interview outcome is **NOT VERIFIED** and no newer organiser message was found.
 
 Required next transition:
