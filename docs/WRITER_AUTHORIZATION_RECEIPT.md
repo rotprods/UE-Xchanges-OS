@@ -16,6 +16,7 @@ capability.
 SESSION_STARTED
 → BOOTSTRAP_CONTEXT_LOADED
 → refresh current main + EventBus + unexpired leases + health
+→ resolve complete applicable global-barrier state at that EventBus watermark
 → authorize_writer(...)
 → WriterAuthorizationDecision(ALLOWED)
 → WRITER_AUTHORIZATION_GRANTED(receipt)
@@ -71,11 +72,36 @@ One receipt binds:
 - pre-lease EventBus watermark
 - pre-lease lease-scan timestamp
 - explicit overlap inventory
+- global-barrier revision SHA-256, EventBus watermark, observation time and active barrier IDs through the decision digest
 - repair-plan ID when applicable
 - issue and expiry timestamps
 
 Changing any bound identity/scope/current-main/health/decision evidence requires a
 new receipt.
+
+## Global barrier binding — bootstrap v1.3
+
+The persisted receipt contract remains `UEX_WRITER_AUTHORIZATION_RECEIPT@1.0.0`;
+historical receipt payloads remain parseable and auditable.
+
+Global-barrier hardening is carried by `WriterAuthorizationDecision`:
+
+- the decision digest includes the applicable barrier revision SHA-256;
+- it includes the barrier EventBus watermark and observation time;
+- it includes applicable active barrier IDs;
+- WriterAuthorization requires the barrier watermark to equal the pre-lease EventBus cut.
+
+The receipt already content-addresses `authorization_decision_digest` and
+`prelease_event_watermark`. Therefore a barrier revision change changes the
+bound decision without adding optional receipt fields.
+
+A later explicit RELEASED revision never revives an old receipt: a fresh
+WriterAuthorization and receipt are required. Immediately before an irreversible
+promotion/provider effect, the active lease is checked against a fresh complete
+barrier snapshot whose relevant revision hash must still equal the original
+authorization.
+
+This closes the issue #96 TOCTOU gap while preserving receipt-v1 compatibility.
 
 ## Why no HMAC/signing key?
 

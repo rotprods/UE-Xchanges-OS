@@ -23,6 +23,7 @@ from uexchanges.bootstrap_guard import (
 from uexchanges.control_plane_health import (
     SessionHealthRecord, evaluate_control_plane_health,
 )
+from uexchanges.global_barrier import resolve_global_barriers
 from uexchanges.writer_authorization import (
     AuthorizationCode, WriteIntent, WriterAuthorizationPolicy, authorize_writer,
 )
@@ -65,6 +66,12 @@ class RealReceiptIntegrationTests(unittest.TestCase):
                        self.session.started_at, self.now, "ACTIVE")],
             leases=[], bootstrap_noncompliant_count=0,
         )
+        self.barrier = resolve_global_barriers(
+            records=(), project_id="UE-Xchanges-OS", context_id="CTX-TEST",
+            intent=WriteIntent.VERSIONED_CODE.value, scope=self.lease.scope,
+            observed_at=self.now, event_watermark=self.prelease.private_event_watermark,
+            source_complete=True,
+        )
         self.decision = self.decide()
         self.receipt = issue_writer_authorization_receipt(
             decision=self.decision, session=self.session, proposed_lease=self.lease,
@@ -75,7 +82,7 @@ class RealReceiptIntegrationTests(unittest.TestCase):
     def decide(self, **changes):
         values = dict(policy=self.policy, session=self.session, ack=self.ack,
                       proposed_lease=self.lease, prelease=self.prelease,
-                      health=self.health, now=self.now)
+                      health=self.health, global_barrier=self.barrier, now=self.now)
         values.update(changes)
         return authorize_writer(**values)
 

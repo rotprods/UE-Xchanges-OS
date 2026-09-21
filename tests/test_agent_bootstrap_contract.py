@@ -32,7 +32,7 @@ class AgentBootstrapContractTests(unittest.TestCase):
     def test_manifest_is_strict_and_requires_bootstrap_writer_auth_and_execution_contract(self):
         manifest = json.loads((ROOT / "agent_context/bootstrap_manifest.json").read_text())
         self.assertEqual(manifest["contract"], "UEX_AGENT_BOOTSTRAP")
-        self.assertEqual(manifest["version"], "1.2.0")
+        self.assertEqual(manifest["version"], "1.3.0")
         self.assertEqual(manifest["authority"], "DERIVED_BOOTSTRAP_ROUTER_ONLY")
         self.assertEqual(manifest["application_execution_contract"], "docs/APPLICATION_EXECUTION_CONTRACT.md")
         rules = manifest["rules"]
@@ -42,6 +42,9 @@ class AgentBootstrapContractTests(unittest.TestCase):
         self.assertEqual(rules["required_ack_event"], "BOOTSTRAP_CONTEXT_LOADED")
         self.assertTrue(rules["must_evaluate_writer_authorization_before_lease"])
         self.assertTrue(rules["must_emit_writer_authorization_receipt_before_lease"])
+        self.assertTrue(rules["must_resolve_global_barriers_before_writer_authorization"])
+        self.assertTrue(rules["must_recheck_global_barrier_before_lease_acquisition"])
+        self.assertTrue(rules["must_recheck_global_barrier_before_irreversible_effect"])
         self.assertEqual(rules["required_writer_authorization_event"], "WRITER_AUTHORIZATION_GRANTED")
         self.assertEqual(rules["writer_authorization_receipt_version"], "1.0.0")
         self.assertTrue(rules["external_side_effects_require_separate_capability"])
@@ -52,6 +55,7 @@ class AgentBootstrapContractTests(unittest.TestCase):
         self.assertIn("agent_context/context.md", manifest["required_public_reads"])
         self.assertIn("docs/WRITER_AUTHORIZATION_RECEIPT.md", manifest["required_public_reads"])
         self.assertIn("Drive:Work_Leases:UNEXPIRED_ONLY", manifest["required_private_reads"])
+        self.assertIn("Drive:Agent_Inbox:GLOBAL_BARRIER_STATE", manifest["required_private_reads"])
         self.assertIn("health_report_sha256", manifest["writer_authorization_receipt_required_fields"])
         self.assertIn("scope_sha256", manifest["writer_authorization_receipt_required_fields"])
         self.assertIn("authorization_receipt_id", manifest["lease_acquired_required_authorization_refs"])
@@ -63,6 +67,10 @@ class AgentBootstrapContractTests(unittest.TestCase):
         )
         self.assertLess(
             sequence.index("EVALUATE_CONTROL_PLANE_HEALTH"),
+            sequence.index("RESOLVE_GLOBAL_BARRIERS"),
+        )
+        self.assertLess(
+            sequence.index("RESOLVE_GLOBAL_BARRIERS"),
             sequence.index("EVALUATE_WRITER_AUTHORIZATION"),
         )
         self.assertLess(
@@ -72,6 +80,14 @@ class AgentBootstrapContractTests(unittest.TestCase):
         self.assertLess(
             sequence.index("EMIT_WRITER_AUTHORIZATION_GRANTED"),
             sequence.index("ACQUIRE_SMALLEST_SAFE_LEASE"),
+        )
+        self.assertLess(
+            sequence.index("ACQUIRE_SMALLEST_SAFE_LEASE"),
+            sequence.index("RECHECK_GLOBAL_BARRIER"),
+        )
+        self.assertLess(
+            sequence.index("RECHECK_GLOBAL_BARRIER"),
+            sequence.index("EXECUTE_BOUNDED_TRANSITION"),
         )
 
     def test_manifest_migration_is_nonretroactive_and_external_side_effects_stay_separate(self):
@@ -89,6 +105,8 @@ class AgentBootstrapContractTests(unittest.TestCase):
         self.assertIn("treat_writer_authorization_receipt_as_domain_authority", shortcuts)
         self.assertIn("treat_writer_authorization_receipt_as_external_capability", shortcuts)
         self.assertIn("choose_nonblocking_architecture_over_safe_live_application_execution", shortcuts)
+        self.assertIn("acquire_write_lease_without_complete_fresh_global_barrier_snapshot", shortcuts)
+        self.assertIn("execute_irreversible_effect_without_fresh_global_barrier_recheck", shortcuts)
 
     def test_agents_enforces_manifest_memory_and_handshake(self):
         agents = (ROOT / "AGENTS.md").read_text()
@@ -101,6 +119,7 @@ class AgentBootstrapContractTests(unittest.TestCase):
             "Unregistered sessions are read-only",
             "Safe live application execution outranks non-blocking architecture",
             "5 days / 120 hours",
+            "global barrier",
         ]:
             self.assertIn(marker, agents)
 
@@ -196,6 +215,7 @@ class AgentBootstrapContractTests(unittest.TestCase):
             "external_capability",
             "non-retroactive",
             "CI cannot prove a remote agent actually read a file",
+            "global barrier",
         ]:
             self.assertIn(marker, protocol)
 
