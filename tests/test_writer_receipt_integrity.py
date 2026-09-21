@@ -15,6 +15,7 @@ from uexchanges.bootstrap_guard import (
     SessionSnapshot,
 )
 from uexchanges.control_plane_health import SessionHealthRecord, evaluate_control_plane_health
+from uexchanges.global_barrier import resolve_global_barriers
 from uexchanges.writer_authorization import WriterAuthorizationPolicy, authorize_writer
 from uexchanges.writer_authorization_receipt import issue_writer_authorization_receipt
 from uexchanges.writer_receipt_gate import (
@@ -91,6 +92,16 @@ class WriterReceiptIntegrityTests(unittest.TestCase):
             leases=[],
             bootstrap_noncompliant_count=0,
         )
+        self.barrier = resolve_global_barriers(
+            records=(),
+            project_id="UE-Xchanges-OS",
+            context_id="CTX-INTEGRITY",
+            intent="VERSIONED_CODE",
+            scope=self.lease.scope,
+            observed_at=self.now,
+            event_watermark=self.prelease.private_event_watermark,
+            source_complete=True,
+        )
         self.decision = authorize_writer(
             policy=self.policy,
             session=self.session,
@@ -100,6 +111,7 @@ class WriterReceiptIntegrityTests(unittest.TestCase):
             health=self.health,
             now=self.now,
             overlapping_unexpired_lease_ids=(),
+            global_barrier=self.barrier,
         )
         self.receipt = issue_writer_authorization_receipt(
             decision=self.decision,
@@ -148,6 +160,7 @@ class WriterReceiptIntegrityTests(unittest.TestCase):
             proposed_lease=self.lease,
             prelease=self.prelease,
             health=self.health,
+            global_barrier=self.barrier,
             now=self.now,
             overlapping_unexpired_lease_ids=(),
         )
@@ -172,6 +185,7 @@ class WriterReceiptIntegrityTests(unittest.TestCase):
             proposed_lease=self.lease,
             prelease=self.prelease,
             health=self.health,
+            global_barrier=self.barrier,
             now=self.now,
             overlapping_unexpired_lease_ids=(),
         )
@@ -190,6 +204,7 @@ class WriterReceiptIntegrityTests(unittest.TestCase):
                 lease=self.lease,
                 prelease=self.prelease,
                 health=self.health,
+                global_barrier=self.barrier,
                 now=self.now + timedelta(seconds=1),
                 overlapping_unexpired_lease_ids=(),
             )
