@@ -16,6 +16,7 @@ capability.
 SESSION_STARTED
 → BOOTSTRAP_CONTEXT_LOADED
 → refresh current main + EventBus + unexpired leases + health
+→ resolve complete applicable global-barrier state at that EventBus watermark
 → authorize_writer(...)
 → WriterAuthorizationDecision(ALLOWED)
 → WRITER_AUTHORIZATION_GRANTED(receipt)
