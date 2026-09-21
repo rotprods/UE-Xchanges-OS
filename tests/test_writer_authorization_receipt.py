@@ -16,6 +16,7 @@ from uexchanges.control_plane_health import (
     OverallHealth,
     SloResult,
 )
+from uexchanges.global_barrier import resolve_global_barriers
 from uexchanges.writer_authorization import (
     WriterAuthorizationPolicy,
     WriteIntent,
@@ -95,6 +96,19 @@ def health(*, generated_at=None, metrics=None):
     )
 
 
+def barrier(*, intent=WriteIntent.VERSIONED_CODE):
+    return resolve_global_barriers(
+        records=(),
+        project_id="UE-Xchanges-OS",
+        context_id=CONTEXT,
+        intent=intent.value,
+        scope=SCOPE,
+        observed_at=BASE + timedelta(seconds=20),
+        event_watermark=prelease().private_event_watermark,
+        source_complete=True,
+    )
+
+
 def decision(*, intent=WriteIntent.VERSIONED_CODE, overlaps=()):
     return authorize_writer(
         policy=WriterAuthorizationPolicy(
@@ -114,6 +128,7 @@ def decision(*, intent=WriteIntent.VERSIONED_CODE, overlaps=()):
         now=BASE + timedelta(seconds=20),
         overlapping_unexpired_lease_ids=overlaps,
         intent=intent,
+        global_barrier=barrier(intent=intent),
     )
 
 
