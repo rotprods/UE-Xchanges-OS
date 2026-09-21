@@ -35,6 +35,8 @@ When memory conflicts with newer evidence, newer authority wins:
 - Do not send preliminary route-query emails when a complete authorised candidature can already be sent.
 - Ordinary silence is not urgency. Default no-reply follow-up is 5 days / 120 hours, except real deadline/bounce/provider-requested action.
 - Do not repeatedly ask organisers questions already answered in correspondence, infopack or authoritative source.
+- **INFOPACK-FIRST** is durable: read original infopack → current call → current form → official organiser/partner source → existing thread before turning any logistics/funding/profile/route question into organiser outreach.
+- **INBOUND_ACTION_FIRST** is durable: when a provider asks for a concrete authorised action, execute/classify that action before sending a courtesy reply; an inbound action request is not automatically an email-response task.
 - External communication stays project-specific, concise, professional and natural. Internal tooling/orchestration language is not recipient-facing content.
 - Every substantive Erasmus+/youth-project email carries the canonical Erasmus signature exactly once; private identity payload stays private.
 - Photography, filmmaking, VFX and content creation are legitimate optional contributions when relevant, subject to consent/privacy/safeguarding; credit/tagging may be agreed without becoming a participation condition.
@@ -138,6 +140,8 @@ Use:
 11. **Provider session != agent authority** — login is mistaken for PREFILL/Submit capability.
 12. **Volatile facts in stable docs** — counts/frontiers rot and redirect new agents into historical work.
 13. **Semantic architecture dominates work selection** — durable recovery work becomes a default frontier even when live application work is safely executable.
+14. **Infopack bypass** — organisers are asked to restate published dates/funding/logistics/profile facts instead of the system reading authoritative material first.
+15. **Inbound-action inversion** — a courtesy reply is drafted while the provider-requested form/slot/upload remains undone.
 
 ## Memory write policy
 
