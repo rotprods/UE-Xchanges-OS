@@ -148,6 +148,44 @@ class GlobalBarrierTests(unittest.TestCase):
         again = snapshot(tuple(reversed((record("BAR-Z"), record("BAR-A")))))
         self.assertEqual(item.revision_sha256, again.revision_sha256)
 
+    def test_release_cannot_change_barrier_targeting_semantics(self):
+        global_active = record(revision=1, state=BarrierState.ACTIVE)
+        changed_release = replace(
+            global_active,
+            revision=2,
+            event_id="EVT-BAR-2-RELEASED",
+            state=BarrierState.RELEASED,
+            scope_sha256=scope_sha256("github:other"),
+        )
+        item = snapshot((global_active, changed_release))
+        self.assertEqual(item.conflict_barrier_ids, ("BAR-C0",))
+        result = evaluate_global_barrier(
+            item,
+            project_id=PROJECT,
+            context_id=CONTEXT,
+            intent=INTENT,
+            scope=SCOPE,
+            now=NOW,
+            max_age_seconds=120,
+        )
+        self.assertEqual(result.codes, (BarrierCheckCode.UNKNOWN,))
+
+    def test_future_release_cannot_clear_current_active_barrier(self):
+        active = record(revision=1, state=BarrierState.ACTIVE)
+        future_release = replace(
+            active,
+            revision=2,
+            event_id="EVT-BAR-2-FUTURE",
+            state=BarrierState.RELEASED,
+            updated_at=NOW + timedelta(seconds=1),
+        )
+        item = snapshot((active, future_release))
+        self.assertEqual(item.conflict_barrier_ids, ("BAR-C0",))
+
+    def test_unknown_intent_is_rejected_at_record_boundary(self):
+        with self.assertRaisesRegex(ValueError, "unknown write intent"):
+            record(intents=("VERSION_CODE_TYPO",))
+
     def test_stale_snapshot_fails_closed(self):
         item = snapshot(observed_at=NOW - timedelta(seconds=121))
         result = evaluate_global_barrier(
