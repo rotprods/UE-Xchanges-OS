@@ -108,11 +108,24 @@ Use the lowest-friction authorised route:
 
 Do not send route-query emails merely because a complete email candidature is already accepted.
 
+### INFOPACK-FIRST / SOURCE-FIRST preflight
+
+Before any organiser question about dates, funding, accommodation, meals, travel limits, participant profile, programme, application route or logistics, execute this ordered read chain:
+
+`ORIGINAL INFOPACK → CURRENT CALL → CURRENT FORM → OFFICIAL ORGANISER/PARTNER SOURCE → EXISTING THREAD → UNRESOLVED MATERIAL BLOCKER ONLY`.
+
+A question that can be answered from those sources is `REDUNDANT_SOURCE_RESOLVABLE` and must not be sent.
+
+### INBOUND_ACTION_FIRST
+
+When an organiser/provider sends a concrete requested action — for example “fill this form”, “choose a slot”, “upload this document”, or “confirm availability” — classify and execute that authorised action before sending a courtesy reply. Reply only when the reply itself is required, a blocker must be resolved, or the provider explicitly asks for one.
+
+
 Outbound communication must be concise, project-specific, professional and natural. Do not expose internal orchestration/tooling (`agent`, `RuntimeGraph`, `TinyFish`, leases, semantic brain, internal gates) unless genuinely relevant. Do not ask about AI/tooling by default; obey the published/explicit application policy and answer truthfully if directly asked.
 
 Ordinary no-reply follow-up SLA is **5 days / 120 hours**, with earlier action only for real deadline pressure, bounce or provider-requested action. One concise follow-up is the default maximum unless new evidence warrants more.
 
-Every substantive Erasmus+/youth-project email must contain the canonical Erasmus signature **exactly once**. The renderer may use a public template plus private identity payload; private applicant data must not be published merely to satisfy the signature gate.
+Every substantive Erasmus+/youth-project email must contain the canonical Erasmus signature **exactly once**. The renderer may use a public template plus private identity payload; private applicant data must not be published merely to satisfy the signature gate. If a privacy-safe renderer/template is not present on current `main`, outbound email is **blocked**; never reach into an unmerged PR or publish private identity/contact payload merely to satisfy the signature rule.
 
 ## 8. Application gates and profile truth
 
