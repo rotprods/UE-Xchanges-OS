@@ -172,6 +172,7 @@ class WriterReceiptIntegrityTests(unittest.TestCase):
             lease=self.lease,
             prelease=self.prelease,
             health=self.health,
+            global_barrier=self.barrier,
             now=self.now + timedelta(seconds=1),
             overlapping_unexpired_lease_ids=(),
         )
