@@ -1,10 +1,8 @@
 """Pure integration boundary for exact writer authorization receipts.
 
-This module composes the existing broker, issuer, shape guard, content-integrity
-check and full verifier. It performs no provider writes and supplies no lock or
-external capability. Callers must persist the receipt before acquiring the exact
-lease through their own concurrency-safe provider adapter. A shape-valid receipt
-alone is insufficient.
+This module composes the bootstrap/health broker, global-barrier gate, receipt
+issuer, shape/integrity checks and full verifier. It performs no provider writes
+and supplies no lock or external capability.
 """
 from __future__ import annotations
 
@@ -14,6 +12,7 @@ from typing import Sequence
 
 from .bootstrap_guard import BootstrapAckSnapshot, LeaseSnapshot, PreLeaseRefresh, SessionSnapshot
 from .control_plane_health import ControlPlaneHealthReport
+from .global_barrier import GlobalBarrierSnapshot, evaluate_global_barrier
 from .writer_authorization import (
     WriteIntent,
     WriterAuthorizationDecision,
@@ -46,16 +45,12 @@ class PreparedWriterAuthorization:
     verification: ReceiptVerification
 
     def authorization_event_payload(self) -> dict[str, object]:
-        """Return the canonical payload, not an envelope with extra metadata."""
-
         payload = self.receipt.event_payload()
         require_valid_receipt_payload(payload)
         require_receipt_integrity(self.receipt, decision=self.decision)
         return payload
 
     def acquisition_event_refs(self) -> dict[str, str]:
-        """References only: caller must not claim acquisition until it occurred."""
-
         return {
             "authorization_receipt_id": self.receipt.receipt_id,
             "authorization_decision_digest": self.decision.decision_digest,
@@ -74,6 +69,18 @@ def _integrity_or_denied(
         raise WriterPreparationDenied(tuple(code.value for code in exc.codes)) from exc
 
 
+def _require_same_barrier_revision(
+    prepared: PreparedWriterAuthorization,
+    current_barrier: GlobalBarrierSnapshot,
+) -> None:
+    decision = prepared.decision
+    if (
+        decision.global_barrier_revision_sha256 is None
+        or current_barrier.revision_sha256 != decision.global_barrier_revision_sha256
+    ):
+        raise WriterPreparationDenied(("GLOBAL_BARRIER_CHANGED",))
+
+
 def prepare_writer_authorization(
     *,
     policy: WriterAuthorizationPolicy,
@@ -82,18 +89,14 @@ def prepare_writer_authorization(
     proposed_lease: LeaseSnapshot,
     prelease: PreLeaseRefresh,
     health: ControlPlaneHealthReport,
+    global_barrier: GlobalBarrierSnapshot,
     now: datetime,
     overlapping_unexpired_lease_ids: Sequence[str],
     intent: WriteIntent = WriteIntent.VERSIONED_CODE,
     repair_plan_id: str | None = None,
     ttl_seconds: int = DEFAULT_RECEIPT_TTL_SECONDS,
 ) -> PreparedWriterAuthorization:
-    """Evaluate and serialize a new receipt; never accept a caller's ALLOWED flag.
-
-    The explicitly supplied overlap inventory is mandatory even when empty.
-    Health and snapshots must come from the caller's fresh authoritative reads.
-    This function cannot itself establish that those reads were truthful.
-    """
+    """Evaluate and serialize a new receipt from complete fresh evidence."""
 
     decision = authorize_writer(
         policy=policy,
@@ -102,6 +105,7 @@ def prepare_writer_authorization(
         proposed_lease=proposed_lease,
         prelease=prelease,
         health=health,
+        global_barrier=global_barrier,
         now=now,
         overlapping_unexpired_lease_ids=overlapping_unexpired_lease_ids,
         intent=intent,
@@ -146,21 +150,15 @@ def verify_prepared_acquisition(
     lease: LeaseSnapshot,
     prelease: PreLeaseRefresh,
     health: ControlPlaneHealthReport,
+    global_barrier: GlobalBarrierSnapshot,
     now: datetime,
     overlapping_unexpired_lease_ids: Sequence[str],
 ) -> ReceiptVerification:
-    """Re-evaluate at an acquisition boundary without granting any lease.
+    """Re-evaluate immediately before exact lease acquisition.
 
-    The fresh broker decision proves the writer is still coordination-eligible.
-    The persisted receipt remains bound to the *original* decision that issued it;
-    using the freshly evaluated decision for receipt verification would silently
-    discard the original ``authorization_evaluated_at`` binding because the v1
-    decision digest intentionally does not contain that timestamp.
-
-    Changing receipt-bound refresh/health/scope/main/intent evidence therefore
-    requires a new preparation. Expired issuance windows are never extended
-    silently. This check is not an atomic compare-and-set and cannot remove TOCTOU
-    races in the provider adapter.
+    Any global-barrier change after receipt issuance invalidates the old
+    authorization, including a release event. A newly clear state requires a
+    fresh decision/receipt rather than reviving the old one.
     """
 
     if not isinstance(now, datetime) or now.tzinfo is None or now.utcoffset() is None:
@@ -179,6 +177,7 @@ def verify_prepared_acquisition(
         proposed_lease=lease,
         prelease=prelease,
         health=health,
+        global_barrier=global_barrier,
         now=now,
         overlapping_unexpired_lease_ids=overlapping_unexpired_lease_ids,
         intent=prepared.decision.intent,
@@ -186,6 +185,7 @@ def verify_prepared_acquisition(
     )
     if not current.coordination_allowed:
         raise WriterPreparationDenied(tuple(code.value for code in current.codes))
+    _require_same_barrier_revision(prepared, global_barrier)
 
     require_valid_receipt_payload(prepared.receipt.event_payload())
     _integrity_or_denied(prepared.receipt, decision=prepared.decision)
@@ -202,3 +202,47 @@ def verify_prepared_acquisition(
     if not verification.allowed:
         raise WriterPreparationDenied(tuple(code.value for code in verification.codes))
     return verification
+
+
+def verify_prepared_effect_boundary(
+    *,
+    prepared: PreparedWriterAuthorization,
+    policy: WriterAuthorizationPolicy,
+    lease: LeaseSnapshot,
+    global_barrier: GlobalBarrierSnapshot,
+    now: datetime,
+) -> None:
+    """Re-check the hard global barrier immediately before an irreversible effect.
+
+    The short receipt TTL is intentionally not stretched to the lease lifetime.
+    This boundary instead requires an unexpired exact lease plus a complete,
+    current, exact-scope barrier snapshot whose relevant revision is unchanged
+    from the original WriterAuthorization decision.
+
+    Provider/email/form/payment capabilities remain separate.
+    """
+
+    if not isinstance(now, datetime) or now.tzinfo is None or now.utcoffset() is None:
+        raise WriterPreparationDenied(("TIMEZONE_REQUIRED",))
+    if lease.status != "ACTIVE" or lease.expires_at <= now:
+        raise WriterPreparationDenied(("LEASE_NOT_ACTIVE",))
+    if (
+        lease.lease_id != prepared.receipt.proposed_lease_id
+        or lease.owner_session_id != prepared.receipt.session_id
+        or lease.owner_agent_id != prepared.receipt.agent_id
+        or lease.context_id != prepared.receipt.context_id
+    ):
+        raise WriterPreparationDenied(("LEASE_IDENTITY_MISMATCH",))
+
+    check = evaluate_global_barrier(
+        global_barrier,
+        project_id=policy.project_id,
+        context_id=lease.context_id,
+        intent=prepared.decision.intent.value,
+        scope=lease.scope,
+        now=now,
+        max_age_seconds=policy.max_global_barrier_age_seconds,
+    )
+    if not check.allowed:
+        raise WriterPreparationDenied(("GLOBAL_BARRIER_" + check.primary_code.value,))
+    _require_same_barrier_revision(prepared, global_barrier)
