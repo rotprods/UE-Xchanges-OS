@@ -70,14 +70,18 @@ Before **any canonical or versioned write**, a new writer must:
 3. register a new unique Session ID and emit `SESSION_STARTED`;
 4. emit `BOOTSTRAP_CONTEXT_LOADED` with manifest version, main SHA, context, public read refs/hash, event watermark, lease-scan time, agent and session IDs;
 5. refresh current main, Event Bus and unexpired leases immediately before mutation;
-6. evaluate bounded control-plane health and WriterAuthorization;
-7. persist `WRITER_AUTHORIZATION_GRANTED` receipt;
-8. acquire the exact smallest safe lease named by that receipt;
-9. mutate only inside that scope, read back, emit evidence and release the lease.
+6. resolve the complete applicable global barrier state through that Event Bus watermark; missing, stale, conflicting or ACTIVE barrier authority fails closed;
+7. evaluate bounded control-plane health and WriterAuthorization;
+8. persist `WRITER_AUTHORIZATION_GRANTED` receipt;
+9. recheck the same barrier revision and acquire the exact smallest safe lease named by that receipt;
+10. immediately before any irreversible promotion/provider effect, recheck a fresh global barrier snapshot; a changed revision invalidates the old authorization;
+11. mutate only inside that scope, read back, emit evidence and release the lease.
 
 Unregistered sessions are read-only. A registered session without completed bootstrap is read-only. Never reuse historical Session IDs, WAZ receipts or leases for new writes.
 
 WriterAuthorization is coordination permission only: it never implies domain authority, browser credentials, form Submit capability, email-send permission, payment authority or authentication authority.
+
+A global barrier outranks a clean branch-specific lease scan. Barrier release must be an explicit durable revision; silence, a missing row or an unrelated no-overlap result never clears a freeze.
 
 ## 6. Sessions, leases, events and idempotency
 
