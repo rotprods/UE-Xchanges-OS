@@ -21,6 +21,14 @@ from typing import Sequence
 
 _SHA64 = re.compile(r"^[0-9a-f]{64}$")
 _ALL_INTENTS = "*"
+_VALID_INTENTS = {
+    _ALL_INTENTS,
+    "VERSIONED_CODE",
+    "CONTROL_PLANE_REPAIR",
+    "DERIVED_PROJECTION",
+    "CANONICAL_DOMAIN",
+    "EXTERNAL_SIDE_EFFECT",
+}
 
 
 def _aware(value: datetime, field: str) -> datetime:
@@ -85,6 +93,8 @@ class BarrierRecord:
             raise ValueError("blocked_intents must contain non-empty strings")
         if tuple(sorted(set(self.blocked_intents))) != self.blocked_intents:
             raise ValueError("blocked_intents must be sorted and unique")
+        if any(value not in _VALID_INTENTS for value in self.blocked_intents):
+            raise ValueError("blocked_intents contains an unknown write intent")
         if self.scope_sha256 is not None and not _SHA64.fullmatch(self.scope_sha256):
             raise ValueError("scope_sha256 must be 64 lowercase hex chars")
 
@@ -205,6 +215,18 @@ def resolve_global_barriers(
     latest: list[BarrierRecord] = []
     conflicts: list[str] = []
     for barrier_id, rows in grouped.items():
+        # A barrier identity has immutable targeting semantics. A later RELEASED
+        # revision may change only lifecycle state/evidence, never the scope or
+        # intent set it is releasing.
+        targets = {(row.blocked_intents, row.scope_sha256) for row in rows}
+        if len(targets) != 1:
+            conflicts.append(barrier_id)
+            continue
+        # Future-dated revisions cannot authorise current execution or release
+        # an already-active barrier early.
+        if any(row.updated_at > observed_at for row in rows):
+            conflicts.append(barrier_id)
+            continue
         max_revision = max(row.revision for row in rows)
         candidates = [row for row in rows if row.revision == max_revision]
         canonical = {_sha256(row.canonical()) for row in candidates}
