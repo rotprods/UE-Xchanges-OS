@@ -14,8 +14,8 @@ from uexchanges.writer_receipt_gate import (
 class WriterGateTests(unittest.TestCase):
     def setUp(self):
         fixture=integration.RealReceiptIntegrationTests();fixture.setUp()
-        self.values={name:getattr(fixture,name) for name in ('policy','session','ack','prelease','health','barrier','now')}
-        self.values.update(proposed_lease=fixture.lease,overlapping_unexpired_lease_ids=())
+        self.values={name:getattr(fixture,name) for name in ('policy','session','ack','prelease','health','now')}
+        self.values.update(proposed_lease=fixture.lease,global_barrier=fixture.barrier,overlapping_unexpired_lease_ids=())
         self.prepared=prepare_writer_authorization(**self.values)
 
     def acquire(self, **changes):
