@@ -1,109 +1,51 @@
 {
-  "schema_version": "1.2.0",
+  "schema_version": "1.3.0",
   "project": "UE-Xchanges-OS",
-  "status": "ACTIVE_RECOVERY_OVERLAY",
-  "generated_at": "2026-09-10T14:46:00+02:00",
-  "expires_at": "2026-09-12T18:00:00+02:00",
+  "status": "CURRENT_RECOVERY_OVERLAY",
+  "generated_at": "2026-09-21T21:59:00+02:00",
+  "expires_at": "2026-09-23T23:59:00+02:00",
   "context_id": "CTX-UEX-GLOBAL-EXPANSION-INCOME-V1",
-  "purpose": "Bounded public zero-context recovery overlay for the RG2.2 Scheduled Tasks reliability/promotion state. It intentionally does not restate stale domain counts or frontier membership.",
+  "purpose": "Bounded public recovery overlay for the 2026-09-21 portfolio-convergence state. It intentionally excludes applicant-private values and volatile per-application answers.",
   "authority": {
     "precedence": [
-      "current official source / authorised form / organiser confirmation / authoritative receipt",
+      "current official/provider/form/organiser/contract/receipt evidence",
       "private Drive CRM + Agent_Event_Bus",
-      "current GitHub policy/code/contracts and this bounded recovery overlay",
+      "current GitHub policy/code/contracts and current checkpoint",
       "RuntimeGraph derived state",
-      "COS/Notion/Todoist/other reconstructible projections",
+      "other reconstructible projections",
       "chat memory"
     ],
-    "private_crm_id": "1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU",
-    "runtimegraph_command_center_id": "1OtSLFI4VHW6aSne1YjtRykRsN4j4G4OcEGSCXVDLwbM",
-    "baseline_main_sha": "349f63f2109e40ab6cba960c7311456a5d7ae906",
-    "private_event_watermark_lower_bound": "EVT-20260910T132147-CPR14-008",
-    "rule": "Refresh current main and private EventBus before any operation; this overlay is derived recovery state only."
+    "baseline_main_sha": "c0c31fed602a1ad774a7c6416a4abd7e09d26dde",
+    "bootstrap_manifest_version": "1.3.0",
+    "rule": "Refresh current main, EventBus, Work_Leases, Agent_Inbox/global barriers and provider evidence before any mutation."
   },
-  "reliability": {
-    "pr67_writer_receipt_integrity": "RELEASED_IN_LINEAGE",
-    "pr68_active_read_only_health": "RELEASED_IN_LINEAGE",
-    "pr69_bounded_normal_writer_health": "RELEASED_ON_BASELINE_MAIN",
-    "native_scheduler_dispatch_probe": "PASS",
-    "scheduler_control_plane_canary_v3": "PASS_COORDINATION_LIFECYCLE_ONLY",
-    "scheduled_rg22_production_path": "NOT_YET_CERTIFIED",
-    "uex_runtime_dispatcher_recurring": "DISABLED",
-    "historical_hygiene_evaluated_by_normal_writer_health": false,
-    "next_milestone": "SCHEDULER_PRODUCTION_CANARY_PASS_1"
+  "convergence": {
+    "master_plan": "plans/2026-09-21-portfolio-convergence-master.md",
+    "checkpoint": "checkpoints/2026-09-21-portfolio-convergence-seal.md",
+    "global_barrier_issue_96": "PROMOTED_ON_BASELINE_MAIN",
+    "provider_p0_canonical_reconciliation": "COMPLETED_WITH_READBACK",
+    "private_execution_packets": "ELBA_AND_STORY2SPEAK_PRESENT",
+    "session_cross_row_repair": "COMPLETED_WITH_READBACK"
   },
-  "terminal_canary_history": [
-    {
-      "session_id": "SES-UEX-AUTO-20260910T010530-RG22-PCV3-001",
-      "status": "FAILED",
-      "reconciled_by": "CPR13",
-      "own_rg22_lease_observed": false
-    },
-    {
-      "session_id": "SES-UEX-AUTO-20260910T113308-RG22-SCA-001",
-      "status": "FAILED",
-      "reconciled_by": "CPR13",
-      "reason": "STAGED_BOOTSTRAP_HANDOFF_EXPIRED_UNCONSUMED",
-      "writer_authorization_or_lease_observed": false
-    },
-    {
-      "session_id": "SES-UEX-AUTO-20260910T115630-RG22-PCV4-001",
-      "status": "FAILED",
-      "reconciled_by": "CPR14",
-      "repair_plan_id": "RPL-d21dbdcfd1227f0e",
-      "own_rg22_lease_observed": false,
-      "source_or_runtimegraph_mutation_observed": false
-    }
+  "runtimegraph": {
+    "status": "STALE_VS_EVENTBUS",
+    "rule": "Do not use RuntimeGraph/Human_Now/Agent_Next as current authority until a full deterministic rebuild after canonical reconciliation."
+  },
+  "execution": {
+    "priority": "PROVIDER_REQUESTED_ACTION_FIRST",
+    "infopack_first": true,
+    "inbound_action_first": true,
+    "apply_everything_viable": true,
+    "external_action_wip_per_application": 1
+  },
+  "prohibitions": [
+    "fabricated applicant/profile/sensitive facts",
+    "false organisation affiliation",
+    "blind resend after unknown provider outcome",
+    "ticket purchase before required written travel approval",
+    "submission/selection promotion without provider evidence",
+    "generic-agent auth/payment/OTP/MFA/CAPTCHA",
+    "historical frontier treated as current without live reconciliation"
   ],
-  "coordination_caveat": {
-    "session_id": "SES-UEX-CHATGPT-20260910T131121-CPR14",
-    "agent_sessions_observation": "COMPLETED_AT_2026-09-10T13:23:16+02:00",
-    "eventbus_lower_bound_observation": "EVT-20260910T132147-CPR14-008_LEASE_RELEASED",
-    "required_next_check": "SEARCH_EVENTBUS_AFTER_LOWER_BOUND_FOR_CPR14_SESSION_COMPLETED; IF_ABSENT_PRESERVE_DIVERGENCE_AND_USE_RPL"
-  },
-  "runtimegraph_canary_budget": {
-    "adapter_slices_per_activation_max": 1,
-    "source_candidates_per_activation_max": 5,
-    "exact_subgraphs_per_activation_max": 2,
-    "delivery": "AT_LEAST_ONCE_PLUS_DETERMINISTIC_IDEMPOTENCY",
-    "same_transient_strategy_retry_max": 3,
-    "cursor_policy": "MONOTONIC_WITH_CONTINUATION_BOUNDARY",
-    "poison_unroutable": "DEAD_LETTERS",
-    "closure_budget_fraction": 0.4
-  },
-  "authority_boundaries": {
-    "cgev2": "CONTINUITY_CONTROL_PROVENANCE_RECONCILIATION",
-    "cos": "SEMANTIC_RETRIEVAL_AND_20D_TOPOLOGY_ONLY",
-    "runtimegraph": "EXACT_ID_DETERMINISTIC_DERIVED_EXECUTION_PROJECTION",
-    "cos_or_fuzzy_similarity_can_authorize_mutation": false,
-    "rg22_can_execute_agent_next": false,
-    "gmail_message_is_receipt": false,
-    "writer_authorization_receipt_is_domain_authority": false,
-    "writer_authorization_receipt_is_external_capability": false
-  },
-  "domain_state": {
-    "status": "NOT_REFRESHED_IN_THIS_SEAL",
-    "rule": "Do not use 2026-09-02 opportunity/application/frontier/deadline counts as current. Reconstruct from private Drive + RuntimeGraph + provider evidence."
-  },
-  "absolute_prohibitions": [
-    "payment",
-    "generic-agent authentication/MFA/CAPTCHA handling",
-    "credentials/OTP/cookies export or use",
-    "external PREFILL certification by inference",
-    "irreversible Submit",
-    "Agent_Next execution by RG2.2",
-    "fuzzy/title/embedding state-changing routing",
-    "fabricated historical COMPLETED status"
-  ],
-  "recovery": {
-    "state": "STATE.md",
-    "handoff": "HANDOFF.md",
-    "checkpoint": "checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md",
-    "next": "agent_context/NEXT.md",
-    "consciousness_act": "agent_context/CONSCIOUSNESS_ACT.md",
-    "regression": "agent_context/REGRESSION.md",
-    "learnings": "agent_context/LEARNINGS.md",
-    "cgev2_cos": "agent_context/CGEV2_COS.md"
-  },
-  "retirement_rule": "Replace or expire this overlay after a newer evidence-backed checkpoint materially changes scheduler promotion state or domain recovery state."
+  "retirement_rule": "Replace or expire after the next material provider/application/control-plane transition; never extend by editing the timestamp alone."
 }
