@@ -93,12 +93,14 @@ Immediately before a write lease is acquired:
 3. refresh Event Bus tail;
 4. produce/refresh a current `ControlPlaneHealthReport`;
 5. inventory explicit overlapping unexpired lease IDs for the proposed scope;
-6. construct the exact proposed lease identity/scope/intent;
-7. run generic `authorize_writer(...)`;
-8. if the decision is denied, remain read-only and do not acquire the lease;
-9. if allowed, issue one `UEX_WRITER_AUTHORIZATION_RECEIPT@1.0.0` bound to that exact proposal;
-10. append `WRITER_AUTHORIZATION_GRANTED` with the receipt payload;
-11. only then create/acquire the lease row/event.
+6. resolve a complete applicable global-barrier snapshot through the same pre-lease Event Bus watermark;
+7. construct the exact proposed lease identity/scope/intent;
+8. run generic `authorize_writer(...)`;
+9. if the decision is denied, remain read-only and do not acquire the lease;
+10. if allowed, issue one `UEX_WRITER_AUTHORIZATION_RECEIPT@1.0.0` bound to that exact proposal and barrier-bound decision digest;
+11. append `WRITER_AUTHORIZATION_GRANTED` with the receipt payload;
+12. immediately before acquisition, refresh/recheck the same barrier revision; only then create/acquire the lease row/event;
+13. immediately before an irreversible promotion/provider effect, resolve a fresh barrier snapshot and require the relevant revision to remain unchanged and clear.
 
 The subsequent `LEASE_ACQUIRED` evidence must reference:
 
@@ -115,13 +117,28 @@ SESSION_STARTED
 → BOOTSTRAP_CONTEXT_LOADED
 → PRELEASE REFRESH
 → CONTROL-PLANE HEALTH
+→ COMPLETE GLOBAL BARRIER SNAPSHOT
 → WriterAuthorization(ALLOWED)
 → WRITER_AUTHORIZATION_GRANTED
+→ GLOBAL BARRIER RECHECK
 → LEASE_ACQUIRED
-→ bounded write
+→ GLOBAL BARRIER RECHECK
+→ bounded write / irreversible effect
 ```
 
 A receipt is one proposed lease only. Changing lease ID, session, agent, context, main SHA, scope, intent, health snapshot or decision requires a new authorization/receipt.
+
+## Global barrier law
+
+A global barrier is higher-level coordination authority for a project/context mutation class. It outranks a clean branch-specific overlap scan.
+
+The adapter must resolve complete barrier history through the exact pre-lease Event Bus watermark. The pure resolver uses explicit durable revisions: an ACTIVE barrier remains active until a higher revision for the same barrier ID explicitly records RELEASED. Absence, silence, a partial query, a missing Inbox row or a zero-overlap lease scan is never release evidence.
+
+The barrier snapshot is bound into `WriterAuthorizationDecision.decision_digest` by revision hash, observed watermark/time and active barrier IDs. The existing receipt v1.0 already content-addresses that decision digest and the pre-lease Event Bus watermark, so no receipt-schema migration is required.
+
+At acquisition, a changed barrier revision requires a new WriterAuthorization + receipt even when the new revision is RELEASED. At the irreversible-effect boundary, the receipt TTL is not stretched; instead the exact lease must still be active and a fresh complete barrier snapshot must be clear and have the same relevant revision hash as the original authorization.
+
+Pure read-only archaeology that performs no mutation does not need WriterAuthorization and therefore is not blocked by a write barrier unless a separate policy explicitly says otherwise.
 
 ## Receipt boundary
 
