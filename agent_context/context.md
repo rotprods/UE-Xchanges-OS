@@ -1,73 +1,41 @@
 # UE-Xchanges-OS — Agent Context Snapshot
 
-Seal: `2026-09-10T14:46:00+02:00`
-Context: `CTX-UEX-GLOBAL-EXPANSION-INCOME-V1`
-Baseline main: `349f63f2109e40ab6cba960c7311456a5d7ae906`
-Observed EventBus lower-bound watermark: `EVT-20260910T132147-CPR14-008`
-
-> DERIVED RECOVERY PROJECTION. Fresh official/provider evidence, private Drive canonical state, current GitHub main/contracts and current unexpired leases override this file.
+Seal: `2026-09-21T21:59:00+02:00`  
+Baseline main: `c0c31fed602a1ad774a7c6416a4abd7e09d26dde`  
+Authority: derived recovery only.
 
 ## Mission
 
-Operate `APPLY EVERYTHING VIABLE` as an evidence-first global mobility / paid-role / trainer pipeline. The goal is receipt-backed outcomes, not activity metrics or infrastructure for its own sake.
+`APPLY EVERYTHING VIABLE` through truthful authorised routes, prioritising real applications/receipts/selections/attendance over infrastructure volume.
 
-## Current system situation
+## Current situation
 
-The active engineering problem is RG2.2 scheduled-production reliability.
+The live application portfolio changed materially on 20–21 Sep and was reconciled in private CRM. Provider-requested forms/actions are the highest-value frontier. RuntimeGraph remains globally stale versus current EventBus/provider evidence.
 
-Current evidence:
+Global barrier enforcement issue #96 is promoted on baseline main via PR #99 and bootstrap 1.3. Fresh agents still must resolve barrier state themselves before WriterAuthorization.
 
-- PR67 hardened WriterAuthorization receipts/integrity.
-- PR68 made stale `ACTIVE_READ_ONLY` sessions observable without granting writer authority.
-- CPR12 reconciled the orphaned lease class that broke live fencing semantics.
-- PR69 added bounded normal-writer health over the exact current session and actually-unexpired lease set.
-- Tiny native Scheduled Tasks probe completed successfully.
-- Control-plane canary V3 completed a receipt/lease/release lifecycle.
-- No full production-path canary PASS is proven.
-- `UEX Runtime Dispatcher` remains disabled.
+## Current execution graph
 
-## Terminal canary debt already reconciled
+`plans/2026-09-21-portfolio-convergence-master.md`
 
-- `SES-UEX-AUTO-20260910T010530-RG22-PCV3-001` → FAILED via CPR13.
-- `SES-UEX-AUTO-20260910T113308-RG22-SCA-001` → FAILED via CPR13 after unconsumed staged-bootstrap handoff expiry.
-- `SES-UEX-AUTO-20260910T115630-RG22-PCV4-001` → FAILED via CPR14; no own lease/source/RuntimeGraph/provider mutation.
+Use its Goal Graph, work-unit DAG, checker/judge/validator contracts and convergence exit criteria after reconciling live authority.
 
-Never reuse these Session IDs.
+## Laws
 
-## Current uncertainty
-
-This seal intentionally did not refresh the full opportunity/application domain, Human Frontier, source cursors, Dead Letters or Gmail/official sources. Historical counts from 2026-09-02 must not be treated as current.
-
-A successor must read Drive and RuntimeGraph before making any domain/frontier claim.
-
-## Current authority topology
-
-```text
-Official/provider/receipt evidence
-            ↓
-Private Drive canonical CRM + Agent_Event_Bus
-            ↓
-CGEV2 control/provenance layer
-       ↙                 ↘
-RuntimeGraph exact-ID      COS semantic/20D retrieval
-execution projection       navigation/topology only
-       ↘                 ↙
-Human / Agent / System frontier
-```
-
-COS similarity never authorises a state-changing route.
+- `INFOPACK-FIRST`
+- `INBOUND_ACTION_FIRST`
+- exact-ID evidence for mutation;
+- applicant-owned sensitive/profile/legal facts are never inferred;
+- form completion is not submission without receipt;
+- work-steal disjoint ready tasks when one P0 is human-blocked.
 
 ## Canonical resources
 
-- Private CRM: `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`
-- RuntimeGraph V2 Command Center: `1OtSLFI4VHW6aSne1YjtRykRsN4j4G4OcEGSCXVDLwbM`
+- Private CRM/EventBus: `1uhxH3r27B_l5XqF2QGgX1Q__kxRVhO2Jyn7qS_GSTSU`
+- RuntimeGraph: `1OtSLFI4VHW6aSne1YjtRykRsN4j4G4OcEGSCXVDLwbM` (currently stale)
 - GitHub: `rotprods/UE-Xchanges-OS`
-- Current runbook: `RUNBOOKS/RG22_SCHEDULED_CANARY.md`
-- Current checkpoint: `checkpoints/2026-09-10-cgev2-cos-runtimegraph-context-seal.md`
-- Continuation directive: `agent_context/NEXT.md`
+- Checkpoint: `checkpoints/2026-09-21-portfolio-convergence-seal.md`
 
 ## Immediate target
 
-`SCHEDULER_PRODUCTION_CANARY_PASS #1` on current main, using bounded writer health and one source micro-batch.
-
-Then a second independent clean canary. Only then may recurring RG2.2 be considered for re-enable.
+Compute from current provider/CRM evidence. Do not execute any scheduler/canary milestone merely because an older recovery document once named it.
