@@ -45,6 +45,22 @@ Use the lowest-friction **authorised** application route:
 
 `EMAIL_CANDIDATURE_SENT` and `FORM_SUBMITTED` are different facts.
 
+## 3A. Source-first preflight and inbound-action law
+
+Before organiser outreach about project facts, resolve evidence in this order:
+
+`ORIGINAL_INFOPACK → CURRENT_CALL → CURRENT_FORM → OFFICIAL_ORGANISER_OR_PARTNER_SOURCE → EXISTING_THREAD → UNRESOLVED_MATERIAL_BLOCKER`
+
+Questions about dates, funding, accommodation, meals, travel ceilings, participant profile, programme, route or logistics that are already answered by that chain are `REDUNDANT_SOURCE_RESOLVABLE` and must not be sent.
+
+When a provider sends a concrete requested action, classify the inbound first:
+
+`ACTION_REQUEST | OUTCOME | INFORMATION | TERMINAL`
+
+For `ACTION_REQUEST`, execute the authorised requested action before a courtesy reply when it is safe and currently possible. Examples include filling a specified form, selecting a discussion slot, uploading a requested document or confirming availability. Reply only when the reply itself is necessary, the action is blocked by a material unresolved fact, or the provider explicitly requests a response.
+
+Do not ask about AI/tool use by default when no published rule requires clarification. Preserve applicant-owned final wording under `AI_UNKNOWN` or stricter route policy instead.
+
 ## 4. External communication standard
 
 Outbound communication must be concise, project-specific, professional and natural.
