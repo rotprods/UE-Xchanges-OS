@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #05050A;
+    --foreground: #FFFFFF;
+    --primary: #00F0FF;
+    --secondary: #8B00FF;
+    --accent: #FF5500;
+
+    /* Design system custom properties */
+    --color-cyan: #00F0FF;
+    --color-purple: #8B00FF;
+    --color-orange: #FF5500;
+    --color-red: #FF0055;
+    --color-green: #00FF66;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-inter), sans-serif;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #05050A;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #00F0FF40;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 240, 255, 0.5);
+  }
+}
+
+@layer utilities {
+  .font-orbitron {
+    font-family: var(--font-orbitron), sans-serif;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono), monospace;
+  }
+
+  .glass-panel {
+    background: rgba(10, 10, 20, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 240, 255, 0.1);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.05);
+  }
+
+  .glass-panel-accent {
+    background: rgba(20, 10, 10, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 85, 0, 0.25);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+  }
+
+  .text-glow-accent {
+    text-shadow: 0 0 8px rgba(255, 85, 0, 0.6);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+  }
+
+  .scanlines {
+    background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%, 
+      rgba(0, 0, 0, 0.25) 50%
+    );
+    background-size: 100% 4px;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 400px;
+  }
+
+  /* Glow text utilities */
+  .glow-cyan {
+    text-shadow: 0 0 10px #00F0FF, 0 0 20px #00F0FF;
+  }
+
+  .glow-purple {
+    text-shadow: 0 0 10px #8B00FF, 0 0 20px #8B00FF;
+  }
+
+  .glow-orange {
+    text-shadow: 0 0 10px #FF5500, 0 0 20px #FF5500;
+  }
+}
+
+/* ── Keyframe Animations ─────────────────────────────────────────────────── */
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes neon-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
